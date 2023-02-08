@@ -20,14 +20,27 @@ const PlayerView = () => {
   };
 
   return (
-    <div>
-      <Box height="100vh" width="100%" display="grid" flexDirection="column">
-        <Grid
-          container direction='column' alignItems='center' justify='center'>
-          <img height="100%" src={imageSource} />
-        </Grid>
-      </Box>
-    </div>
+    <Grid container spacing={0}>
+      {/* <Grid item xs={2} p={1}>
+          <p>Initiative tracker</p>
+      </Grid> */}
+      <Grid
+        item xs={12}
+        container
+        direction='column'
+        height='100vh'
+        width='100vw'>
+        <Box
+          component="img"
+          src={imageSource}
+          margin="auto"
+          sx={{
+            maxHeight: '99%',
+            maxWidth: '99%',
+          }}
+        />
+      </Grid>
+    </Grid>
   );
 };
 

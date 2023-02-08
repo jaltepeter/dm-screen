@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useMediaQuery } from '@mui/material';
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -12,12 +13,17 @@ import PanoramaIcon from '@mui/icons-material/Panorama';
 import SendIcon from '@mui/icons-material/Send';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import ImageList  from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem'
 
 const DmScreen = () => {
 
   const [message, setMessage] = useState('');
-
-  const [updated, setUpdated] = useState(message);
+  const [images, setImages] = useState(() => {
+    const saved = localStorage.getItem('images');
+    const initialValue = JSON.parse(saved);
+    return initialValue || [];
+  });
 
   const authChannel = new BroadcastChannel('auth');
 
@@ -25,18 +31,31 @@ const DmScreen = () => {
     document.title = "DM Screen";
   }, []);
 
+  useEffect(() => {
+    console.debug('saving images');
+    localStorage.setItem('images', JSON.stringify(images));
+  }, [images]);
+
   const handleChange = (event) => {
     setMessage(event.target.value);
   };
 
+  const handleImageClick = (item) => {
+    authChannel.postMessage({ cmd: 'image', payload: item });
+  }
+
   const handleBroadcastImage = () => {
+    if (!images.includes(message)) {
+      setImages([...images, message]);
+    }
     authChannel.postMessage({ cmd: 'image', payload: message });
-    setUpdated(message);
   };
 
   const handleOpenPlayerView = () => {
-    window.open('/players', '_blank');
+    window.open('/dm-screen/players', '_blank');
   };
+
+  const matches = useMediaQuery('(min-width:600px)');
 
   return (
     <div>
@@ -69,6 +88,21 @@ const DmScreen = () => {
             }
           />
         </FormControl>
+      </Box>
+      <Box sx={{ width: '100%', height: 450, overflowY: 'scroll' }}>
+      <ImageList variant="masonry" cols={5} gap={8}>
+        {images.map((item) => (
+          <ImageListItem key={item}
+          >
+            <img
+              src={`${item}?w=248&fit=crop&auto=format`}
+              srcSet={`${item}?w=248&fit=crop&auto=format&dpr=2 2x`}
+              loading="lazy"   
+              onClick={() => handleImageClick(item)}           
+            />
+          </ImageListItem>
+        ))}
+      </ImageList>
       </Box>
     </div>
   );

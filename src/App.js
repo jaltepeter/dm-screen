@@ -19,10 +19,10 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Router>
+      <Router basename='/dm-screen'>
         <Routes>
           <Route exact path='/' element={<DmScreen />} />
-          <Route path='/players' element={<PlayerView />} />
+          <Route exact path='/?/players' element={<PlayerView />} />
         </Routes>
       </Router>
     </ThemeProvider>
