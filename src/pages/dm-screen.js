@@ -68,6 +68,20 @@ const DmScreen = () => {
     sendImage(item);
   };
 
+  const handleDelete = (item) => {
+    deleteImage(item);
+  }
+
+  const deleteImage = (image) => {
+    console.log(images);
+    const index = images.indexOf(image);
+    if (index > -1) {
+      images.splice(index, 1);
+    }
+    console.log(images);
+    setImages([...images]);
+  }
+
   const sendImage = (url) => {
     authChannel.postMessage({ cmd: 'image', payload: url });
   };
@@ -106,7 +120,7 @@ const DmScreen = () => {
           />
         </FormControl>
       </Box>
-      <ImageGrid images={images} onSend={handleEvent} />
+      <ImageGrid images={images} onSend={handleEvent} onDelete={handleDelete} />
 
     </div>
   );
