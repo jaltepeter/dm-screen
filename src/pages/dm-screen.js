@@ -1,34 +1,31 @@
+import { Accordion, useMediaQuery } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
+import FolderList from '../components/folder-list';
 import FormControl from '@mui/material/FormControl';
-import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import ImageGrid from '../components/imageGrid';
-import ImageList from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem'
-import ImageListItemBar from '@mui/material/ImageListItemBar';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
-import ListSubheader from '@mui/material/ListSubheader'
 import OutlinedInput from '@mui/material/OutlinedInput';
 import PanoramaIcon from '@mui/icons-material/Panorama';
-import Paper from '@mui/material/Paper';
+import PrintIcon from '@mui/icons-material/Print';
+import SaveIcon from '@mui/icons-material/Save';
 import SendIcon from '@mui/icons-material/Send';
+import ShareIcon from '@mui/icons-material/Share';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { styled } from '@mui/material/styles';
-import { useMediaQuery } from '@mui/material';
 
 const DmScreen = () => {
 
   const [message, setMessage] = useState('');
-  const [images, setImages] = useState(() => {
+  const [data, setData] = useState(() => {
     const saved = localStorage.getItem('images');
     const initialValue = JSON.parse(saved);
-    return initialValue || [];
+    return initialValue || [{ folderName: 'Goblins', images: ["https://legendary-digital-network-assets.s3.amazonaws.com/geekandsundry/wp-content/uploads/2016/11/goblin-step1.png"] }];
   });
 
   const authChannel = new BroadcastChannel('auth');
@@ -39,20 +36,27 @@ const DmScreen = () => {
 
   useEffect(() => {
     console.debug('saving images');
-    localStorage.setItem('images', JSON.stringify(images));
-  }, [images]);
+    localStorage.setItem('images', JSON.stringify(data));
+  }, [data]);
 
   const handleChange = (event) => {
     setMessage(event.target.value);
   };
 
-  const handleImageClick = (item) => {
-    authChannel.postMessage({ cmd: 'image', payload: item });
-  }
+  const handleAddPhoto = ({ folderName, url }) => {
+    console.log(`Adding photo ${url} to ${folderName}`);
+    setData(
+      data.map((folder) =>
+        folder.folderName === folderName
+          ? { ...folder, images: [...folder.images, url] }
+          : { ...folder }
+      )
+    );
+  };
 
   const handleBroadcastImage = () => {
-    if (!images.includes(message)) {
-      setImages([...images, message]);
+    if (!data.includes(message)) {
+      setData([...data, message]);
     }
     sendImage(message);
     setMessage('');
@@ -72,21 +76,21 @@ const DmScreen = () => {
     deleteImage(item);
   }
 
-  const deleteImage = (image) => {
-    console.log(images);
-    const index = images.indexOf(image);
-    if (index > -1) {
-      images.splice(index, 1);
-    }
-    console.log(images);
-    setImages([...images]);
+  const deleteImage = ({ folderName, url }) => {
+    console.log(data);
+
+    setData(
+      data.map((folder) =>
+        folder.folderName === folderName
+          ? { ...folder, images: folder.images.filter(e => e !== url) }
+          : { ...folder }
+      )
+    );
   }
 
   const sendImage = (url) => {
     authChannel.postMessage({ cmd: 'image', payload: url });
   };
-
-
 
   return (
     <div>
@@ -120,7 +124,9 @@ const DmScreen = () => {
           />
         </FormControl>
       </Box>
-      <ImageGrid images={images} onSend={handleEvent} onDelete={handleDelete} />
+      <Box m={2}>
+        <FolderList images={data} onSendImage={handleEvent} onAddPhoto={handleAddPhoto} onDeleteImage={deleteImage} />
+      </Box>
 
     </div>
   );

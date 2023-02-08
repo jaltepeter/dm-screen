@@ -6,7 +6,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { alpha } from '@mui/material'
 import { styled } from '@mui/material/styles';
 
-export default function ImageGrid({ images, onSend, onDelete }) {
+export default function ImageGrid({ folderName, images, onSendImage, onDeleteImage }) {
 
   const gridContainerStyle = {
     display: "grid",
@@ -61,7 +61,7 @@ export default function ImageGrid({ images, onSend, onDelete }) {
                 sx={{
                   opacity: 1
                 }}
-                onClick={() => onDelete(item)}>
+                onClick={() => onDeleteImage({ folderName, url: item })}>
                 <DeleteForeverIcon />
               </IconButton>
               <IconButton
@@ -71,7 +71,7 @@ export default function ImageGrid({ images, onSend, onDelete }) {
                 sx={{
                   opacity: 1
                 }}
-                onClick={() => onSend(item)}>
+                onClick={() => onSendImage(item)}>
                 <SendIcon />
               </IconButton>
             </Box>
