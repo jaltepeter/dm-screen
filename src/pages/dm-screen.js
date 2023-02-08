@@ -1,20 +1,26 @@
 import { useEffect, useState } from 'react';
-import { useMediaQuery } from '@mui/material';
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
+import ImageGrid from '../components/imageGrid';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem'
+import ImageListItemBar from '@mui/material/ImageListItemBar';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
+import ListSubheader from '@mui/material/ListSubheader'
 import OutlinedInput from '@mui/material/OutlinedInput';
 import PanoramaIcon from '@mui/icons-material/Panorama';
+import Paper from '@mui/material/Paper';
 import SendIcon from '@mui/icons-material/Send';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import ImageList  from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem'
+import { styled } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 
 const DmScreen = () => {
 
@@ -48,7 +54,8 @@ const DmScreen = () => {
     if (!images.includes(message)) {
       setImages([...images, message]);
     }
-    authChannel.postMessage({ cmd: 'image', payload: message });
+    sendImage(message);
+    setMessage('');
   };
 
   const handleOpenPlayerView = () => {
@@ -56,6 +63,16 @@ const DmScreen = () => {
   };
 
   const matches = useMediaQuery('(min-width:600px)');
+
+  const handleEvent = (item) => {
+    sendImage(item);
+  };
+
+  const sendImage = (url) => {
+    authChannel.postMessage({ cmd: 'image', payload: url });
+  };
+
+
 
   return (
     <div>
@@ -89,21 +106,8 @@ const DmScreen = () => {
           />
         </FormControl>
       </Box>
-      <Box sx={{ width: '100%', height: 450, overflowY: 'scroll' }}>
-      <ImageList variant="masonry" cols={5} gap={8}>
-        {images.map((item) => (
-          <ImageListItem key={item}
-          >
-            <img
-              src={`${item}?w=248&fit=crop&auto=format`}
-              srcSet={`${item}?w=248&fit=crop&auto=format&dpr=2 2x`}
-              loading="lazy"   
-              onClick={() => handleImageClick(item)}           
-            />
-          </ImageListItem>
-        ))}
-      </ImageList>
-      </Box>
+      <ImageGrid images={images} onSend={handleEvent} />
+
     </div>
   );
 };
