@@ -9,13 +9,13 @@ import { styled } from '@mui/material/styles';
 export default function ImageGrid({ folderName, images, onSendImage, onDeleteImage }) {
 
   const gridContainerStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(5, 1fr)",
+    display: 'grid',
+    gridTemplateColumns: 'repeat(5, 1fr)',
     position: 'relative'
   };
 
   const gridItemStyle = {
-    margin: "auto",    
+    margin: 'auto',    
   };
 
   const imageStyle = {
@@ -33,14 +33,20 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
     margin: theme.spacing(2),
     textAlign: 'center',
     color: theme.palette.text.secondary,
+    position: 'relative'
   }));
 
   return (
     <Box sx={gridContainerStyle} >
       {images.map((item) => (
-        <Item position='relative' key={item}>
-          <Box sx={gridItemStyle} position='relative' height='100%'>
-            <Box component='img' src={item}
+        <Item key={item}>
+          <Box
+            sx={gridItemStyle}
+            position='relative'
+            height='100%'>
+            <Box
+              component='img'
+              src={item}
               width='100%'
               sx={{
                 maxHeight: '250px',
@@ -50,14 +56,14 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
               }}
             />
             <Box
-              position="absolute"
-              bottom="0px"
+              position='absolute'
+              bottom='0px'
               width='100%'
               sx={overlayStyle}>
               <IconButton
-                color="primary"
-                aria-label="upload picture"
-                component="label"
+                color='primary'
+                aria-label='upload picture'
+                component='label'
                 sx={{
                   opacity: 1
                 }}
@@ -65,9 +71,9 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
                 <DeleteForeverIcon />
               </IconButton>
               <IconButton
-                color="primary"
-                aria-label="upload picture"
-                component="label"
+                color='primary'
+                aria-label='upload picture'
+                component='label'
                 sx={{
                   opacity: 1
                 }}
@@ -78,7 +84,6 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
           </Box>
         </Item>
       ))}
-
     </Box>
   );
 }

@@ -10,7 +10,7 @@ const PlayerView = () => {
   const [imageSource, setImageSource] = useState('');
 
   useEffect(() => {
-    document.title = "Player View";
+    document.title = 'Player View';
   }, []);
 
   authChannel.onmessage = (e) => {
@@ -31,9 +31,9 @@ const PlayerView = () => {
         height='100vh'
         width='100vw'>
         <Box
-          component="img"
+          component='img'
           src={imageSource}
-          margin="auto"
+          margin='auto'
           sx={{
             maxHeight: '99%',
             maxWidth: '99%',

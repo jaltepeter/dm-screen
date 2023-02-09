@@ -1,7 +1,7 @@
-import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import Box from "@mui/material/Box";
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -9,8 +9,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import Fab from "@mui/material/Fab";
-import ImageGrid from "./imageGrid";
+import Fab from '@mui/material/Fab';
+import ImageGrid from './imageGrid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useState } from 'react';
@@ -42,29 +42,37 @@ export default function FolderList({ images: folders, onSendImage, onDeleteImage
     handleCancelDialog();
   };
 
-  const handleChange = (panel) => (event, isExpanded) => {
+  const handleChange = (panel) => (_, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
 
   return (
     <div>
       {folders.map((folder) => (
-        <Accordion key={folder.folderName} expanded={expanded === folder.folderName} onChange={handleChange(folder.folderName)}>
+        <Accordion
+          key={folder.folderName}
+          expanded={expanded === folder.folderName}
+          onChange={handleChange(folder.folderName)}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
+            aria-controls='panel1a-content'
+            id='panel1a-header'>
             <Typography>{folder.folderName}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <ImageGrid folderName={folder.folderName} images={folder.images} onSendImage={onSendImage} onDeleteImage={onDeleteImage} />
+            <ImageGrid
+              folderName={folder.folderName}
+              images={folder.images}
+              onSendImage={onSendImage}
+              onDeleteImage={onDeleteImage} />
             <Box sx={{
               width: '100%',
               display: 'flex',
               flexDirection: 'row-reverse'
             }}>
-              <Fab color="primary" aria-label="add"
+              <Fab
+                color='primary'
+                aria-label='add'
                 onClick={() => handleClickOpen(folder.folderName)}>
                 <AddPhotoAlternateIcon />
               </Fab>
@@ -72,7 +80,9 @@ export default function FolderList({ images: folders, onSendImage, onDeleteImage
           </AccordionDetails>
         </Accordion>
       ))}
-      <Dialog open={open} onClose={handleCancelDialog}>
+      <Dialog
+        open={open}
+        onClose={handleCancelDialog}>
         <DialogTitle>Add an image</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -80,11 +90,11 @@ export default function FolderList({ images: folders, onSendImage, onDeleteImage
           </DialogContentText>
           <TextField
             autoFocus
-            margin="dense"
-            id="url"
-            label="Image URL"
+            margin='dense'
+            id='url'
+            label='Image URL'
             fullWidth
-            variant="standard"
+            variant='standard'
             value={url}
             onChange={handleUrlChange}
           />
