@@ -2,12 +2,19 @@ import Box from '@mui/material/Box';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import PropTypes from 'prop-types';
 import SendIcon from '@mui/icons-material/Send';
-import { alpha } from '@mui/material'
+import { alpha } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-export default function ImageGrid({ folderName, images, onSendImage, onDeleteImage }) {
+ImageGrid.propTypes = {
+  folderName: PropTypes.string,
+  images: PropTypes.array,
+  onSendImage: PropTypes.func,
+  onDeleteImage: PropTypes.func
+};
 
+export default function ImageGrid({ folderName, images, onSendImage, onDeleteImage }) {
   const gridContainerStyle = {
     display: 'grid',
     gridTemplateColumns: 'repeat(5, 1fr)',
@@ -15,12 +22,10 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
   };
 
   const gridItemStyle = {
-    margin: 'auto',    
+    margin: 'auto'
   };
 
-  const imageStyle = {
-
-  };
+  // const imageStyle = {};
 
   const overlayStyle = {
     background: alpha('#1A2027', 0.6)
@@ -37,13 +42,10 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
   }));
 
   return (
-    <Box sx={gridContainerStyle} >
+    <Box sx={gridContainerStyle}>
       {images.map((item) => (
         <Item key={item}>
-          <Box
-            sx={gridItemStyle}
-            position='relative'
-            height='100%'>
+          <Box sx={gridItemStyle} position='relative' height='100%'>
             <Box
               component='img'
               src={item}
@@ -55,11 +57,7 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
                 margin: 'auto'
               }}
             />
-            <Box
-              position='absolute'
-              bottom='0px'
-              width='100%'
-              sx={overlayStyle}>
+            <Box position='absolute' bottom='0px' width='100%' sx={overlayStyle}>
               <IconButton
                 color='primary'
                 aria-label='upload picture'

@@ -4,11 +4,15 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import PropTypes from 'prop-types';
 import SendIcon from '@mui/icons-material/Send';
 import { useState } from 'react';
 
-export default function ImageSender({ onSendImage }) {
+ImageSender.propTypes = {
+  onSendImage: PropTypes.func
+};
 
+export default function ImageSender({ onSendImage }) {
   const [imageUrl, setImageUrl] = useState('');
 
   const handleChange = (event) => {
@@ -25,7 +29,7 @@ export default function ImageSender({ onSendImage }) {
   const boxStyle = {
     width: '100%',
     p: 1
-  }
+  };
 
   return (
     <Box sx={boxStyle}>
@@ -39,10 +43,7 @@ export default function ImageSender({ onSendImage }) {
           onChange={handleChange}
           endAdornment={
             <InputAdornment position='end'>
-              <IconButton
-                aria-label='send to player view'
-                onClick={handleSendImage}
-                edge='end'>
+              <IconButton aria-label='send to player view' onClick={handleSendImage} edge='end'>
                 <SendIcon />
               </IconButton>
             </InputAdornment>

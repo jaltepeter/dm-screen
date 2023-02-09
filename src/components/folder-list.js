@@ -8,15 +8,22 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Fab from '@mui/material/Fab';
 import ImageGrid from './imageGrid';
+import { PropTypes } from 'prop-types';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 
-export default function FolderList({ images: folders, onSendImage, onDeleteImage, onAddPhoto }) {
+FolderList.propTypes = {
+  folders: PropTypes.array,
+  onSendImage: PropTypes.func,
+  onDeleteImage: PropTypes.func,
+  onAddPhoto: PropTypes.func
+};
 
+export default function FolderList({ folders, onSendImage, onDeleteImage, onAddPhoto }) {
   const [folderName, setFolderName] = useState('');
   const [url, setUrl] = useState('');
   const [expanded, setExpanded] = useState(folders[0].folderName);
@@ -35,7 +42,7 @@ export default function FolderList({ images: folders, onSendImage, onDeleteImage
 
   const handleUrlChange = (event) => {
     setUrl(event.target.value);
-  }
+  };
 
   const handleSaveImage = () => {
     onAddPhoto({ folderName, url });
@@ -64,12 +71,14 @@ export default function FolderList({ images: folders, onSendImage, onDeleteImage
               folderName={folder.folderName}
               images={folder.images}
               onSendImage={onSendImage}
-              onDeleteImage={onDeleteImage} />
-            <Box sx={{
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'row-reverse'
-            }}>
+              onDeleteImage={onDeleteImage}
+            />
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'row-reverse'
+              }}>
               <Fab
                 color='primary'
                 aria-label='add'
@@ -80,13 +89,11 @@ export default function FolderList({ images: folders, onSendImage, onDeleteImage
           </AccordionDetails>
         </Accordion>
       ))}
-      <Dialog
-        open={open}
-        onClose={handleCancelDialog}>
+      <Dialog open={open} onClose={handleCancelDialog}>
         <DialogTitle>Add an image</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Paste an image URL here to save it to the '{folderName}' folder.
+            Paste an image URL here to save it to the &quot;{folderName}&quot; folder.
           </DialogContentText>
           <TextField
             autoFocus
@@ -106,4 +113,4 @@ export default function FolderList({ images: folders, onSendImage, onDeleteImage
       </Dialog>
     </div>
   );
-};
+}

@@ -10,20 +10,24 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
 const DmScreen = () => {
-
   const pageTitle = 'Dm Screen';
 
-  const localStorageKey_ImageData = 'imageData'
+  const localStorageKey_ImageData = 'imageData';
 
   const broadcastChannel = new BroadcastChannel('auth');
 
   const [localStorageData, setData] = useState(() => {
     const initialData = JSON.parse(localStorage.getItem(localStorageKey_ImageData));
-    return initialData ||
-      [{
-        folderName: 'Goblins',
-        images: ['https://legendary-digital-network-assets.s3.amazonaws.com/geekandsundry/wp-content/uploads/2016/11/goblin-step1.png']
-      }];
+    return (
+      initialData || [
+        {
+          folderName: 'Goblins',
+          images: [
+            'https://legendary-digital-network-assets.s3.amazonaws.com/geekandsundry/wp-content/uploads/2016/11/goblin-step1.png'
+          ]
+        }
+      ]
+    );
   });
 
   useEffect(() => {
@@ -32,7 +36,7 @@ const DmScreen = () => {
 
   useEffect(() => {
     localStorage.setItem(localStorageKey_ImageData, JSON.stringify(localStorageData));
-  }, [localStorageData]); 
+  }, [localStorageData]);
 
   const handleAddPhoto = ({ folderName, url }) => {
     setData(
@@ -56,11 +60,11 @@ const DmScreen = () => {
     setData(
       localStorageData.map((folder) =>
         folder.folderName === folderName
-          ? { ...folder, images: folder.images.filter(e => e !== url) }
+          ? { ...folder, images: folder.images.filter((e) => e !== url) }
           : { ...folder }
       )
     );
-  }
+  };
 
   const sendImageToPlayerView = (url) => {
     broadcastChannel.postMessage({ cmd: 'image', payload: url });
@@ -71,18 +75,16 @@ const DmScreen = () => {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position='static'>
           <Toolbar>
-            <Typography
-              variant='h6'
-              component='div'
-              sx={{ flexGrow: 1 }}>
+            <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
               DM Screen
             </Typography>
             <Button
               color='inherit'
               variant='outlined'
               onClick={handleOpenPlayerView}
-              endIcon={<PanoramaIcon />}
-            >Open Player View</Button>
+              endIcon={<PanoramaIcon />}>
+              Open Player View
+            </Button>
           </Toolbar>
         </AppBar>
       </Box>
@@ -92,7 +94,8 @@ const DmScreen = () => {
           images={localStorageData}
           onSendImage={handleEvent}
           onAddPhoto={handleAddPhoto}
-          onDeleteImage={handleDelete} />
+          onDeleteImage={handleDelete}
+        />
       </Box>
     </div>
   );
