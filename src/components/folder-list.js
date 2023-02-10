@@ -45,7 +45,7 @@ export default function FolderList({ folders, onSendImage, onDeleteImage, onAddP
   };
 
   const handleSaveImage = () => {
-    onAddPhoto({ folderName, url });
+    onAddPhoto(folderName, url);
     handleCancelDialog();
   };
 
@@ -80,6 +80,7 @@ export default function FolderList({ folders, onSendImage, onDeleteImage, onAddP
                 flexDirection: 'row-reverse'
               }}>
               <Fab
+                size='small'
                 color='primary'
                 aria-label='add'
                 onClick={() => handleClickOpen(folder.folderName)}>
