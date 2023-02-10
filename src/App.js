@@ -1,13 +1,15 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import DmScreen from './pages/dm-screen.js';
-import PlayerView from './pages/player-view.js';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+import CssBaseline from '@mui/material/CssBaseline';
+import DmScreen from './pages/dm-screen.js';
+import PlayerView from './pages/player-view.js';
 
 const darkTheme = createTheme({
   palette: {

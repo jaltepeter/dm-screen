@@ -3,19 +3,23 @@ import { useEffect, useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
 import DefaultData from '../data/defaultData';
 import Drawer from '@mui/material/Drawer';
 import DrawerContents from '../components/drawerContents';
-import FolderList from '../components/folder-list';
+import FolderList from '../components/images/folder-list';
+import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import ImageSender from '../components/imageSender';
-import ManageCharactersDialog from '../components/manageCharactersDialog';
+import ImageSender from '../components/images/imageSender';
+import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
 import MenuIcon from '@mui/icons-material/Menu';
 import PanoramaIcon from '@mui/icons-material/Panorama';
-import PlayerDetails from '../components/playerDetails';
+import Paper from '@mui/material/Paper';
+import PlayerDetails from '../components/characters/playerDetails';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { downloadJsonFile } from '../files/fileManager';
+import { styled } from '@mui/material/styles';
 
 const DmScreen = () => {
   const pageTitle = 'Dm Screen';
@@ -126,6 +130,14 @@ const DmScreen = () => {
     setData({ ...localStorageData, characters: characters });
   };
 
+  const Section = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary
+  }));
+
   return (
     <div>
       <Drawer anchor='left' open={drawerOpen} onClose={toggleMenuDrawer(false)}>
@@ -135,7 +147,7 @@ const DmScreen = () => {
           onManageCharacters={handleManageCharacters}
         />
       </Drawer>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1 }} mb={2}>
         <AppBar position='static'>
           <Toolbar>
             <IconButton
@@ -161,17 +173,43 @@ const DmScreen = () => {
         </AppBar>
       </Box>
       <Box m={2}>
-        <PlayerDetails characters={localStorageData.characters} />
+        <Grid container spacing={2} alignItems='stretch'>
+          <Grid item xs={8}>
+            <Section>
+              <Typography variant='h4'>Characters</Typography>
+              <Box m={1}>
+                <PlayerDetails characters={localStorageData.characters} />
+              </Box>
+            </Section>
+          </Grid>
+          <Grid item xs={4}>
+            <Section sx={{ height: '100%' }}></Section>
+          </Grid>
+          <Grid item xs={8}>
+            <Section>
+              <Typography variant='h4'>Saved Images</Typography>
+              <Box m={1}>
+                <FolderList
+                  folders={localStorageData.images}
+                  onSendImage={handleEvent}
+                  onAddPhoto={handleAddImage}
+                  onDeleteImage={handleDeleteImage}
+                />
+              </Box>
+            </Section>
+          </Grid>
+          <Grid item xs={4}>
+            <Section sx={{ height: '100%' }}>
+              <ImageSender onSendImage={handleEvent} />
+            </Section>
+          </Grid>
+        </Grid>
       </Box>
-      <ImageSender onSendImage={handleEvent} />
+
       <Box m={2}>
-        <FolderList
-          folders={localStorageData.images}
-          onSendImage={handleEvent}
-          onAddPhoto={handleAddImage}
-          onDeleteImage={handleDeleteImage}
-        />
+        <Card m={2}></Card>
       </Box>
+
       <ManageCharactersDialog
         characters={localStorageData.characters}
         isOpen={manageCharDialogOpen}
