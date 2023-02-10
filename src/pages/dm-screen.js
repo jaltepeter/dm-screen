@@ -15,6 +15,7 @@ import PanoramaIcon from '@mui/icons-material/Panorama';
 import PlayerDetails from '../components/playerDetails';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { downloadJsonFile } from '../files/fileManager';
 
 const DmScreen = () => {
   const pageTitle = 'Dm Screen';
@@ -92,7 +93,7 @@ const DmScreen = () => {
   };
 
   const handleExportData = () => {
-    console.log('export');
+    downloadJsonFile(localStorageData, 'dm-screen-data.json');
   };
 
   const handleImportData = () => {

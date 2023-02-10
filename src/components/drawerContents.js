@@ -40,7 +40,7 @@ export default function DrawerContents({ onImport, onExport, onManageCharacters 
           </ListItemButton>
         </ListItem>
         <ListItem key='import' disablePadding>
-          <ListItemButton onClick={() => onImport()}>
+          <ListItemButton onClick={() => onImport()} disabled>
             <ListItemIcon>
               <DownloadIcon />
             </ListItemIcon>
