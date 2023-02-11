@@ -101,16 +101,16 @@ const DmScreen = () => {
 
     const imageFolders = images.map((folder) =>
       folder.folderName === folderName
-        ? { ...folder, images: [...folder.images, url] }
+        ? { ...folder, images: [...folder.images, { url: url }] }
         : { ...folder }
     );
     setImages(imageFolders);
   };
 
-  const handleDeleteImage = ({ folderName, url }) => {
+  const handleDeleteImage = ({ folderName, image }) => {
     const imageFolders = images.map((folder) =>
       folder.folderName === folderName
-        ? { ...folder, images: folder.images.filter((e) => e !== url) }
+        ? { ...folder, images: folder.images.filter((i) => i !== image) }
         : { ...folder }
     );
     setImages(imageFolders);

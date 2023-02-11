@@ -46,7 +46,7 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
   return (
     <Box sx={gridContainerStyle}>
       {images.map((image) => (
-        <Item key={image}>
+        <Item key={image.url}>
           <Box sx={gridItemStyle} position='relative' height='100%'>
             <Box
               component='img'
@@ -67,7 +67,7 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
                 sx={{
                   opacity: 1
                 }}
-                onClick={() => onDeleteImage({ folderName, url: image })}>
+                onClick={() => onDeleteImage({ folderName, image })}>
                 <DeleteForeverIcon />
               </IconButton>
               <IconButton
