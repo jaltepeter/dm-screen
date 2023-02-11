@@ -1,10 +1,16 @@
+import { DefaultCharacters, DefaultImages } from '../data/defaultData';
+import {
+  getLocalStorageCharacters,
+  getLocalStorageImages,
+  saveCharacters,
+  saveImages
+} from '../data/localStorageManager';
 import { useEffect, useState } from 'react';
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import DefaultData from '../data/defaultData';
 import Drawer from '@mui/material/Drawer';
 import DrawerContents from '../components/drawerContents';
 import FolderList from '../components/images/folder-list';
@@ -24,17 +30,18 @@ import { styled } from '@mui/material/styles';
 const DmScreen = () => {
   const pageTitle = 'Dm Screen';
 
-  const localStorageKey_ImageData = 'imageData';
-
   const broadcastChannel = new BroadcastChannel('auth');
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [manageCharDialogOpen, setManageCharDialogOpen] = useState(false);
 
-  const [localStorageData, setData] = useState(() => {
-    const initialData = JSON.parse(localStorage.getItem(localStorageKey_ImageData));
-    return initialData || DefaultData();
+  const [images, setImages] = useState(() => {
+    return getLocalStorageImages() || DefaultImages();
+  });
+
+  const [characters, setCharacters] = useState(() => {
+    return getLocalStorageCharacters() || DefaultCharacters();
   });
 
   useEffect(() => {
@@ -42,8 +49,12 @@ const DmScreen = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(localStorageKey_ImageData, JSON.stringify(localStorageData));
-  }, [localStorageData]);
+    saveImages(images);
+  }, [images]);
+
+  useEffect(() => {
+    saveCharacters(characters);
+  }, [characters]);
 
   /**
    * Opens the player view in a new window/tab
@@ -71,21 +82,21 @@ const DmScreen = () => {
   const handleAddImage = (folderName, url) => {
     if (!url) return;
 
-    const imageFolders = localStorageData.images.map((folder) =>
+    const imageFolders = images.map((folder) =>
       folder.folderName === folderName
         ? { ...folder, images: [...folder.images, url] }
         : { ...folder }
     );
-    setData({ ...localStorageData, images: imageFolders });
+    setImages(imageFolders);
   };
 
   const handleDeleteImage = ({ folderName, url }) => {
-    const imageFolders = localStorageData.images.map((folder) =>
+    const imageFolders = images.map((folder) =>
       folder.folderName === folderName
         ? { ...folder, images: folder.images.filter((e) => e !== url) }
         : { ...folder }
     );
-    setData({ ...localStorageData, images: imageFolders });
+    setImages(imageFolders);
   };
 
   const handleEvent = (item) => {
@@ -97,7 +108,7 @@ const DmScreen = () => {
   };
 
   const handleExportData = () => {
-    downloadJsonFile(localStorageData, 'dm-screen-data.json');
+    downloadJsonFile(images, 'dm-screen-data.json');
   };
 
   const handleImportData = () => {
@@ -111,23 +122,23 @@ const DmScreen = () => {
   };
 
   const handleEditCharacter = (character) => {
-    const updatedChars = localStorageData.characters.map((c) =>
+    const updatedChars = characters.map((c) =>
       c.id === character.id ? { ...c, ...character } : c
     );
-    setData({ ...localStorageData, characters: updatedChars });
+    setCharacters(updatedChars);
 
     return true;
   };
 
   const handleAddCharacter = () => {
-    const maxId = Math.max(...localStorageData.characters.map((c) => c.id)) + 1;
+    const maxId = Math.max(characters.map((c) => c.id)) + 1;
     const newChar = { name: 'New Character', id: maxId };
-    setData({ ...localStorageData, characters: [...localStorageData.characters, newChar] });
+    setCharacters([...characters, newChar]);
   };
 
   const handleDeleteCharacter = (id) => {
-    const characters = localStorageData.characters.filter((c) => c.id !== id);
-    setData({ ...localStorageData, characters: characters });
+    const newCharacters = characters.filter((c) => c.id !== id);
+    setCharacters(newCharacters);
   };
 
   const Section = styled(Paper)(({ theme }) => ({
@@ -135,7 +146,8 @@ const DmScreen = () => {
     ...theme.typography.body2,
     padding: theme.spacing(1),
     textAlign: 'center',
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
+    height: '100%'
   }));
 
   return (
@@ -178,19 +190,19 @@ const DmScreen = () => {
             <Section>
               <Typography variant='h4'>Characters</Typography>
               <Box m={1}>
-                <PlayerDetails characters={localStorageData.characters} />
+                <PlayerDetails characters={characters} />
               </Box>
             </Section>
           </Grid>
           <Grid item xs={4}>
-            <Section sx={{ height: '100%' }}></Section>
+            <Section></Section>
           </Grid>
           <Grid item xs={8}>
             <Section>
               <Typography variant='h4'>Saved Images</Typography>
               <Box m={1}>
                 <FolderList
-                  folders={localStorageData.images}
+                  folders={images}
                   onSendImage={handleEvent}
                   onAddPhoto={handleAddImage}
                   onDeleteImage={handleDeleteImage}
@@ -199,7 +211,7 @@ const DmScreen = () => {
             </Section>
           </Grid>
           <Grid item xs={4}>
-            <Section sx={{ height: '100%' }}>
+            <Section>
               <ImageSender onSendImage={handleEvent} />
             </Section>
           </Grid>
@@ -211,7 +223,7 @@ const DmScreen = () => {
       </Box>
 
       <ManageCharactersDialog
-        characters={localStorageData.characters}
+        characters={characters}
         isOpen={manageCharDialogOpen}
         handleClose={() => setManageCharDialogOpen(false)}
         onAddCharacter={handleAddCharacter}

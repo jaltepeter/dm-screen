@@ -26,7 +26,7 @@ const PlayerView = () => {
       <Grid item xs={12} container direction='column' height='100vh' width='100vw'>
         <Box
           component='img'
-          src={imageSource}
+          src={imageSource.url}
           margin='auto'
           sx={{
             maxHeight: '99%',

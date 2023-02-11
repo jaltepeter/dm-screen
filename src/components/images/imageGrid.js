@@ -14,10 +14,12 @@ ImageGrid.propTypes = {
   onDeleteImage: PropTypes.func
 };
 
+const Columns = 4;
+
 export default function ImageGrid({ folderName, images, onSendImage, onDeleteImage }) {
   const gridContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(5, 1fr)',
+    gridTemplateColumns: `repeat(${Columns}, 1fr)`,
     position: 'relative'
   };
 
@@ -43,12 +45,12 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
 
   return (
     <Box sx={gridContainerStyle}>
-      {images.map((item) => (
-        <Item key={item}>
+      {images.map((image) => (
+        <Item key={image}>
           <Box sx={gridItemStyle} position='relative' height='100%'>
             <Box
               component='img'
-              src={item}
+              src={image.url}
               width='100%'
               sx={{
                 maxHeight: '250px',
@@ -65,7 +67,7 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
                 sx={{
                   opacity: 1
                 }}
-                onClick={() => onDeleteImage({ folderName, url: item })}>
+                onClick={() => onDeleteImage({ folderName, url: image })}>
                 <DeleteForeverIcon />
               </IconButton>
               <IconButton
@@ -75,7 +77,7 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
                 sx={{
                   opacity: 1
                 }}
-                onClick={() => onSendImage(item)}>
+                onClick={() => onSendImage(image)}>
                 <SendIcon />
               </IconButton>
             </Box>
