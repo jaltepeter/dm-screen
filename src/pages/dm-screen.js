@@ -7,22 +7,17 @@ import {
 } from '../data/localStorageManager';
 import { useEffect, useState } from 'react';
 
-import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Drawer from '@mui/material/Drawer';
 import DrawerContents from '../components/drawerContents';
 import FolderList from '../components/images/folder-list';
 import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
 import ImageSender from '../components/images/imageSender';
 import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
-import MenuIcon from '@mui/icons-material/Menu';
-import PanoramaIcon from '@mui/icons-material/Panorama';
+import NavBar from '../components/navBar';
 import Paper from '@mui/material/Paper';
 import PlayerDetails from '../components/characters/playerDetails';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { downloadJsonFile } from '../files/fileManager';
 import { styled } from '@mui/material/styles';
@@ -160,29 +155,7 @@ const DmScreen = () => {
         />
       </Drawer>
       <Box sx={{ flexGrow: 1 }} mb={2}>
-        <AppBar position='static'>
-          <Toolbar>
-            <IconButton
-              size='large'
-              edge='start'
-              color='inherit'
-              aria-label='menu'
-              sx={{ mr: 2 }}
-              onClick={toggleMenuDrawer(true)}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-              DM Screen
-            </Typography>
-            <Button
-              color='inherit'
-              variant='outlined'
-              onClick={handleOpenPlayerView}
-              endIcon={<PanoramaIcon />}>
-              Open Player View
-            </Button>
-          </Toolbar>
-        </AppBar>
+        <NavBar onToggleMenuDrawer={toggleMenuDrawer} onOpenPlayerView={handleOpenPlayerView} />
       </Box>
       <Box m={2}>
         <Grid container spacing={2} alignItems='stretch'>
