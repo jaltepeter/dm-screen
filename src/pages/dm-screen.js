@@ -74,6 +74,28 @@ const DmScreen = () => {
     setDrawerOpen(open);
   };
 
+  const handleEvent = (item) => {
+    sendImageToPlayerView(item);
+  };
+
+  const sendImageToPlayerView = (url) => {
+    broadcastChannel.postMessage({ cmd: 'image', payload: url });
+  };
+
+  const handleExportData = () => {
+    downloadJsonFile(images, 'dm-screen-data.json');
+  };
+
+  const handleImportData = () => {
+    console.log('import');
+  };
+
+  const handleToggleManageCharactersDialog = () => {
+    console.log('manage characters');
+    setManageCharDialogOpen(true);
+    setDrawerOpen(false);
+  };
+
   /**
    * Add a new image to the specified folder
    * @param {string} folderName - The name of the folder to add images to
@@ -99,26 +121,10 @@ const DmScreen = () => {
     setImages(imageFolders);
   };
 
-  const handleEvent = (item) => {
-    sendImageToPlayerView(item);
-  };
-
-  const sendImageToPlayerView = (url) => {
-    broadcastChannel.postMessage({ cmd: 'image', payload: url });
-  };
-
-  const handleExportData = () => {
-    downloadJsonFile(images, 'dm-screen-data.json');
-  };
-
-  const handleImportData = () => {
-    console.log('import');
-  };
-
-  const handleManageCharacters = () => {
-    console.log('manage characters');
-    setManageCharDialogOpen(true);
-    setDrawerOpen(false);
+  const handleAddCharacter = () => {
+    const maxId = Math.max(characters.map((c) => c.id)) + 1;
+    const newChar = { name: 'New Character', id: maxId };
+    setCharacters([...characters, newChar]);
   };
 
   const handleEditCharacter = (character) => {
@@ -128,12 +134,6 @@ const DmScreen = () => {
     setCharacters(updatedChars);
 
     return true;
-  };
-
-  const handleAddCharacter = () => {
-    const maxId = Math.max(characters.map((c) => c.id)) + 1;
-    const newChar = { name: 'New Character', id: maxId };
-    setCharacters([...characters, newChar]);
   };
 
   const handleDeleteCharacter = (id) => {
@@ -156,7 +156,7 @@ const DmScreen = () => {
         <DrawerContents
           onExport={handleExportData}
           onImport={handleImportData}
-          onManageCharacters={handleManageCharacters}
+          onManageCharacters={handleToggleManageCharactersDialog}
         />
       </Drawer>
       <Box sx={{ flexGrow: 1 }} mb={2}>

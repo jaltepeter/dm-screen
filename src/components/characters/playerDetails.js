@@ -1,5 +1,8 @@
 import * as React from 'react';
 
+import ContactPageIcon from '@mui/icons-material/ContactPage';
+import Link from '@mui/material/Link';
+import LinkIcon from '@mui/icons-material/Link';
 import Paper from '@mui/material/Paper';
 import PropTypes from 'prop-types';
 import PsychologyIcon from '@mui/icons-material/Psychology';
@@ -47,6 +50,11 @@ export default function PlayerDetails({ characters }) {
                 <SpeedIcon />
               </Tooltip>
             </TableCell>
+            <TableCell align='center'>
+              <Tooltip title='Character Sheet Link' arrow>
+                <ContactPageIcon />
+              </Tooltip>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -62,6 +70,15 @@ export default function PlayerDetails({ characters }) {
               <TableCell align='center'>{row.pp}</TableCell>
               <TableCell align='center'>{row.pi}</TableCell>
               <TableCell align='center'>{row.init}</TableCell>
+              <TableCell align='center'>
+                {row.sheetUrl ? (
+                  <Link href={row.sheetUrl} target='_blank'>
+                    <LinkIcon />
+                  </Link>
+                ) : (
+                  ''
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

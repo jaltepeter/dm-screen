@@ -53,6 +53,13 @@ export default function ManageCharactersDialog({
       ...allColumnProps
     },
     {
+      field: 'sheetUrl',
+      type: 'string',
+      headerName: 'url',
+      description: 'Character Sheet URL',
+      ...allColumnProps
+    },
+    {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
