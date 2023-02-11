@@ -83,7 +83,7 @@ const DmScreen = () => {
   };
 
   const handleExportData = () => {
-    downloadJsonFile(images, 'dm-screen-data.json');
+    downloadJsonFile({ characters: characters, images: images }, 'dm-screen-data.json');
   };
 
   const handleImportData = () => {
