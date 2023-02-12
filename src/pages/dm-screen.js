@@ -14,6 +14,7 @@ import DrawerContents from '../components/drawerContents';
 import FolderList from '../components/images/folder-list';
 import Grid from '@mui/material/Grid';
 import ImageSender from '../components/images/imageSender';
+import InitiativeTracker from '../components/initiative/initiativeTracker';
 import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
 import NavBar from '../components/navBar';
 import Paper from '@mui/material/Paper';
@@ -159,6 +160,11 @@ const DmScreen = () => {
       </Box>
       <Box m={2}>
         <Grid container spacing={2} alignItems='stretch'>
+          <Grid item md={12}>
+            <Section>
+              <InitiativeTracker />
+            </Section>
+          </Grid>
           <Grid item md={8} sm={12}>
             <Section>
               <Typography variant='h4'>Characters</Typography>
