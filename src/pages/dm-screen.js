@@ -159,7 +159,7 @@ const DmScreen = () => {
       </Box>
       <Box m={2}>
         <Grid container spacing={2} alignItems='stretch'>
-          <Grid item xs={8}>
+          <Grid item md={8} sm={12}>
             <Section>
               <Typography variant='h4'>Characters</Typography>
               <Box m={1}>
@@ -167,10 +167,10 @@ const DmScreen = () => {
               </Box>
             </Section>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item md={4} sm={12}>
             <Section></Section>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item md={8} sm={12}>
             <Section>
               <Typography variant='h4'>Saved Images</Typography>
               <Box m={1}>
@@ -183,7 +183,7 @@ const DmScreen = () => {
               </Box>
             </Section>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item md={4} sm={12}>
             <Section>
               <ImageSender onSendImage={handleEvent} />
             </Section>
