@@ -160,11 +160,6 @@ const DmScreen = () => {
       </Box>
       <Box m={2}>
         <Grid container spacing={2} alignItems='stretch'>
-          <Grid item md={12}>
-            <Section>
-              <InitiativeTracker />
-            </Section>
-          </Grid>
           <Grid item md={8} sm={12}>
             <Section>
               <Typography variant='h4'>Characters</Typography>
@@ -174,7 +169,9 @@ const DmScreen = () => {
             </Section>
           </Grid>
           <Grid item md={4} sm={12}>
-            <Section></Section>
+            <Section>
+              <InitiativeTracker characters={characters} />
+            </Section>
           </Grid>
           <Grid item md={8} sm={12}>
             <Section>
