@@ -23,6 +23,17 @@ export function DefaultCharacters() {
       pi: 10,
       init: 2,
       sheetUrl: 'https://dndbeyond.com'
+    },
+    {
+      id: 2,
+      name: 'Meepo',
+      charClass: 'Rogue',
+      background: 'Criminal',
+      ac: 14,
+      pp: 15,
+      pi: 13,
+      init: 3,
+      sheetUrl: 'https://dndbeyond.com'
     }
   ];
 }

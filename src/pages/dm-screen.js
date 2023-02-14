@@ -19,6 +19,7 @@ import ManageCharactersDialog from '../components/characters/manageCharactersDia
 import NavBar from '../components/navBar';
 import Paper from '@mui/material/Paper';
 import PlayerDetails from '../components/characters/playerDetails';
+import { Section } from '../components/section';
 import Typography from '@mui/material/Typography';
 import { downloadJsonFile } from '../files/fileManager';
 import { styled } from '@mui/material/styles';
@@ -26,7 +27,7 @@ import { styled } from '@mui/material/styles';
 const DmScreen = () => {
   const pageTitle = 'Dm Screen';
 
-  const broadcastChannel = new BroadcastChannel('auth');
+  const broadcastChannel = new BroadcastChannel('dm-screen');
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -118,7 +119,7 @@ const DmScreen = () => {
   };
 
   const handleAddCharacter = () => {
-    const maxId = Math.max(characters.map((c) => c.id)) + 1;
+    const maxId = characters.length > 0 ? Math.max(...characters.map((a) => a.id)) + 1 : 1;
     const newChar = { name: 'New Character', id: maxId };
     setCharacters([...characters, newChar]);
   };
@@ -136,15 +137,6 @@ const DmScreen = () => {
     const newCharacters = characters.filter((c) => c.id !== id);
     setCharacters(newCharacters);
   };
-
-  const Section = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    height: '100%'
-  }));
 
   return (
     <div>
@@ -170,7 +162,10 @@ const DmScreen = () => {
           </Grid>
           <Grid item md={4} sm={12}>
             <Section>
-              <InitiativeTracker characters={characters} />
+              <Typography variant='h4'>Initiative</Typography>
+              <Box m={1}>
+                <InitiativeTracker characters={characters} />
+              </Box>
             </Section>
           </Grid>
           <Grid item md={8} sm={12}>

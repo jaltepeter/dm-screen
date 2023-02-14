@@ -17,7 +17,7 @@ InitiativeSetupDialog.propTypes = {
   onStartInitiative: PropTypes.func
 };
 function newInitiative(characters) {
-  return characters.map((c) => ({ id: c.id, name: c.name, init: 0 }));
+  return characters.map((c) => ({ id: c.id, name: c.name, init: 0, visible: true, active: true }));
 }
 
 export default function InitiativeSetupDialog({
@@ -32,6 +32,7 @@ export default function InitiativeSetupDialog({
   const columns = [
     { field: 'init', headerName: 'Init', type: 'number', ...allColumnProps },
     { field: 'name', headerName: 'Name', flex: 1, ...allColumnProps },
+    { field: 'visible', headerName: 'Visible', type: 'boolean', ...allColumnProps },
     {
       field: 'actions',
       type: 'actions',
@@ -60,7 +61,7 @@ export default function InitiativeSetupDialog({
 
   const addActor = () => {
     const maxId = actors.length > 0 ? Math.max(...actors.map((a) => a.id)) + 1 : 1;
-    const actor = { id: maxId, name: 'New Actor', init: 0 };
+    const actor = { id: maxId, name: 'New Actor', init: 0, visible: true, active: true };
     setActors([...actors, actor]);
   };
 
