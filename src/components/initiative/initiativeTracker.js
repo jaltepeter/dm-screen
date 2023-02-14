@@ -1,6 +1,7 @@
 import { Button, Switch } from '@mui/material';
 import { useEffect, useState } from 'react';
 
+import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
 import Paper from '@mui/material/Paper';
 import PropTypes from 'prop-types';
@@ -21,7 +22,8 @@ export default function InitiativeTracker({ characters }) {
 
   const [actors, setActors] = useState([]);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [setupInitDialogOpen, setSetupInitDialogOpen] = useState(false);
+  const [endInitDialogOpen, setEndInitDialogOpen] = useState(false);
   const broadcastChannel = new BroadcastChannel('dm-screen');
 
   useEffect(() => {
@@ -55,9 +57,14 @@ export default function InitiativeTracker({ characters }) {
   };
 
   const startInitiative = (actors) => {
-    setDialogOpen(false);
+    setSetupInitDialogOpen(false);
     setActors(actors);
     setSelectedIndex(0);
+  };
+
+  const handleResetInitiative = () => {
+    setActors([]);
+    setEndInitDialogOpen(false);
   };
 
   const toggleActorVisible = (actorId) => {
@@ -74,9 +81,14 @@ export default function InitiativeTracker({ characters }) {
     <Paper>
       <InitiativeSetupDialog
         characters={characters}
-        isOpen={dialogOpen}
-        handleClose={() => setDialogOpen(false)}
+        isOpen={setupInitDialogOpen}
+        handleClose={() => setSetupInitDialogOpen(false)}
         onStartInitiative={startInitiative}
+      />
+      <InitiativeEndDialog
+        isOpen={endInitDialogOpen}
+        handleClose={() => setEndInitDialogOpen(false)}
+        handleEndInitiative={handleResetInitiative}
       />
       {actors.length > 0 ? (
         <Table size='small'>
@@ -84,8 +96,8 @@ export default function InitiativeTracker({ characters }) {
             <TableRow>
               <TableCell></TableCell>
               <TableCell flex='1'>Name</TableCell>
-              <TableCell align='center'>Visible?</TableCell>
-              <TableCell align='center'>Alive?</TableCell>
+              <TableCell align='center'>Visible</TableCell>
+              <TableCell align='center'>Alive</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -118,7 +130,8 @@ export default function InitiativeTracker({ characters }) {
       <Button onClick={nextTurn}>
         <SkipNextIcon />
       </Button>
-      <Button onClick={() => setDialogOpen(true)}>New</Button>
+      {actors.length > 0 && <Button onClick={() => setEndInitDialogOpen(true)}>End</Button>}
+      {actors.length == 0 && <Button onClick={() => setSetupInitDialogOpen(true)}>New</Button>}
     </Paper>
   );
 }

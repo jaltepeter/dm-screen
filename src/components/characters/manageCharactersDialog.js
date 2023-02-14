@@ -1,12 +1,17 @@
 import { GridActionsCellItem, GridToolbarContainer } from '@mui/x-data-grid';
 
 import AddIcon from '@mui/icons-material/Add';
+import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
+import CloseIcon from '@mui/icons-material/Close';
 import { DataGrid } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
+import IconButton from '@mui/material/IconButton';
 import PropTypes from 'prop-types';
+import { SlideUpTransition } from '../slideUp';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 
 ManageCharactersDialog.propTypes = {
   characters: PropTypes.array,
@@ -57,6 +62,7 @@ export default function ManageCharactersDialog({
       type: 'string',
       headerName: 'url',
       description: 'Character Sheet URL',
+      flex: 1,
       ...allColumnProps
     },
     {
@@ -64,7 +70,7 @@ export default function ManageCharactersDialog({
       type: 'actions',
       headerName: 'Actions',
       cellClassName: 'actions',
-      flex: 1,
+      width: 75,
       getActions: ({ id }) => {
         return [
           <GridActionsCellItem
@@ -96,19 +102,26 @@ export default function ManageCharactersDialog({
   }
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={handleClose}
-      fullWidth
-      maxWidth='md'
-      aria-labelledby='alert-dialog-title'
-      aria-describedby='alert-dialog-description'>
-      <div style={{ height: 400 }}>
+    <Dialog open={isOpen} onClose={handleClose} fullScreen TransitionComponent={SlideUpTransition}>
+      <AppBar sx={{ position: 'relative' }}>
+        <Toolbar>
+          <IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
+            <CloseIcon />
+          </IconButton>
+          <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
+            Manage Characters
+          </Typography>
+          <Button autoFocus color='inherit' onClick={handleClose}>
+            save
+          </Button>
+        </Toolbar>
+      </AppBar>
+      <div style={{ height: '100%' }}>
         <DataGrid
           rows={characters}
           columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
+          pageSize={10}
+          rowsPerPageOptions={[10]}
           disableSelectionOnClick
           disableColumnFilter
           disableColumnMenu
@@ -121,11 +134,6 @@ export default function ManageCharactersDialog({
           onProcessRowUpdateError={() => console.error('Error updating character')}
         />
       </div>
-      <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          Done
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

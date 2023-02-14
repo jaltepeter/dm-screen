@@ -120,7 +120,16 @@ const DmScreen = () => {
 
   const handleAddCharacter = () => {
     const maxId = characters.length > 0 ? Math.max(...characters.map((a) => a.id)) + 1 : 1;
-    const newChar = { name: 'New Character', id: maxId };
+    const newChar = {
+      name: 'New Character',
+      id: maxId,
+      charClass: 'Fighter',
+      background: 'Soldier',
+      ac: 10,
+      pp: 10,
+      pi: 10,
+      init: 10
+    };
     setCharacters([...characters, newChar]);
   };
 

@@ -3,15 +3,8 @@ import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import InitiativePlayerView from '../components/initiative/initiativePlayerView';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import { Section } from '../components/section';
-import StarIcon from '@mui/icons-material/Star';
+import Slide from '@mui/material/Slide';
 import Typography from '@mui/material/Typography';
-import { display } from '@mui/system';
 
 const PlayerView = () => {
   const broadcastChannel = new BroadcastChannel('dm-screen');
@@ -19,10 +12,15 @@ const PlayerView = () => {
   const [imageSource, setImageSource] = useState('');
   const [actors, setActors] = useState([]);
   const [index, setIndex] = useState(0);
+  const [showInit, setShowInit] = useState(false);
 
   useEffect(() => {
     document.title = 'Player View';
   }, []);
+
+  useEffect(() => {
+    setShowInit(actors.length > 0);
+  }, [actors]);
 
   broadcastChannel.onmessage = (e) => {
     switch (e.data.cmd) {
@@ -43,23 +41,25 @@ const PlayerView = () => {
 
   return (
     <Grid container spacing={0}>
-      <Grid
-        item
-        alignContent='center'
-        md={2}
-        m={1}
-        sx={{
-          ...(actors.length <= 0 && { display: 'none' }),
-          borderColor: '#1A2027',
-          m: 1,
-          border: 1,
-          borderRadius: 2
-        }}>
-        <Typography sx={{ textAlign: 'center' }} variant='h4'>
-          Initiative
-        </Typography>
-        <InitiativePlayerView actors={actors} turnNumber={index} />
-      </Grid>
+      <Slide direction='right' timeout={500} in={showInit} mountOnEnter unmountOnExit>
+        <Grid
+          item
+          alignContent='center'
+          md={2}
+          m={1}
+          sx={{
+            ///...(actors.length <= 0 && { display: 'none' }),
+            borderColor: '#1A2027',
+            m: 1,
+            border: 1,
+            borderRadius: 2
+          }}>
+          <Typography sx={{ textAlign: 'center' }} variant='h4'>
+            Initiative
+          </Typography>
+          <InitiativePlayerView actors={actors} turnNumber={index} />
+        </Grid>
+      </Slide>
       <Grid item flex='1' container direction='column' height='100vh' width='100vw'>
         <Box
           component='img'
