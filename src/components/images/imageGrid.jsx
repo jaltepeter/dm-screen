@@ -57,12 +57,14 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
               <IconButton
                 size='small'
                 aria-label='delete'
+                sx={{ marginX: 2 }}
                 onClick={() => onDeleteImage({ folderName, image })}>
                 <DeleteForeverIcon />
               </IconButton>
               <IconButton
                 size='small'
                 aria-label='send to player view'
+                sx={{ marginX: 2 }}
                 onClick={() => onSendImage(image)}>
                 <SendIcon />
               </IconButton>
