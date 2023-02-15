@@ -73,6 +73,7 @@ export default function FolderList({
   const handleCancelDialog = () => {
     setFolderName('');
     setUrl('');
+    setTitle('');
     setIsAddImageDialogOpen(false);
     setIsRenameFolderDialogOpen(false);
     setIsDeleteFolderDialogOpen(false);
