@@ -53,23 +53,16 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
               }}
             />
             <Box position='absolute' bottom='0px' width='100%' sx={overlayStyle}>
+              <Box>{image.title}</Box>
               <IconButton
-                color='primary'
-                aria-label='upload picture'
-                component='label'
-                sx={{
-                  opacity: 1
-                }}
+                size='small'
+                aria-label='delete'
                 onClick={() => onDeleteImage({ folderName, image })}>
                 <DeleteForeverIcon />
               </IconButton>
               <IconButton
-                color='primary'
-                aria-label='upload picture'
-                component='label'
-                sx={{
-                  opacity: 1
-                }}
+                size='small'
+                aria-label='send to player view'
                 onClick={() => onSendImage(image)}>
                 <SendIcon />
               </IconButton>

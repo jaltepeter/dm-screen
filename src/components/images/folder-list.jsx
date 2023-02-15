@@ -41,6 +41,7 @@ export default function FolderList({
   const [folderName, setFolderName] = useState('');
   const [newFolderName, setNewFolderName] = useState('');
   const [url, setUrl] = useState('');
+  const [title, setTitle] = useState('');
   const [expanded, setExpanded] = useState(folders.length > 0 ? folders[0].folderName : '');
   const [isAddImageDialogOpen, setIsAddImageDialogOpen] = useState(false);
   const [isRenameFolderDialogOpen, setIsRenameFolderDialogOpen] = useState(false);
@@ -97,6 +98,10 @@ export default function FolderList({
     setUrl(event.target.value);
   };
 
+  const handleTitleChange = (event) => {
+    setTitle(event.target.value);
+  };
+
   const handleFolderNameChange = (event) => {
     setIsRenameFolderError(false);
     setRenameFolderErrorMessage('');
@@ -104,7 +109,7 @@ export default function FolderList({
   };
 
   const handleSaveImage = () => {
-    onAddPhoto(folderName, url);
+    onAddPhoto(folderName, url, title);
     handleCancelDialog();
   };
 
@@ -209,6 +214,15 @@ export default function FolderList({
           <DialogContentText>
             Paste an image URL here to save it to the &quot;{folderName}&quot; folder.
           </DialogContentText>
+          <TextField
+            margin='dense'
+            id='title'
+            label='Image Title (optional)'
+            fullWidth
+            variant='standard'
+            value={title}
+            onChange={handleTitleChange}
+          />
           <TextField
             autoFocus
             margin='dense'

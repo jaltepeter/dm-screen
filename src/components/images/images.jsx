@@ -53,13 +53,14 @@ export default function Images() {
    * Add a new image to the specified folder
    * @param {string} folderName - The name of the folder to add images to
    * @param {string} url - URL of the image to add
+   * @param {string} title - the optional title for the image
    */
-  const handleAddImage = (folderName, url) => {
+  const handleAddImage = (folderName, url, title) => {
     if (!url) return;
 
     const imageFolders = images.map((folder) =>
       folder.folderName === folderName
-        ? { ...folder, images: [...folder.images, { url: url }] }
+        ? { ...folder, images: [...folder.images, { url: url, title: title }] }
         : { ...folder }
     );
     setImages(imageFolders);

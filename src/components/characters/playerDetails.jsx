@@ -54,21 +54,20 @@ export default function PlayerDetails({ characters }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {characters.map((row) => (
-            <TableRow key={row.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+          {characters.map((char) => (
+            <TableRow hover key={char.id}>
               <TableCell component='th' scope='row'>
-                {' '}
-                {row.name}{' '}
+                {char.name}
               </TableCell>
-              <TableCell align='left'>{row.charClass}</TableCell>
-              <TableCell align='left'>{row.background}</TableCell>
-              <TableCell align='center'>{row.ac}</TableCell>
-              <TableCell align='center'>{row.pp}</TableCell>
-              <TableCell align='center'>{row.pi}</TableCell>
-              <TableCell align='center'>{row.init}</TableCell>
+              <TableCell align='left'>{char.charClass}</TableCell>
+              <TableCell align='left'>{char.background}</TableCell>
+              <TableCell align='center'>{char.ac}</TableCell>
+              <TableCell align='center'>{char.pp}</TableCell>
+              <TableCell align='center'>{char.pi}</TableCell>
+              <TableCell align='center'>{char.init}</TableCell>
               <TableCell align='center'>
-                {row.sheetUrl ? (
-                  <Link href={row.sheetUrl} target='_blank'>
+                {char.sheetUrl ? (
+                  <Link href={char.sheetUrl} target='_blank'>
                     <LinkIcon />
                   </Link>
                 ) : (
