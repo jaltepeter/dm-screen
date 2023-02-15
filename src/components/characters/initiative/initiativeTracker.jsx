@@ -13,10 +13,6 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-InitiativeTracker.propTypes = {
-  characters: PropTypes.array
-};
-
 export default function InitiativeTracker({ characters }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -135,3 +131,7 @@ export default function InitiativeTracker({ characters }) {
     </Paper>
   );
 }
+
+InitiativeTracker.propTypes = {
+  characters: PropTypes.array
+};

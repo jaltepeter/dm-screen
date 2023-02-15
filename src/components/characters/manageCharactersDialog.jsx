@@ -13,22 +13,13 @@ import { SlideUpTransition } from '../slideUp';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
-ManageCharactersDialog.propTypes = {
-  characters: PropTypes.array,
-  isOpen: PropTypes.bool,
-  handleClose: PropTypes.func,
-  onAddCharacter: PropTypes.func,
-  onEditCharacter: PropTypes.func,
-  onDeleteCharacter: PropTypes.func
-};
-
 export default function ManageCharactersDialog({
   characters,
   isOpen,
   onEditCharacter,
   onAddCharacter,
   onDeleteCharacter,
-  handleClose
+  onClose
 }) {
   const allColumnProps = { editable: true, sortable: false };
   const columns = [
@@ -102,16 +93,16 @@ export default function ManageCharactersDialog({
   }
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} fullScreen TransitionComponent={SlideUpTransition}>
+    <Dialog open={isOpen} onClose={onClose} fullScreen TransitionComponent={SlideUpTransition}>
       <AppBar sx={{ position: 'relative' }}>
         <Toolbar>
-          <IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
+          <IconButton edge='start' color='inherit' onClick={onClose} aria-label='close'>
             <CloseIcon />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
             Manage Characters
           </Typography>
-          <Button autoFocus color='inherit' onClick={handleClose}>
+          <Button autoFocus color='inherit' onClick={onClose}>
             save
           </Button>
         </Toolbar>
@@ -137,3 +128,12 @@ export default function ManageCharactersDialog({
     </Dialog>
   );
 }
+
+ManageCharactersDialog.propTypes = {
+  characters: PropTypes.array,
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func,
+  onAddCharacter: PropTypes.func,
+  onEditCharacter: PropTypes.func,
+  onDeleteCharacter: PropTypes.func
+};

@@ -13,15 +13,15 @@ import UploadIcon from '@mui/icons-material/Upload';
 DrawerContents.propTypes = {
   onImport: PropTypes.func,
   onExport: PropTypes.func,
-  onManageCharacters: PropTypes.func
+  onClickManageCharacters: PropTypes.func
 };
 
-export default function DrawerContents({ onImport, onExport, onManageCharacters }) {
+export default function DrawerContents({ onImport, onExport, onClickManageCharacters }) {
   return (
     <Box sx={{ width: 250 }} role='presentation'>
       <List>
         <ListItem key='manageCharacters' disablePadding>
-          <ListItemButton onClick={() => onManageCharacters()}>
+          <ListItemButton onClick={onClickManageCharacters}>
             <ListItemIcon>
               <ManageAccountsIcon />
             </ListItemIcon>
@@ -32,7 +32,7 @@ export default function DrawerContents({ onImport, onExport, onManageCharacters 
       <Divider />
       <List>
         <ListItem key='export' disablePadding>
-          <ListItemButton onClick={() => onExport()}>
+          <ListItemButton onClick={onExport}>
             <ListItemIcon>
               <UploadIcon />
             </ListItemIcon>
@@ -40,7 +40,7 @@ export default function DrawerContents({ onImport, onExport, onManageCharacters 
           </ListItemButton>
         </ListItem>
         <ListItem key='import' disablePadding>
-          <ListItemButton onClick={() => onImport()} disabled>
+          <ListItemButton onClick={onImport} disabled>
             <ListItemIcon>
               <DownloadIcon />
             </ListItemIcon>

@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import ForwardIcon from '@mui/icons-material/Forward';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -7,11 +5,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import PropTypes from 'prop-types';
-
-InitiativePlayerView.propTypes = {
-  actors: PropTypes.array,
-  turnNumber: PropTypes.number
-};
 
 export default function InitiativePlayerView({ actors, turnNumber }) {
   return (
@@ -37,3 +30,8 @@ export default function InitiativePlayerView({ actors, turnNumber }) {
     </List>
   );
 }
+
+InitiativePlayerView.propTypes = {
+  actors: PropTypes.array,
+  turnNumber: PropTypes.number
+};

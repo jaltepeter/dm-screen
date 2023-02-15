@@ -7,13 +7,6 @@ import SendIcon from '@mui/icons-material/Send';
 import { alpha } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-ImageGrid.propTypes = {
-  folderName: PropTypes.string,
-  images: PropTypes.array,
-  onSendImage: PropTypes.func,
-  onDeleteImage: PropTypes.func
-};
-
 const Columns = 4;
 
 export default function ImageGrid({ folderName, images, onSendImage, onDeleteImage }) {
@@ -87,3 +80,10 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
     </Box>
   );
 }
+
+ImageGrid.propTypes = {
+  folderName: PropTypes.string,
+  images: PropTypes.array,
+  onSendImage: PropTypes.func,
+  onDeleteImage: PropTypes.func
+};

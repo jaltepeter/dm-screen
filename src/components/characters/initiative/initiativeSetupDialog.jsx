@@ -7,18 +7,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import PropTypes from 'prop-types';
-import { SlideUpTransition } from '../slideUp';
+import { SlideUpTransition } from '../../slideUp';
 import { useState } from 'react';
 
-InitiativeSetupDialog.propTypes = {
-  characters: PropTypes.array,
-  isOpen: PropTypes.bool,
-  handleClose: PropTypes.func,
-  onStartInitiative: PropTypes.func
-};
 function newInitiative(characters) {
   return characters.map((c) => ({ id: c.id, name: c.name, init: 0, visible: true, active: true }));
 }
+
+const allColumnProps = { editable: true, sortable: false };
 
 export default function InitiativeSetupDialog({
   characters,
@@ -28,7 +24,6 @@ export default function InitiativeSetupDialog({
 }) {
   const [actors, setActors] = useState(newInitiative(characters));
 
-  const allColumnProps = { editable: true, sortable: false };
   const columns = [
     { field: 'init', headerName: 'Init', type: 'number', ...allColumnProps },
     { field: 'name', headerName: 'Name', flex: 1, ...allColumnProps },
@@ -123,3 +118,10 @@ export default function InitiativeSetupDialog({
     </Dialog>
   );
 }
+
+InitiativeSetupDialog.propTypes = {
+  characters: PropTypes.array,
+  isOpen: PropTypes.bool,
+  handleClose: PropTypes.func,
+  onStartInitiative: PropTypes.func
+};

@@ -6,12 +6,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import PropTypes from 'prop-types';
 
-InitiativeEndDialog.propTypes = {
-  isOpen: PropTypes.bool,
-  handleClose: PropTypes.func,
-  handleEndInitiative: PropTypes.func
-};
-
 export default function InitiativeEndDialog({ isOpen, handleClose, handleEndInitiative }) {
   return (
     <Dialog
@@ -34,3 +28,9 @@ export default function InitiativeEndDialog({ isOpen, handleClose, handleEndInit
     </Dialog>
   );
 }
+
+InitiativeEndDialog.propTypes = {
+  isOpen: PropTypes.bool,
+  handleClose: PropTypes.func,
+  handleEndInitiative: PropTypes.func
+};

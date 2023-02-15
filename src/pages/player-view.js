@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import InitiativePlayerView from '../components/initiative/initiativePlayerView';
+import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
 import Slide from '@mui/material/Slide';
 import Typography from '@mui/material/Typography';
 
@@ -48,7 +48,6 @@ const PlayerView = () => {
           md={2}
           m={1}
           sx={{
-            ///...(actors.length <= 0 && { display: 'none' }),
             borderColor: '#1A2027',
             m: 1,
             border: 1,

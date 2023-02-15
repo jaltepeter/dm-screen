@@ -17,10 +17,6 @@ import TableRow from '@mui/material/TableRow';
 import { Tooltip } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
-PlayerDetails.propTypes = {
-  characters: PropTypes.array
-};
-
 export default function PlayerDetails({ characters }) {
   return (
     <TableContainer component={Paper}>
@@ -86,3 +82,7 @@ export default function PlayerDetails({ characters }) {
     </TableContainer>
   );
 }
+
+PlayerDetails.propTypes = {
+  characters: PropTypes.array
+};
