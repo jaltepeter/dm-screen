@@ -1,34 +1,53 @@
-## Available Scripts
+# DM Screen
 
-In the project directory, you can run:
+A lightweight DM screen for true tabletop play. Open the DM view on your laptop, the player view on an external display, and push images and combat info to your players — no server, no account, no internet required.
 
-### `npm run lint` to run the ESLinter
+## What it does
 
-Runs ESLint with the configuration.
+**DM view** — your private screen:
+- Track player characters (AC, Passive Perception, Passive Insight, Initiative bonus, sheet link)
+- Run initiative: add monsters/NPCs, enter rolls, advance turns, toggle visible/alive
+- Manage saved images in folders, push any image to the player screen
 
-### `npm run format` to run Prettier
+**Player view** — shown on your second monitor:
+- Sees the current initiative order (with hidden enemies shown as `? ? ? ? ? ?`)
+- Displays whatever image the DM sends
 
-Runs Prettier against the codebase.
+The two views sync via the browser's `BroadcastChannel` API — both windows need to be open in the same browser on the same machine.
 
-### `npm start` to start running locally
+## Running locally
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+npm install
+npm start
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Opens at `http://localhost:3000/dm-screen`. Open a second window/tab and navigate to `/dm-screen/players` for the player view, then drag it to your second monitor.
 
-### `npm test` to run unit tests
+## Tech decisions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Concern | Choice | Why |
+|---|---|---|
+| Build | Vite | CRA is unmaintained |
+| Language | TypeScript | Type safety |
+| UI | shadcn/ui + Tailwind | Own the components, no runtime overhead |
+| State | Zustand + persist | Replaces manual localStorage wiring |
+| DM↔Player sync | BroadcastChannel (abstracted) | Zero setup, works offline |
+| Cross-device sync | Not yet — abstraction layer makes it a future swap | Supabase / PartyKit / WebRTC are all options |
 
-### `npm run build` to build the app for production
+## Roadmap
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- [x] Character tracking (AC, PP, PI, initiative bonus, sheet link)
+- [x] Initiative tracker with visible/alive toggles
+- [x] Image folders — save URLs, push to player view
+- [ ] Migrate from CRA → Vite + TypeScript
+- [ ] HP tracking (current / max / temp)
+- [ ] Monster/NPC HP in combat
+- [ ] Conditions tracking
+- [ ] Notes panel
+- [ ] Export / import data
+- [ ] Cross-device sync (DM laptop → player TV on separate device)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Why not a VTT?
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This is for physical tabletop play. The table is the VTT. This tool exists to give the DM a second screen without the complexity of Roll20, Foundry, or Owlbear Rodeo — which are all built around digital maps and tokens.
