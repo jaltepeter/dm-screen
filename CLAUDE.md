@@ -24,16 +24,19 @@ The two views communicate via the browser's `BroadcastChannel` API (`channel: 'd
 ## Architecture
 
 **Two-page app** with React Router (`basename='/dm-screen'`):
+
 - `src/pages/dm-screen.js` — DM view shell; owns drawer/dialog open state, delegates everything else
 - `src/pages/player-view.js` — Player view; listens on BroadcastChannel, renders what it receives
 
 **State lives in two feature components**, each self-contained with their own localStorage persistence:
+
 - `src/components/characters/characters.jsx` — owns `characters[]` array, passes it down
 - `src/components/images/images.jsx` — owns `images[]` (folders + image URLs), passes it down
 
 **localStorage** is managed via `src/data/localStorageManager.js`. Keys are in `src/enums/localStorage.js`.
 
 **BroadcastChannel messages** sent from:
+
 - `images.jsx` → `{ cmd: 'image', payload: { url, title } }` — sends image to player view
 - `initiativeTracker.jsx` → `{ cmd: 'init_update', payload: { actors, index } }` — syncs initiative state
 
@@ -44,6 +47,7 @@ Both components currently create `new BroadcastChannel(...)` directly in the com
 ## Known Issues / Planned Work
 
 This codebase is being modernized. Current state:
+
 - Build tool: CRA (being replaced with Vite)
 - No TypeScript (being added)
 - `@mui/x-data-grid` v5 with deprecated APIs (`components=`, `experimentalFeatures`, `pageSize`)
