@@ -5,39 +5,32 @@ import Grid from '@mui/material/Grid';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
 import Slide from '@mui/material/Slide';
 import Typography from '@mui/material/Typography';
+import { onMessage } from '../lib/sync';
 
 const PlayerView = () => {
-  const broadcastChannel = new BroadcastChannel('dm-screen');
-
   const [imageSource, setImageSource] = useState('');
   const [actors, setActors] = useState([]);
   const [index, setIndex] = useState(0);
-  const [showInit, setShowInit] = useState(false);
+
+  const showInit = actors.length > 0;
 
   useEffect(() => {
     document.title = 'Player View';
   }, []);
 
   useEffect(() => {
-    setShowInit(actors.length > 0);
-  }, [actors]);
-
-  broadcastChannel.onmessage = (e) => {
-    switch (e.data.cmd) {
-      case 'image':
-        setImageSource(e.data.payload);
-        break;
-      case 'init_show':
-        break;
-
-      case 'init_update':
-        setActors(e.data.payload.actors);
-        setIndex(e.data.payload.index);
-        break;
-      default:
-        break;
-    }
-  };
+    return onMessage((msg) => {
+      switch (msg.cmd) {
+        case 'image':
+          setImageSource(msg.payload);
+          break;
+        case 'init_update':
+          setActors(msg.payload.actors);
+          setIndex(msg.payload.index);
+          break;
+      }
+    });
+  }, []);
 
   return (
     <Grid container spacing={0}>
