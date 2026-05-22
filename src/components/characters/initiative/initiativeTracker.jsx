@@ -12,6 +12,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { sendMessage } from '../../../lib/sync';
 
 export default function InitiativeTracker({ characters }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -20,13 +21,9 @@ export default function InitiativeTracker({ characters }) {
 
   const [setupInitDialogOpen, setSetupInitDialogOpen] = useState(false);
   const [endInitDialogOpen, setEndInitDialogOpen] = useState(false);
-  const broadcastChannel = new BroadcastChannel('dm-screen');
 
   useEffect(() => {
-    broadcastChannel.postMessage({
-      cmd: 'init_update',
-      payload: { actors: actors, index: selectedIndex }
-    });
+    sendMessage({ cmd: 'init_update', payload: { actors, index: selectedIndex } });
   }, [selectedIndex, actors]);
 
   const nextTurn = () => {
@@ -42,10 +39,10 @@ export default function InitiativeTracker({ characters }) {
 
   const prevTurn = () => {
     let nextIndex;
-    for (let index = selectedIndex - 1; actors.length + selectedIndex > index; index--) {
-      if (index < 0) index = actors.length - 1;
-      if (actors[index % actors.length].active) {
-        nextIndex = index % actors.length;
+    for (let i = 1; i <= actors.length; i++) {
+      const index = (selectedIndex - i + actors.length) % actors.length;
+      if (actors[index].active) {
+        nextIndex = index;
         break;
       }
     }

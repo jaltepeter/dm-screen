@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import ImageSender from './imageSender';
 import { Section } from '../section';
 import Typography from '@mui/material/Typography';
+import { sendMessage } from '../../lib/sync';
 import { useImageStore } from '../../store/imageStore';
 
 export default function Images() {
@@ -14,10 +15,8 @@ export default function Images() {
   const addImage = useImageStore((s) => s.addImage);
   const deleteImage = useImageStore((s) => s.deleteImage);
 
-  const broadcastChannel = new BroadcastChannel('dm-screen');
-
   const sendImageToPlayerView = (item) => {
-    broadcastChannel.postMessage({ cmd: 'image', payload: item });
+    sendMessage({ cmd: 'image', payload: item });
   };
 
   return (
