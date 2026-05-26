@@ -1,4 +1,4 @@
-import { GridActionsCellItem, GridToolbarContainer } from '@mui/x-data-grid';
+import { GridActionsCellItem, GridColDef, GridToolbarContainer } from '@mui/x-data-grid';
 
 import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
@@ -6,25 +6,33 @@ import { DataGrid } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
-import PropTypes from 'prop-types';
 import { SlideUpTransition } from '../../slideUp';
 import { useState } from 'react';
+import { Actor } from '../../../lib/sync';
+import { Character } from '../../../store/characterStore';
 
-function newInitiative(characters) {
+function newInitiative(characters: Character[]): Actor[] {
   return characters.map((c) => ({ id: c.id, name: c.name, init: 0, visible: true, active: true }));
 }
 
 const allColumnProps = { editable: true, sortable: false };
+
+interface InitiativeSetupDialogProps {
+  characters: Character[];
+  isOpen: boolean;
+  handleClose: () => void;
+  onStartInitiative: (actors: Actor[]) => void;
+}
 
 export default function InitiativeSetupDialog({
   characters,
   isOpen,
   onStartInitiative,
   handleClose
-}) {
-  const [actors, setActors] = useState(newInitiative(characters));
+}: InitiativeSetupDialogProps) {
+  const [actors, setActors] = useState<Actor[]>(newInitiative(characters));
 
-  const columns = [
+  const columns: GridColDef[] = [
     { field: 'init', headerName: 'Init', type: 'number', ...allColumnProps },
     { field: 'name', headerName: 'Name', flex: 1, ...allColumnProps },
     { field: 'visible', headerName: 'Visible', type: 'boolean', ...allColumnProps },
@@ -40,7 +48,7 @@ export default function InitiativeSetupDialog({
             key='delete'
             icon={<DeleteIcon />}
             label='Delete'
-            onClick={() => deleteActor(id)}
+            onClick={() => deleteActor(id as number)}
             color='inherit'
           />
         ];
@@ -49,24 +57,23 @@ export default function InitiativeSetupDialog({
   ];
 
   const handleStartInit = () => {
-    let a = [...actors].sort((a, b) => b.init - a.init);
-    onStartInitiative(a);
+    const sorted = [...actors].sort((a, b) => b.init - a.init);
+    onStartInitiative(sorted);
     setActors(newInitiative(characters));
   };
 
   const addActor = () => {
     const maxId = actors.length > 0 ? Math.max(...actors.map((a) => a.id)) + 1 : 1;
-    const actor = { id: maxId, name: 'New Actor', init: 0, visible: true, active: true };
+    const actor: Actor = { id: maxId, name: 'New Actor', init: 0, visible: true, active: true };
     setActors([...actors, actor]);
   };
 
-  const deleteActor = (id) => {
+  const deleteActor = (id: number) => {
     setActors(actors.filter((c) => c.id !== id));
   };
 
-  const processRowUpdate = (actor) => {
+  const processRowUpdate = (actor: Actor): Actor => {
     setActors(actors.map((a) => (a.id === actor.id ? { ...a, ...actor } : a)));
-
     return actor;
   };
 
@@ -118,10 +125,3 @@ export default function InitiativeSetupDialog({
     </Dialog>
   );
 }
-
-InitiativeSetupDialog.propTypes = {
-  characters: PropTypes.array,
-  isOpen: PropTypes.bool,
-  handleClose: PropTypes.func,
-  onStartInitiative: PropTypes.func
-};

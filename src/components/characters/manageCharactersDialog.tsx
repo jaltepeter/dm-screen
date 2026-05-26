@@ -1,4 +1,4 @@
-import { GridActionsCellItem, GridToolbarContainer } from '@mui/x-data-grid';
+import { GridActionsCellItem, GridColDef, GridToolbarContainer } from '@mui/x-data-grid';
 
 import AddIcon from '@mui/icons-material/Add';
 import AppBar from '@mui/material/AppBar';
@@ -8,10 +8,19 @@ import { DataGrid } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
-import PropTypes from 'prop-types';
-import { SlideUpTransition } from '../slideUp';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { SlideUpTransition } from '../slideUp';
+import { Character } from '../../store/characterStore';
+
+interface ManageCharactersDialogProps {
+  characters: Character[];
+  isOpen: boolean;
+  onClose: () => void;
+  onAddCharacter: () => void;
+  onEditCharacter: (character: Character) => void;
+  onDeleteCharacter: (id: number) => void;
+}
 
 export default function ManageCharactersDialog({
   characters,
@@ -20,9 +29,9 @@ export default function ManageCharactersDialog({
   onAddCharacter,
   onDeleteCharacter,
   onClose
-}) {
+}: ManageCharactersDialogProps) {
   const allColumnProps = { editable: true, sortable: false };
-  const columns = [
+  const columns: GridColDef[] = [
     { field: 'name', headerName: 'Name', width: 140, ...allColumnProps },
     { field: 'charClass', headerName: 'Class', width: 140, ...allColumnProps },
     { field: 'background', headerName: 'Background', width: 140, ...allColumnProps },
@@ -68,7 +77,7 @@ export default function ManageCharactersDialog({
             key='delete'
             icon={<DeleteIcon />}
             label='Delete'
-            onClick={() => onDeleteCharacter(id)}
+            onClick={() => onDeleteCharacter(id as number)}
             color='inherit'
           />
         ];
@@ -76,10 +85,9 @@ export default function ManageCharactersDialog({
     }
   ];
 
-  const processRowUpdate = (newRow) => {
-    if (onEditCharacter(newRow)) return newRow;
-
-    return false;
+  const processRowUpdate = (newRow: Character): Character => {
+    onEditCharacter(newRow);
+    return newRow;
   };
 
   function EditToolbar() {
@@ -128,12 +136,3 @@ export default function ManageCharactersDialog({
     </Dialog>
   );
 }
-
-ManageCharactersDialog.propTypes = {
-  characters: PropTypes.array,
-  isOpen: PropTypes.bool,
-  onClose: PropTypes.func,
-  onAddCharacter: PropTypes.func,
-  onEditCharacter: PropTypes.func,
-  onDeleteCharacter: PropTypes.func
-};

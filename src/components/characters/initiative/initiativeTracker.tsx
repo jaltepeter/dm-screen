@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
 import Paper from '@mui/material/Paper';
-import PropTypes from 'prop-types';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import Table from '@mui/material/Table';
@@ -12,13 +11,16 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { sendMessage } from '../../../lib/sync';
+import { Actor, sendMessage } from '../../../lib/sync';
+import { Character } from '../../../store/characterStore';
 
-export default function InitiativeTracker({ characters }) {
+interface InitiativeTrackerProps {
+  characters: Character[];
+}
+
+export default function InitiativeTracker({ characters }: InitiativeTrackerProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const [actors, setActors] = useState([]);
-
+  const [actors, setActors] = useState<Actor[]>([]);
   const [setupInitDialogOpen, setSetupInitDialogOpen] = useState(false);
   const [endInitDialogOpen, setEndInitDialogOpen] = useState(false);
 
@@ -27,31 +29,27 @@ export default function InitiativeTracker({ characters }) {
   }, [selectedIndex, actors]);
 
   const nextTurn = () => {
-    let nextIndex;
-    for (let index = selectedIndex + 1; index < actors.length + selectedIndex + 1; index++) {
-      if (actors[index % actors.length].active) {
-        nextIndex = index % actors.length;
+    for (let i = selectedIndex + 1; i < actors.length + selectedIndex + 1; i++) {
+      if (actors[i % actors.length].active) {
+        setSelectedIndex(i % actors.length);
         break;
       }
     }
-    setSelectedIndex(nextIndex);
   };
 
   const prevTurn = () => {
-    let nextIndex;
     for (let i = 1; i <= actors.length; i++) {
       const index = (selectedIndex - i + actors.length) % actors.length;
       if (actors[index].active) {
-        nextIndex = index;
+        setSelectedIndex(index);
         break;
       }
     }
-    setSelectedIndex(nextIndex);
   };
 
-  const startInitiative = (actors) => {
+  const startInitiative = (newActors: Actor[]) => {
     setSetupInitDialogOpen(false);
-    setActors(actors);
+    setActors(newActors);
     setSelectedIndex(0);
   };
 
@@ -60,14 +58,12 @@ export default function InitiativeTracker({ characters }) {
     setEndInitDialogOpen(false);
   };
 
-  const toggleActorVisible = (actorId) => {
-    const updatedActors = actors.map((a) => (a.id === actorId ? { ...a, visible: !a.visible } : a));
-    setActors(updatedActors);
+  const toggleActorVisible = (actorId: number) => {
+    setActors(actors.map((a) => (a.id === actorId ? { ...a, visible: !a.visible } : a)));
   };
 
-  const toggleActorActive = (actorId) => {
-    const updatedActors = actors.map((a) => (a.id === actorId ? { ...a, active: !a.active } : a));
-    setActors(updatedActors);
+  const toggleActorActive = (actorId: number) => {
+    setActors(actors.map((a) => (a.id === actorId ? { ...a, active: !a.active } : a)));
   };
 
   return (
@@ -94,7 +90,7 @@ export default function InitiativeTracker({ characters }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {actors?.map((actor, index) => (
+            {actors.map((actor, index) => (
               <TableRow key={actor.id} selected={selectedIndex === index}>
                 <TableCell>{actor.init}</TableCell>
                 <TableCell
@@ -124,11 +120,7 @@ export default function InitiativeTracker({ characters }) {
         <SkipNextIcon />
       </Button>
       {actors.length > 0 && <Button onClick={() => setEndInitDialogOpen(true)}>End</Button>}
-      {actors.length == 0 && <Button onClick={() => setSetupInitDialogOpen(true)}>New</Button>}
+      {actors.length === 0 && <Button onClick={() => setSetupInitDialogOpen(true)}>New</Button>}
     </Paper>
   );
 }
-
-InitiativeTracker.propTypes = {
-  characters: PropTypes.array
-};

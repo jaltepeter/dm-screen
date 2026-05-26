@@ -4,7 +4,6 @@ import ContactPageIcon from '@mui/icons-material/ContactPage';
 import Link from '@mui/material/Link';
 import LinkIcon from '@mui/icons-material/Link';
 import Paper from '@mui/material/Paper';
-import PropTypes from 'prop-types';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SpeedIcon from '@mui/icons-material/Speed';
@@ -16,8 +15,13 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Tooltip } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Character } from '../../store/characterStore';
 
-export default function PlayerDetails({ characters }) {
+interface PlayerDetailsProps {
+  characters: Character[];
+}
+
+export default function PlayerDetails({ characters }: PlayerDetailsProps) {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} size='small' aria-label='simple table'>
@@ -81,7 +85,3 @@ export default function PlayerDetails({ characters }) {
     </TableContainer>
   );
 }
-
-PlayerDetails.propTypes = {
-  characters: PropTypes.array
-};

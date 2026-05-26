@@ -17,6 +17,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { ChangeEvent, useState } from 'react';
 
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
@@ -25,9 +26,18 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FolderDeleteIcon from '@mui/icons-material/FolderDelete';
 import ImageGrid from './imageGrid';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { PropTypes } from 'prop-types';
 import { SlideUpTransition } from '../slideUp';
-import { useState } from 'react';
+import { Image, ImageFolder } from '../../store/imageStore';
+
+interface FolderListProps {
+  folders: ImageFolder[];
+  onCreateFolder: () => void;
+  onRenameFolder: (oldName: string, newName: string) => void;
+  onDeleteFolder: (folderName: string) => void;
+  onSendImage: (image: Image) => void;
+  onDeleteImage: (args: { folderName: string; image: Image }) => void;
+  onAddPhoto: (folderName: string, url: string, title?: string) => void;
+}
 
 export default function FolderList({
   folders,
@@ -37,36 +47,38 @@ export default function FolderList({
   onSendImage,
   onDeleteImage,
   onAddPhoto
-}) {
+}: FolderListProps) {
   const [folderName, setFolderName] = useState('');
   const [newFolderName, setNewFolderName] = useState('');
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
-  const [expanded, setExpanded] = useState(folders.length > 0 ? folders[0].folderName : '');
+  const [expanded, setExpanded] = useState<string | false>(
+    folders.length > 0 ? folders[0].folderName : false
+  );
   const [isAddImageDialogOpen, setIsAddImageDialogOpen] = useState(false);
   const [isRenameFolderDialogOpen, setIsRenameFolderDialogOpen] = useState(false);
   const [isDeleteFolderDialogOpen, setIsDeleteFolderDialogOpen] = useState(false);
   const [isRenameFolderError, setIsRenameFolderError] = useState(false);
   const [renameFolderErrorMessage, setRenameFolderErrorMessage] = useState('');
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [menuOpenElem, setMenuOpenElem] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [menuOpenElem, setMenuOpenElem] = useState<string | null>(null);
 
-  const handleAddImage = (folderName) => {
+  const handleAddImage = (name: string) => {
     resetMenu();
-    setFolderName(folderName);
+    setFolderName(name);
     setIsAddImageDialogOpen(true);
   };
 
-  const handleRenameFolder = (folderName) => {
+  const handleRenameFolder = (name: string) => {
     resetMenu();
-    setFolderName(folderName);
-    setNewFolderName(folderName);
+    setFolderName(name);
+    setNewFolderName(name);
     setIsRenameFolderDialogOpen(true);
   };
 
-  const handleDeleteFolder = (folderName) => {
+  const handleDeleteFolder = (name: string) => {
     resetMenu();
-    setFolderName(folderName);
+    setFolderName(name);
     setIsDeleteFolderDialogOpen(true);
   };
 
@@ -95,15 +107,15 @@ export default function FolderList({
     setMenuOpenElem(null);
   };
 
-  const handleUrlChange = (event) => {
+  const handleUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUrl(event.target.value);
   };
 
-  const handleTitleChange = (event) => {
+  const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
 
-  const handleFolderNameChange = (event) => {
+  const handleFolderNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsRenameFolderError(false);
     setRenameFolderErrorMessage('');
     setNewFolderName(event.target.value);
@@ -114,13 +126,13 @@ export default function FolderList({
     handleCancelDialog();
   };
 
-  const handleChange = (panel) => (_, isExpanded) => {
+  const handleChange = (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  const handleClickMenuButton = (folderName) => (event) => {
+  const handleClickMenuButton = (name: string) => (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-    setMenuOpenElem(folderName);
+    setMenuOpenElem(name);
   };
 
   const handleCloseMenu = () => {
@@ -285,7 +297,7 @@ export default function FolderList({
           <Button
             onClick={() => {
               onDeleteFolder(folderName);
-              setExpanded(folders[0].folderName);
+              setExpanded(folders.length > 1 ? folders[0].folderName : false);
               setIsDeleteFolderDialogOpen(false);
             }}>
             Delete It
@@ -295,13 +307,3 @@ export default function FolderList({
     </div>
   );
 }
-
-FolderList.propTypes = {
-  folders: PropTypes.array,
-  onSendImage: PropTypes.func,
-  onDeleteImage: PropTypes.func,
-  onAddPhoto: PropTypes.func,
-  onRenameFolder: PropTypes.func,
-  onDeleteFolder: PropTypes.func,
-  onCreateFolder: PropTypes.func
-};

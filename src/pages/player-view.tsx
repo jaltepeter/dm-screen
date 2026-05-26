@@ -5,11 +5,11 @@ import Grid from '@mui/material/Grid';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
 import Slide from '@mui/material/Slide';
 import Typography from '@mui/material/Typography';
-import { onMessage } from '../lib/sync';
+import { Actor, onMessage } from '../lib/sync';
 
-const PlayerView = () => {
-  const [imageSource, setImageSource] = useState('');
-  const [actors, setActors] = useState([]);
+export default function PlayerView() {
+  const [imageSource, setImageSource] = useState<{ url: string; title?: string } | null>(null);
+  const [actors, setActors] = useState<Actor[]>([]);
   const [index, setIndex] = useState(0);
 
   const showInit = actors.length > 0;
@@ -53,18 +53,18 @@ const PlayerView = () => {
         </Grid>
       </Slide>
       <Grid item flex='1' container direction='column' height='100vh' width='100vw'>
-        <Box
-          component='img'
-          src={imageSource.url}
-          margin='auto'
-          sx={{
-            maxHeight: '99%',
-            maxWidth: '99%'
-          }}
-        />
+        {imageSource && (
+          <Box
+            component='img'
+            src={imageSource.url}
+            margin='auto'
+            sx={{
+              maxHeight: '99%',
+              maxWidth: '99%'
+            }}
+          />
+        )}
       </Grid>
     </Grid>
   );
-};
-
-export default PlayerView;
+}

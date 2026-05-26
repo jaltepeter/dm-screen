@@ -7,16 +7,19 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import PropTypes from 'prop-types';
 import UploadIcon from '@mui/icons-material/Upload';
 
-DrawerContents.propTypes = {
-  onImport: PropTypes.func,
-  onExport: PropTypes.func,
-  onClickManageCharacters: PropTypes.func
-};
+interface DrawerContentsProps {
+  onImport: () => void;
+  onExport: () => void;
+  onClickManageCharacters: () => void;
+}
 
-export default function DrawerContents({ onImport, onExport, onClickManageCharacters }) {
+export default function DrawerContents({
+  onImport,
+  onExport,
+  onClickManageCharacters
+}: DrawerContentsProps) {
   return (
     <Box sx={{ width: 250 }} role='presentation'>
       <List>

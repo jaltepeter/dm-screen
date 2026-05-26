@@ -7,7 +7,7 @@ export interface Actor {
 }
 
 export type SyncMessage =
-  | { cmd: 'image'; payload: { url: string; title: string } }
+  | { cmd: 'image'; payload: { url: string; title?: string } }
   | { cmd: 'init_update'; payload: { actors: Actor[]; index: number } };
 
 const channel = new BroadcastChannel('dm-screen');

@@ -4,9 +4,18 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import PropTypes from 'prop-types';
 
-export default function InitiativeEndDialog({ isOpen, handleClose, handleEndInitiative }) {
+interface InitiativeEndDialogProps {
+  isOpen: boolean;
+  handleClose: () => void;
+  handleEndInitiative: () => void;
+}
+
+export default function InitiativeEndDialog({
+  isOpen,
+  handleClose,
+  handleEndInitiative
+}: InitiativeEndDialogProps) {
   return (
     <Dialog
       open={isOpen}
@@ -28,9 +37,3 @@ export default function InitiativeEndDialog({ isOpen, handleClose, handleEndInit
     </Dialog>
   );
 }
-
-InitiativeEndDialog.propTypes = {
-  isOpen: PropTypes.bool,
-  handleClose: PropTypes.func,
-  handleEndInitiative: PropTypes.func
-};

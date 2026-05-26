@@ -4,23 +4,28 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import PropTypes from 'prop-types';
+import { Actor } from '../../../lib/sync';
 
-export default function InitiativePlayerView({ actors, turnNumber }) {
+interface InitiativePlayerViewProps {
+  actors: Actor[];
+  turnNumber: number;
+}
+
+export default function InitiativePlayerView({ actors, turnNumber }: InitiativePlayerViewProps) {
   return (
     <List
       sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
       aria-label='initiative'>
-      {actors?.map((actor, index) => (
+      {actors.map((actor, index) => (
         <ListItem disablePadding key={index}>
-          <ListItemButton selected={index == turnNumber}>
-            {index == turnNumber && (
+          <ListItemButton selected={index === turnNumber}>
+            {index === turnNumber && (
               <ListItemIcon>
                 <ForwardIcon />
               </ListItemIcon>
             )}
             <ListItemText
-              inset={index != turnNumber}
+              inset={index !== turnNumber}
               sx={{ textDecoration: actor.active ? '' : 'line-through' }}
               primary={actor.visible ? actor.name : '? ? ? ? ? ?'}
             />
@@ -30,8 +35,3 @@ export default function InitiativePlayerView({ actors, turnNumber }) {
     </List>
   );
 }
-
-InitiativePlayerView.propTypes = {
-  actors: PropTypes.array,
-  turnNumber: PropTypes.number
-};

@@ -1,6 +1,6 @@
 # Development Plan
 
-## Phase 0 — Repo cleanup
+## ✅ Phase 0 — Repo cleanup
 
 - Replace bloated CRA `.gitignore` with a clean Vite-appropriate one (remove Bower, Grunt, FuseBox, jspm etc.), add `.vite/`
 - Remove `/build` entry (replaced by `/dist` which is already covered)
@@ -8,17 +8,17 @@
 
 ---
 
-## Phase 1 — Foundation (Vite + TypeScript migration)
+## ✅ Phase 1 — Foundation (Vite + TypeScript migration)
 
 The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix structural bugs — without changing any visible behavior.
 
-### 1.1 New project scaffold
+### ✅ 1.1 New project scaffold
 
 - Init Vite + React + TypeScript project
 - Replicate existing MUI dark theme setup
 - Configure path aliases, ESLint, Prettier
 
-### 1.2 State management
+### ✅ 1.2 State management
 
 - Install Zustand with `persist` middleware
 - Replace all manual `localStorage.getItem/setItem` calls with two stores:
@@ -27,7 +27,7 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
 - All stores versioned from day one (`version: 0`) with a `migrate` function in place — required any time the shape of stored data changes
 - Delete `src/data/localStorageManager.js` and `src/enums/localStorage.js`
 
-### 1.3 Sync abstraction layer
+### ✅ 1.3 Sync abstraction layer
 
 - Create `src/lib/sync.ts` with a stable interface:
   - `sendMessage(msg: SyncMessage): void`
@@ -36,7 +36,7 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
 - All components send/receive through this — no component ever touches BroadcastChannel directly
 - This is the seam where Supabase / PartyKit / WebRTC slots in later
 
-### 1.4 Port components
+### ✅ 1.4 Port components
 
 - Convert all `.js` / `.jsx` → `.ts` / `.tsx`
 - Add proper types for `Character`, `ImageFolder`, `Image`, `Actor`, `SyncMessage`
@@ -46,7 +46,7 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
   - `experimentalFeatures={{ newEditingApi: true }}` — remove (default in v7)
   - `pageSize` / `rowsPerPageOptions` → `paginationModel`
 
-### 1.5 Routing fix
+### ✅ 1.5 Routing fix
 
 - `/players` route currently broken (`/?/players` in App.js is wrong)
 - Fix to `/players` under the `basename`

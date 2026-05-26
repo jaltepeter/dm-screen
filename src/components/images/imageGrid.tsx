@@ -2,14 +2,26 @@ import Box from '@mui/material/Box';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
-import PropTypes from 'prop-types';
 import SendIcon from '@mui/icons-material/Send';
 import { alpha } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Image } from '../../store/imageStore';
 
 const Columns = 4;
 
-export default function ImageGrid({ folderName, images, onSendImage, onDeleteImage }) {
+interface ImageGridProps {
+  folderName: string;
+  images: Image[];
+  onSendImage: (image: Image) => void;
+  onDeleteImage: (args: { folderName: string; image: Image }) => void;
+}
+
+export default function ImageGrid({
+  folderName,
+  images,
+  onSendImage,
+  onDeleteImage
+}: ImageGridProps) {
   const gridContainerStyle = {
     display: 'grid',
     gridTemplateColumns: `repeat(${Columns}, 1fr)`,
@@ -19,8 +31,6 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
   const gridItemStyle = {
     margin: 'auto'
   };
-
-  // const imageStyle = {};
 
   const overlayStyle = {
     background: alpha('#1A2027', 0.6)
@@ -75,10 +85,3 @@ export default function ImageGrid({ folderName, images, onSendImage, onDeleteIma
     </Box>
   );
 }
-
-ImageGrid.propTypes = {
-  folderName: PropTypes.string,
-  images: PropTypes.array,
-  onSendImage: PropTypes.func,
-  onDeleteImage: PropTypes.func
-};

@@ -1,18 +1,19 @@
+import React from 'react';
+
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import PanoramaIcon from '@mui/icons-material/Panorama';
-import PropTypes from 'prop-types';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
-NavBar.propTypes = {
-  onToggleMenuDrawer: PropTypes.func,
-  onOpenPlayerView: PropTypes.func
-};
+interface NavBarProps {
+  onToggleMenuDrawer: (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => void;
+  onOpenPlayerView: () => void;
+}
 
-export default function NavBar({ onToggleMenuDrawer, onOpenPlayerView }) {
+export default function NavBar({ onToggleMenuDrawer, onOpenPlayerView }: NavBarProps) {
   return (
     <AppBar position='static'>
       <Toolbar>

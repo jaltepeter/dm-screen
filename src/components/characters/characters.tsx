@@ -3,12 +3,19 @@ import Grid from '@mui/material/Grid';
 import InitiativeTracker from './initiative/initiativeTracker';
 import ManageCharactersDialog from './manageCharactersDialog';
 import PlayerDetails from './playerDetails';
-import PropTypes from 'prop-types';
 import { Section } from '../../components/section';
 import Typography from '@mui/material/Typography';
 import { useCharacterStore } from '../../store/characterStore';
 
-export default function Characters({ isManageCharDialogOpen, onCloseManageCharDialog }) {
+interface CharactersProps {
+  isManageCharDialogOpen: boolean;
+  onCloseManageCharDialog: () => void;
+}
+
+export default function Characters({
+  isManageCharDialogOpen,
+  onCloseManageCharDialog
+}: CharactersProps) {
   const characters = useCharacterStore((s) => s.characters);
   const addCharacter = useCharacterStore((s) => s.addCharacter);
   const editCharacter = useCharacterStore((s) => s.editCharacter);
@@ -44,8 +51,3 @@ export default function Characters({ isManageCharDialogOpen, onCloseManageCharDi
     </Grid>
   );
 }
-
-Characters.propTypes = {
-  isManageCharDialogOpen: PropTypes.bool,
-  onCloseManageCharDialog: PropTypes.func
-};

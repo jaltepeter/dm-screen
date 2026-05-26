@@ -8,8 +8,8 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import CssBaseline from '@mui/material/CssBaseline';
-import DmScreen from './pages/dm-screen.js';
-import PlayerView from './pages/player-view.js';
+import DmScreen from './pages/dm-screen';
+import PlayerView from './pages/player-view';
 
 const darkTheme = createTheme({
   palette: {
@@ -23,8 +23,8 @@ function App() {
       <CssBaseline />
       <Router basename='/dm-screen'>
         <Routes>
-          <Route exact path='/' element={<DmScreen />} />
-          <Route exact path='/?/players' element={<PlayerView />} />
+          <Route path='/' element={<DmScreen />} />
+          <Route path='/players' element={<PlayerView />} />
         </Routes>
       </Router>
     </ThemeProvider>

@@ -6,6 +6,7 @@ import { Section } from '../section';
 import Typography from '@mui/material/Typography';
 import { sendMessage } from '../../lib/sync';
 import { useImageStore } from '../../store/imageStore';
+import { Image } from '../../store/imageStore';
 
 export default function Images() {
   const folders = useImageStore((s) => s.folders);
@@ -15,7 +16,7 @@ export default function Images() {
   const addImage = useImageStore((s) => s.addImage);
   const deleteImage = useImageStore((s) => s.deleteImage);
 
-  const sendImageToPlayerView = (item) => {
+  const sendImageToPlayerView = (item: Image) => {
     sendMessage({ cmd: 'image', payload: item });
   };
 

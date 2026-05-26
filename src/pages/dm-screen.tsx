@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -18,27 +18,21 @@ const DmScreen = () => {
     document.title = pageTitle;
   }, []);
 
-  /**
-   * Opens the player view in a new window/tab
-   */
   const handleOpenPlayerView = () => {
     window.open('/dm-screen/players', '_blank');
   };
 
-  /**
-   * Open or close the left side menu drawer
-   * @param {boolean} open - Whether or not the menu drawer should be open
-   */
-  const toggleMenuDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+  const toggleMenuDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' ||
+        (event as React.KeyboardEvent).key === 'Shift')
+    ) {
       return;
     }
     setIsDrawerOpen(open);
   };
 
-  /**
-   * Opens the 'Manage Characters' dialog
-   */
   const handleManageCharacters = () => {
     setIsDrawerOpen(false);
     setIsManageCharactersOpen(true);

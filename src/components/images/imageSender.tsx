@@ -1,28 +1,29 @@
+import { ChangeEvent, useState } from 'react';
+
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import PropTypes from 'prop-types';
 import SendIcon from '@mui/icons-material/Send';
 import { Typography } from '@mui/material';
-import { useState } from 'react';
+import { Image } from '../../store/imageStore';
 
-ImageSender.propTypes = {
-  onSendImage: PropTypes.func
-};
+interface ImageSenderProps {
+  onSendImage: (image: Image) => void;
+}
 
-export default function ImageSender({ onSendImage }) {
+export default function ImageSender({ onSendImage }: ImageSenderProps) {
   const [imageUrl, setImageUrl] = useState('');
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setImageUrl(event.target.value);
   };
 
   const handleSendImage = () => {
     if (imageUrl) {
-      onSendImage(imageUrl);
+      onSendImage({ url: imageUrl });
       setImageUrl('');
     }
   };
