@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
 import { Actor, onMessage } from '../lib/sync';
 
@@ -6,6 +7,7 @@ export default function PlayerView() {
   const [imageSource, setImageSource] = useState<{ url: string; title?: string } | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [index, setIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const showInit = actors.length > 0;
 
@@ -27,8 +29,22 @@ export default function PlayerView() {
     });
   }, []);
 
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
-    <div className='relative w-screen h-screen overflow-hidden bg-black'>
+    <div className='group relative w-screen h-screen overflow-hidden bg-black'>
       {imageSource ? (
         <img
           src={imageSource.url}
@@ -53,6 +69,13 @@ export default function PlayerView() {
           <InitiativePlayerView actors={actors} turnNumber={index} />
         </div>
       </div>
+
+      {/* Fullscreen toggle */}
+      <button
+        onClick={toggleFullscreen}
+        className='absolute bottom-4 right-4 p-2 rounded-md bg-black/40 text-white/40 opacity-0 group-hover:opacity-100 hover:bg-black/70 hover:text-white/90 transition-all duration-200'>
+        {isFullscreen ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
+      </button>
     </div>
   );
 }

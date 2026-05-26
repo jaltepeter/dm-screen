@@ -13,7 +13,7 @@ export interface ImageFolder {
 
 interface ImageStore {
   folders: ImageFolder[];
-  createFolder: () => void;
+  createFolder: (name?: string) => void;
   renameFolder: (oldName: string, newName: string) => void;
   deleteFolder: (folderName: string) => void;
   addImage: (folderName: string, url: string, title?: string) => void;
@@ -36,11 +36,15 @@ export const useImageStore = create<ImageStore>()(
     (set, get) => ({
       folders: DEFAULT_FOLDERS,
 
-      createFolder: () => {
+      createFolder: (name) => {
         const { folders } = get();
-        const numNewFolders = folders.filter((f) => f.folderName.startsWith('New Folder')).length;
-        const suffix = numNewFolders > 0 ? ` ${numNewFolders + 1}` : '';
-        set({ folders: [...folders, { folderName: `New Folder${suffix}`, images: [] }] });
+        let folderName = name?.trim();
+        if (!folderName) {
+          const numNewFolders = folders.filter((f) => f.folderName.startsWith('New Folder')).length;
+          const suffix = numNewFolders > 0 ? ` ${numNewFolders + 1}` : '';
+          folderName = `New Folder${suffix}`;
+        }
+        set({ folders: [...folders, { folderName, images: [] }] });
       },
 
       renameFolder: (oldName, newName) => {

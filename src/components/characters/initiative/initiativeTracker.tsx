@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { SkipBack, SkipForward } from 'lucide-react';
+import { SkipBack, SkipForward, Sword, Swords } from 'lucide-react';
 import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
 import { Actor, sendMessage } from '../../../lib/sync';
@@ -92,11 +92,15 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
             {actors.map((actor, index) => (
               <div
                 key={actor.id}
-                className={`grid grid-cols-[2.5rem_1fr_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm ${
-                  selectedIndex === index ? 'bg-accent' : ''
+                className={`grid grid-cols-[2.5rem_1fr_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
+                  selectedIndex === index ? 'bg-primary/10 border-primary' : 'border-transparent'
                 }`}>
                 <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
-                <span className={actor.active ? '' : 'line-through text-muted-foreground'}>
+                <span
+                  className={`flex items-center gap-1.5 ${
+                    actor.active ? '' : 'line-through text-muted-foreground'
+                  }`}>
+                  {selectedIndex === index && <Sword className='h-3 w-3 text-primary shrink-0' />}
                   {actor.name}
                 </span>
                 <div className='flex justify-center'>
@@ -118,7 +122,10 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
           </div>
         </>
       ) : (
-        <p className='text-sm text-muted-foreground'>No combat</p>
+        <div className='flex flex-col items-center gap-2 py-12 text-muted-foreground'>
+          <Swords className='h-8 w-8 opacity-25' />
+          <p className='text-sm'>No combat active</p>
+        </div>
       )}
 
       <div className='flex items-center gap-2'>

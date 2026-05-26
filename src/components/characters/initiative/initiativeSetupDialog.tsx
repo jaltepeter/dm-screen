@@ -52,12 +52,12 @@ export default function InitiativeSetupDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className='max-w-md'>
+      <DialogContent className='max-w-2xl'>
         <DialogHeader>
           <DialogTitle>Set Up Initiative</DialogTitle>
         </DialogHeader>
 
-        <div className='space-y-1 max-h-80 overflow-y-auto'>
+        <div className='space-y-1 max-h-[60vh] overflow-y-auto'>
           <div className='grid grid-cols-[3rem_1fr_4rem_3rem] gap-1 px-1 text-xs text-muted-foreground mb-1'>
             <span>Init</span>
             <span>Name</span>

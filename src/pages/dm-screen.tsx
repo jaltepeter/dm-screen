@@ -4,17 +4,23 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu, MonitorPlay, Swords } from 'lucide-react';
 import Characters from '../components/characters/characters';
+import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
 import InitiativeTracker from '../components/characters/initiative/initiativeTracker';
 import Images from '../components/images/images';
+import ManageImagesDialog from '../components/images/manageImagesDialog';
 import DrawerContents from '../components/drawerContents';
 import { useCharacterStore } from '../store/characterStore';
 import { useUiStore } from '../store/uiStore';
 
 const DmScreen = () => {
   const [isManageCharactersOpen, setIsManageCharactersOpen] = useState(false);
+  const [isManageImagesOpen, setIsManageImagesOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const characters = useCharacterStore((s) => s.characters);
+  const addCharacter = useCharacterStore((s) => s.addCharacter);
+  const editCharacter = useCharacterStore((s) => s.editCharacter);
+  const deleteCharacter = useCharacterStore((s) => s.deleteCharacter);
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const initiativeActive = useUiStore((s) => s.initiativeActive);
 
@@ -27,6 +33,11 @@ const DmScreen = () => {
   const handleManageCharacters = () => {
     setIsSheetOpen(false);
     setIsManageCharactersOpen(true);
+  };
+
+  const handleManageImages = () => {
+    setIsSheetOpen(false);
+    setIsManageImagesOpen(true);
   };
 
   const handleExportData = () => {
@@ -52,6 +63,7 @@ const DmScreen = () => {
               onExport={handleExportData}
               onImport={handleImportData}
               onClickManageCharacters={handleManageCharacters}
+              onClickManageImages={handleManageImages}
             />
           </SheetContent>
         </Sheet>
@@ -89,31 +101,41 @@ const DmScreen = () => {
         </Button>
       </header>
 
+      <ManageCharactersDialog
+        characters={characters}
+        isOpen={isManageCharactersOpen}
+        onClose={() => setIsManageCharactersOpen(false)}
+        onAddCharacter={addCharacter}
+        onEditCharacter={editCharacter}
+        onDeleteCharacter={deleteCharacter}
+      />
+      <ManageImagesDialog
+        isOpen={isManageImagesOpen}
+        onClose={() => setIsManageImagesOpen(false)}
+      />
+
       {/* Tabs */}
       <Tabs defaultValue='home' className='flex flex-col flex-1 min-h-0'>
-        <TabsList className='shrink-0 mx-3 mt-2 justify-start h-8 bg-transparent border-b rounded-none gap-1 px-0'>
+        <TabsList className='shrink-0 w-full mt-2 rounded-none px-3'>
           <TabsTrigger
             value='home'
-            className='h-7 px-3 text-xs rounded-sm data-[state=active]:bg-accent'>
+            className='data-active:bg-primary data-active:text-primary-foreground dark:data-active:bg-primary dark:data-active:text-primary-foreground'>
             Home
           </TabsTrigger>
           <TabsTrigger
             value='combat'
-            className='h-7 px-3 text-xs rounded-sm data-[state=active]:bg-accent'>
+            className='data-active:bg-primary data-active:text-primary-foreground dark:data-active:bg-primary dark:data-active:text-primary-foreground'>
             Combat
           </TabsTrigger>
           <TabsTrigger
             value='images'
-            className='h-7 px-3 text-xs rounded-sm data-[state=active]:bg-accent'>
+            className='data-active:bg-primary data-active:text-primary-foreground dark:data-active:bg-primary dark:data-active:text-primary-foreground'>
             Images
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value='home' className='flex-1 overflow-auto p-3 mt-0'>
-          <Characters
-            isManageCharDialogOpen={isManageCharactersOpen}
-            onCloseManageCharDialog={() => setIsManageCharactersOpen(false)}
-          />
+          <Characters />
         </TabsContent>
 
         <TabsContent value='combat' className='flex-1 overflow-auto p-3 mt-0'>

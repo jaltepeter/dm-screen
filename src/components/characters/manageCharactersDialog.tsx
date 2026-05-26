@@ -87,11 +87,11 @@ export default function ManageCharactersDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='max-w-4xl max-h-[80vh] flex flex-col'>
-        <DialogHeader>
+      <DialogContent className='top-0 left-0 translate-x-0 translate-y-0 flex h-screen max-h-screen w-screen max-w-none sm:max-w-none m-0 rounded-none p-0 gap-0 flex-col'>
+        <DialogHeader className='px-4 py-3 border-b shrink-0'>
           <DialogTitle>Manage Characters</DialogTitle>
         </DialogHeader>
-        <div className='overflow-auto flex-1'>
+        <div className='overflow-auto flex-1 p-4'>
           <Table>
             <TableHeader>
               <TableRow>
@@ -147,10 +147,12 @@ export default function ManageCharactersDialog({
             </TableBody>
           </Table>
         </div>
-        <Button variant='outline' size='sm' onClick={onAddCharacter} className='mt-2 self-start'>
-          <Plus className='h-4 w-4 mr-1' />
-          Add Character
-        </Button>
+        <div className='px-4 py-3 border-t shrink-0'>
+          <Button variant='outline' size='sm' onClick={onAddCharacter}>
+            <Plus className='h-4 w-4 mr-1' />
+            Add Character
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

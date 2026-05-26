@@ -1,56 +1,56 @@
-import ManageCharactersDialog from './manageCharactersDialog';
+import { useRef, useState } from 'react';
 import PlayerDetails from './playerDetails';
 import { Textarea } from '@/components/ui/textarea';
 import { useCharacterStore } from '../../store/characterStore';
 import { useNotesStore } from '../../store/notesStore';
 
-interface CharactersProps {
-  isManageCharDialogOpen: boolean;
-  onCloseManageCharDialog: () => void;
-}
-
-export default function Characters({
-  isManageCharDialogOpen,
-  onCloseManageCharDialog
-}: CharactersProps) {
+export default function Characters() {
   const characters = useCharacterStore((s) => s.characters);
-  const addCharacter = useCharacterStore((s) => s.addCharacter);
-  const editCharacter = useCharacterStore((s) => s.editCharacter);
-  const deleteCharacter = useCharacterStore((s) => s.deleteCharacter);
   const notes = useNotesStore((s) => s.notes);
   const setNotes = useNotesStore((s) => s.setNotes);
 
+  const [savedVisible, setSavedVisible] = useState(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleNotesChange = (value: string) => {
+    setNotes(value);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    saveTimer.current = setTimeout(() => {
+      setSavedVisible(true);
+      fadeTimer.current = setTimeout(() => setSavedVisible(false), 1500);
+    }, 800);
+  };
+
   return (
-    <>
-      <ManageCharactersDialog
-        characters={characters}
-        isOpen={isManageCharDialogOpen}
-        onClose={onCloseManageCharDialog}
-        onAddCharacter={addCharacter}
-        onEditCharacter={editCharacter}
-        onDeleteCharacter={deleteCharacter}
-      />
+    <div className='space-y-4'>
+      <section>
+        <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2'>
+          Characters
+        </h2>
+        <PlayerDetails characters={characters} />
+      </section>
 
-      <div className='space-y-4'>
-        <section>
-          <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2'>
-            Characters
-          </h2>
-          <PlayerDetails characters={characters} />
-        </section>
-
-        <section>
-          <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2'>
+      <section>
+        <div className='flex items-center justify-between mb-2'>
+          <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
             Notes
           </h2>
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder='Session notes…'
-            className='min-h-32 resize-y text-sm font-mono'
-          />
-        </section>
-      </div>
-    </>
+          <span
+            className={`text-xs text-muted-foreground transition-opacity duration-500 ${
+              savedVisible ? 'opacity-100' : 'opacity-0'
+            }`}>
+            Saved
+          </span>
+        </div>
+        <Textarea
+          value={notes}
+          onChange={(e) => handleNotesChange(e.target.value)}
+          placeholder='Session notes…'
+          className='min-h-32 resize-y text-sm font-mono'
+        />
+      </section>
+    </div>
   );
 }
