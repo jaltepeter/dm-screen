@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import NativeSelect from '@/components/ui/native-select';
 import { Trash2, Plus } from 'lucide-react';
 import { EncounterEntry, useEncounterStore } from '../../store/encounterStore';
 import ConfirmDialog from '@/components/ui/confirmDialog';
@@ -193,17 +194,16 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
                         <div
                           key={entry.id}
                           className='grid grid-cols-[1fr_1fr_2rem] gap-2 items-center'>
-                          <select
+                          <NativeSelect
                             value={entry.statBlockId}
-                            onChange={(e) => handleEditEntryStatBlock(entry.id, e.target.value)}
-                            className='h-8 rounded-md border border-input bg-background px-2 text-sm'>
+                            onChange={(e) => handleEditEntryStatBlock(entry.id, e.target.value)}>
                             {!sb && <option value=''>— missing —</option>}
                             {statBlocks.map((s) => (
                               <option key={s.id} value={s.id}>
                                 {s.name}
                               </option>
                             ))}
-                          </select>
+                          </NativeSelect>
                           <Input
                             value={entry.instanceName}
                             onChange={(e) => handleEditEntryName(entry.id, e.target.value)}
@@ -230,10 +230,10 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
                   {/* Add entry row */}
                   {statBlocks.length > 0 && (
                     <div className='px-4 py-3 border-t shrink-0 flex gap-2 items-center'>
-                      <select
+                      <NativeSelect
                         value={addStatBlockId}
                         onChange={(e) => setAddStatBlockId(e.target.value)}
-                        className='flex-1 h-8 rounded-md border border-input bg-background px-2 text-sm'>
+                        className='flex-1'>
                         <option value=''>Select stat block…</option>
                         {statBlocks.map((s) => (
                           <option key={s.id} value={s.id}>
@@ -241,7 +241,7 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
                             {s.ac != null ? `, AC ${s.ac}` : ''})
                           </option>
                         ))}
-                      </select>
+                      </NativeSelect>
                       <Button
                         variant='outline'
                         size='sm'

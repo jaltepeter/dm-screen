@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import NativeSelect from '@/components/ui/native-select';
 import { Trash2, Plus } from 'lucide-react';
 import { Actor } from '../../../lib/sync';
 import ConfirmDialog from '@/components/ui/confirmDialog';
@@ -160,17 +161,17 @@ export default function InitiativeSetupDialog({
               </p>
               {encounterTemplates.length > 0 && (
                 <div className='flex gap-2 items-center px-1 pb-1'>
-                  <select
+                  <NativeSelect
                     value={loadEncounterId}
                     onChange={(e) => setLoadEncounterId(e.target.value)}
-                    className='flex-1 h-8 rounded-md border border-input bg-background px-2 text-sm'>
+                    className='flex-1'>
                     <option value=''>Load encounter…</option>
                     {encounterTemplates.map((t) => (
                       <option key={t.id} value={t.id}>
                         {t.name}
                       </option>
                     ))}
-                  </select>
+                  </NativeSelect>
                   <Button
                     variant='outline'
                     size='sm'
