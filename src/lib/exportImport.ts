@@ -1,9 +1,9 @@
-const STORE_KEYS = [
-  'dm-screen/characters',
-  'dm-screen/images',
-  'dm-screen/notes',
-  'dm-screen/encounters'
-] as const;
+import { STORE_KEY as CHARACTERS_KEY } from '../store/characterStore';
+import { STORE_KEY as IMAGES_KEY } from '../store/imageStore';
+import { STORE_KEY as NOTES_KEY } from '../store/notesStore';
+import { STORE_KEY as ENCOUNTERS_KEY } from '../store/encounterStore';
+
+const STORE_KEYS = [CHARACTERS_KEY, IMAGES_KEY, NOTES_KEY, ENCOUNTERS_KEY] as const;
 
 export function exportData(): void {
   const data: Record<string, unknown> = { version: 1 };

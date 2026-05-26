@@ -55,6 +55,8 @@ interface EncounterStore {
   deleteTemplate: (id: string) => void;
 }
 
+export const STORE_KEY = 'dm-screen/encounters';
+
 export function migrateEncounterStore(state: unknown, version: number): unknown {
   const s = state as Record<string, unknown>;
   if (version < 1) {
@@ -104,7 +106,7 @@ export const useEncounterStore = create<EncounterStore>()(
       }
     }),
     {
-      name: 'dm-screen/encounters',
+      name: STORE_KEY,
       version: 1,
       migrate: migrateEncounterStore
     }

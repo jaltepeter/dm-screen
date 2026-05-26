@@ -6,6 +6,8 @@ interface NotesStore {
   setNotes: (notes: string) => void;
 }
 
+export const STORE_KEY = 'dm-screen/notes';
+
 export function migrateNotesStore(state: unknown, _version: number): { notes: string } {
   return state as { notes: string };
 }
@@ -17,7 +19,7 @@ export const useNotesStore = create<NotesStore>()(
       setNotes: (notes) => set({ notes })
     }),
     {
-      name: 'dm-screen/notes',
+      name: STORE_KEY,
       version: 0,
       migrate: migrateNotesStore
     }

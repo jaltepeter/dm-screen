@@ -45,6 +45,8 @@ const DEFAULT_CHARACTERS: Character[] = [
   }
 ];
 
+export const STORE_KEY = 'dm-screen/characters';
+
 export function migrateCharacterStore(
   state: unknown,
   _version: number
@@ -90,7 +92,7 @@ export const useCharacterStore = create<CharacterStore>()(
       }
     }),
     {
-      name: 'dm-screen/characters',
+      name: STORE_KEY,
       version: 0,
       migrate: migrateCharacterStore
     }

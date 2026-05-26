@@ -31,6 +31,8 @@ const DEFAULT_FOLDERS: ImageFolder[] = [
   }
 ];
 
+export const STORE_KEY = 'dm-screen/images';
+
 export function migrateImageStore(state: unknown, _version: number): { folders: ImageFolder[] } {
   return state as { folders: ImageFolder[] };
 }
@@ -81,7 +83,7 @@ export const useImageStore = create<ImageStore>()(
       }
     }),
     {
-      name: 'dm-screen/images',
+      name: STORE_KEY,
       version: 0,
       migrate: migrateImageStore
     }
