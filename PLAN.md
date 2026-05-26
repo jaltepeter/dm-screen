@@ -80,7 +80,7 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
 
 ## Phase 3 — Features
 
-### 3.1 Export / import data
+### ✅ 3.1 Export / import data
 
 - Export: serialize Zustand stores → JSON download (the `downloadJsonFile` util already exists)
 - Import: JSON file picker → validate shape → load into stores

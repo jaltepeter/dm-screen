@@ -51,7 +51,7 @@ This codebase is being modernized. Current state:
 - Build tool: CRA (being replaced with Vite)
 - No TypeScript (being added)
 - `@mui/x-data-grid` v5 with deprecated APIs (`components=`, `experimentalFeatures`, `pageSize`)
-- Export/import data is stubbed — `handleExportData` is commented out, `handleImportData` logs nothing
+- Export/import data is implemented — exports `characters`/`images`/`notes` stores as JSON; import writes raw Zustand persist format back to localStorage and reloads (Zustand's own `migrate` pipeline handles schema upgrades on restart)
 - BroadcastChannel created in render body instead of a stable ref
 
 ## Planned Stack (post-migration)

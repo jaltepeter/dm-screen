@@ -6,6 +6,10 @@ interface NotesStore {
   setNotes: (notes: string) => void;
 }
 
+export function migrateNotesStore(state: unknown, _version: number): { notes: string } {
+  return state as { notes: string };
+}
+
 export const useNotesStore = create<NotesStore>()(
   persist(
     (set) => ({
@@ -15,7 +19,7 @@ export const useNotesStore = create<NotesStore>()(
     {
       name: 'dm-screen/notes',
       version: 0,
-      migrate: (state) => state
+      migrate: migrateNotesStore
     }
   )
 );

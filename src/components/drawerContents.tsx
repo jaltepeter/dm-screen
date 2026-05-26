@@ -29,7 +29,7 @@ export default function DrawerContents({
         <Upload className='h-4 w-4' />
         Export Data
       </Button>
-      <Button variant='ghost' className='justify-start gap-2' disabled onClick={onImport}>
+      <Button variant='ghost' className='justify-start gap-2' onClick={onImport}>
         <Download className='h-4 w-4' />
         Import Data
       </Button>

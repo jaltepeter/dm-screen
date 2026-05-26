@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -11,11 +12,13 @@ import ManageImagesDialog from '../components/images/manageImagesDialog';
 import DrawerContents from '../components/drawerContents';
 import { useCharacterStore } from '../store/characterStore';
 import { useUiStore } from '../store/uiStore';
+import { exportData, importData } from '../lib/exportImport';
 
 const DmScreen = () => {
   const [isManageCharactersOpen, setIsManageCharactersOpen] = useState(false);
   const [isManageImagesOpen, setIsManageImagesOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const characters = useCharacterStore((s) => s.characters);
   const addCharacter = useCharacterStore((s) => s.addCharacter);
@@ -40,13 +43,9 @@ const DmScreen = () => {
     setIsManageImagesOpen(true);
   };
 
-  const handleExportData = () => {
-    // TODO: implement export
-  };
+  const handleExportData = () => exportData();
 
-  const handleImportData = () => {
-    // TODO: implement import
-  };
+  const handleImportData = () => fileInputRef.current?.click();
 
   return (
     <div className='flex flex-col h-screen'>
@@ -112,6 +111,17 @@ const DmScreen = () => {
       <ManageImagesDialog
         isOpen={isManageImagesOpen}
         onClose={() => setIsManageImagesOpen(false)}
+      />
+      <input
+        ref={fileInputRef}
+        type='file'
+        accept='.json'
+        className='hidden'
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) importData(file);
+          e.target.value = '';
+        }}
       />
 
       {/* Tabs */}

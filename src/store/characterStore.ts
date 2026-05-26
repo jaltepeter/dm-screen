@@ -45,6 +45,13 @@ const DEFAULT_CHARACTERS: Character[] = [
   }
 ];
 
+export function migrateCharacterStore(
+  state: unknown,
+  _version: number
+): { characters: Character[] } {
+  return state as { characters: Character[] };
+}
+
 export const useCharacterStore = create<CharacterStore>()(
   persist(
     (set, get) => ({
@@ -85,7 +92,7 @@ export const useCharacterStore = create<CharacterStore>()(
     {
       name: 'dm-screen/characters',
       version: 0,
-      migrate: (state) => state
+      migrate: migrateCharacterStore
     }
   )
 );

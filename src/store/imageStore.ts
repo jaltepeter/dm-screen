@@ -31,6 +31,10 @@ const DEFAULT_FOLDERS: ImageFolder[] = [
   }
 ];
 
+export function migrateImageStore(state: unknown, _version: number): { folders: ImageFolder[] } {
+  return state as { folders: ImageFolder[] };
+}
+
 export const useImageStore = create<ImageStore>()(
   persist(
     (set, get) => ({
@@ -79,7 +83,7 @@ export const useImageStore = create<ImageStore>()(
     {
       name: 'dm-screen/images',
       version: 0,
-      migrate: (state) => state
+      migrate: migrateImageStore
     }
   )
 );
