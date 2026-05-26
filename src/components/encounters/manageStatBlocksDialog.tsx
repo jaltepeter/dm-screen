@@ -5,7 +5,8 @@ import { Trash2, Plus, Search } from 'lucide-react';
 import { StatBlock, useEncounterStore } from '../../store/encounterStore';
 import Open5eSearchDialog from './open5eSearchDialog';
 import StatBlockEditorPanel from './statBlockEditorPanel';
-import ConfirmDialog from '@/components/ui/confirmDialog';
+import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
+import { useConfirmDelete } from '@/lib/useConfirmDelete';
 
 interface Props {
   isOpen: boolean;
@@ -20,7 +21,7 @@ export default function ManageStatBlocksDialog({ isOpen, onClose }: Props) {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<StatBlock>();
 
   const selected = statBlocks.find((s) => s.id === selectedId) ?? null;
 
@@ -35,21 +36,16 @@ export default function ManageStatBlocksDialog({ isOpen, onClose }: Props) {
   const handleDelete = (id: string) => {
     deleteStatBlock(id);
     if (selectedId === id) setSelectedId(null);
-    setPendingDeleteId(null);
   };
-
-  const pendingDelete = statBlocks.find((s) => s.id === pendingDeleteId) ?? null;
 
   return (
     <>
-      <ConfirmDialog
-        open={!!pendingDeleteId}
+      <DeleteConfirmDialog
+        target={deleteTarget}
         title='Delete stat block?'
-        description={
-          pendingDelete ? `"${pendingDelete.name}" will be permanently deleted.` : undefined
-        }
-        onConfirm={() => pendingDeleteId && handleDelete(pendingDeleteId)}
-        onCancel={() => setPendingDeleteId(null)}
+        getDescription={(sb) => `"${sb.name}" will be permanently deleted.`}
+        onConfirm={(sb) => handleDelete(sb.id)}
+        onCancel={clearDelete}
       />
       <Open5eSearchDialog
         isOpen={isSearchOpen}
@@ -92,7 +88,7 @@ export default function ManageStatBlocksDialog({ isOpen, onClose }: Props) {
                       className='h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0'
                       onClick={(e) => {
                         e.stopPropagation();
-                        setPendingDeleteId(sb.id);
+                        requestDelete(sb);
                       }}>
                       <Trash2 className='h-3.5 w-3.5' />
                     </Button>

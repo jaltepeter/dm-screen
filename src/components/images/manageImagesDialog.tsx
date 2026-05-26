@@ -9,7 +9,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Trash2, Pencil, FolderPlus, ImagePlus } from 'lucide-react';
 import { useImageStore, Image } from '../../store/imageStore';
-import ConfirmDialog from '@/components/ui/confirmDialog';
+import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
+import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import ImageThumbnail from './image-thumbnail';
 import AddImageDialog from './add-image-dialog';
 import RenameFolderDialog from './rename-folder-dialog';
@@ -20,22 +21,20 @@ interface ManageImagesDialogProps {
   onClose: () => void;
 }
 
-type SubDialog = 'addImage' | 'rename' | 'deleteFolder' | 'newFolder' | null;
+type SubDialog = 'addImage' | 'rename' | 'newFolder' | null;
 
 export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDialogProps) {
   const folders = useImageStore((s) => s.folders);
   const createFolder = useImageStore((s) => s.createFolder);
   const renameFolder = useImageStore((s) => s.renameFolder);
-  const deleteFolder = useImageStore((s) => s.deleteFolder);
+  const deleteFolderFn = useImageStore((s) => s.deleteFolder);
   const addImage = useImageStore((s) => s.addImage);
-  const deleteImage = useImageStore((s) => s.deleteImage);
+  const deleteImageFn = useImageStore((s) => s.deleteImage);
 
   const [targetFolder, setTargetFolder] = useState('');
   const [subDialog, setSubDialog] = useState<SubDialog>(null);
-  const [pendingDeleteImage, setPendingDeleteImage] = useState<{
-    folder: string;
-    image: Image;
-  } | null>(null);
+  const deleteImage = useConfirmDelete<{ folder: string; image: Image }>();
+  const deleteFolder = useConfirmDelete<string>();
 
   const openSub = (dialog: SubDialog, folder = '') => {
     setTargetFolder(folder);
@@ -48,30 +47,24 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
 
   return (
     <>
-      <ConfirmDialog
-        open={!!pendingDeleteImage}
+      <DeleteConfirmDialog
+        target={deleteImage.target}
         title='Delete image?'
-        description={
-          pendingDeleteImage?.image.title
-            ? `"${pendingDeleteImage.image.title}" will be permanently deleted.`
+        getDescription={({ image }) =>
+          image.title
+            ? `"${image.title}" will be permanently deleted.`
             : 'This image will be permanently deleted.'
         }
-        onConfirm={() => {
-          if (pendingDeleteImage) deleteImage(pendingDeleteImage.folder, pendingDeleteImage.image);
-          setPendingDeleteImage(null);
-        }}
-        onCancel={() => setPendingDeleteImage(null)}
+        onConfirm={({ folder, image }) => deleteImageFn(folder, image)}
+        onCancel={deleteImage.clearDelete}
       />
 
-      <ConfirmDialog
-        open={subDialog === 'deleteFolder'}
+      <DeleteConfirmDialog
+        target={deleteFolder.target}
         title='Delete Folder?'
-        description={`This will permanently delete "${targetFolder}" and all its images.`}
-        onConfirm={() => {
-          deleteFolder(targetFolder);
-          closeSub();
-        }}
-        onCancel={closeSub}
+        getDescription={(folder) => `This will permanently delete "${folder}" and all its images.`}
+        onConfirm={(folder) => deleteFolderFn(folder)}
+        onCancel={deleteFolder.clearDelete}
       />
 
       <AddImageDialog
@@ -133,7 +126,7 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
                           variant='ghost'
                           size='icon'
                           className='h-7 w-7 text-destructive hover:text-destructive'
-                          onClick={() => openSub('deleteFolder', folder.folderName)}>
+                          onClick={() => deleteFolder.requestDelete(folder.folderName)}>
                           <Trash2 className='h-3.5 w-3.5' />
                         </Button>
                       </div>
@@ -152,7 +145,7 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
                                   size='icon'
                                   className='h-6 w-6 ml-auto'
                                   onClick={() =>
-                                    setPendingDeleteImage({ folder: folder.folderName, image })
+                                    deleteImage.requestDelete({ folder: folder.folderName, image })
                                   }>
                                   <Trash2 className='h-3.5 w-3.5' />
                                 </Button>

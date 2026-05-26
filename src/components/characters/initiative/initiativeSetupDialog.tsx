@@ -12,7 +12,8 @@ import { Switch } from '@/components/ui/switch';
 import NativeSelect from '@/components/ui/native-select';
 import { Trash2, Plus } from 'lucide-react';
 import { Actor } from '../../../lib/sync';
-import ConfirmDialog from '@/components/ui/confirmDialog';
+import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
+import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import { Character } from '../../../store/characterStore';
 import { useEncounterStore } from '../../../store/encounterStore';
 
@@ -43,7 +44,7 @@ export default function InitiativeSetupDialog({
 }: InitiativeSetupDialogProps) {
   const [actors, setActors] = useState<Actor[]>(() => newPlayerActors(characters));
   const [loadEncounterId, setLoadEncounterId] = useState('');
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Actor>();
 
   const encounterTemplates = useEncounterStore((s) => s.templates);
   const statBlocks = useEncounterStore((s) => s.statBlocks);
@@ -102,21 +103,14 @@ export default function InitiativeSetupDialog({
   const updateActor = (id: string, patch: Partial<Actor>) =>
     setActors(actors.map((a) => (a.id === id ? { ...a, ...patch } : a)));
 
-  const pendingDelete = actors.find((a) => a.id === pendingDeleteId) ?? null;
-
   return (
     <>
-      <ConfirmDialog
-        open={!!pendingDeleteId}
+      <DeleteConfirmDialog
+        target={deleteTarget}
         title='Remove NPC?'
-        description={
-          pendingDelete ? `"${pendingDelete.name}" will be removed from the lineup.` : undefined
-        }
-        onConfirm={() => {
-          if (pendingDeleteId) setActors(actors.filter((a) => a.id !== pendingDeleteId));
-          setPendingDeleteId(null);
-        }}
-        onCancel={() => setPendingDeleteId(null)}
+        getDescription={(a) => `"${a.name}" will be removed from the lineup.`}
+        onConfirm={(a) => setActors(actors.filter((actor) => actor.id !== a.id))}
+        onCancel={clearDelete}
       />
       <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
         <DialogContent className='max-w-2xl'>
@@ -224,7 +218,7 @@ export default function InitiativeSetupDialog({
                     variant='ghost'
                     size='icon'
                     className='h-8 w-8'
-                    onClick={() => setPendingDeleteId(actor.id)}>
+                    onClick={() => requestDelete(actor)}>
                     <Trash2 className='h-4 w-4' />
                   </Button>
                 </div>

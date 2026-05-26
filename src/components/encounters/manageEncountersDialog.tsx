@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import NativeSelect from '@/components/ui/native-select';
 import { Trash2, Plus } from 'lucide-react';
-import { EncounterEntry, useEncounterStore } from '../../store/encounterStore';
-import ConfirmDialog from '@/components/ui/confirmDialog';
+import { EncounterEntry, EncounterTemplate, useEncounterStore } from '../../store/encounterStore';
+import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
+import { useConfirmDelete } from '@/lib/useConfirmDelete';
 
 interface Props {
   isOpen: boolean;
@@ -22,12 +23,12 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
   const templates = useEncounterStore((s) => s.templates);
   const addTemplate = useEncounterStore((s) => s.addTemplate);
   const editTemplate = useEncounterStore((s) => s.editTemplate);
-  const deleteTemplate = useEncounterStore((s) => s.deleteTemplate);
+  const deleteTemplateFn = useEncounterStore((s) => s.deleteTemplate);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [addStatBlockId, setAddStatBlockId] = useState<string>('');
-  const [pendingDeleteTemplateId, setPendingDeleteTemplateId] = useState<string | null>(null);
-  const [pendingDeleteEntryId, setPendingDeleteEntryId] = useState<string | null>(null);
+  const deleteTemplate = useConfirmDelete<EncounterTemplate>();
+  const deleteEntry = useConfirmDelete<EncounterEntry>();
 
   const selected = templates.find((t) => t.id === selectedId) ?? null;
 
@@ -59,7 +60,6 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
   const handleDeleteEntry = (entryId: string) => {
     if (!selected) return;
     editTemplate({ ...selected, entries: selected.entries.filter((e) => e.id !== entryId) });
-    setPendingDeleteEntryId(null);
   };
 
   const handleEditEntryName = (entryId: string, instanceName: string) => {
@@ -79,35 +79,25 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
   };
 
   const handleDeleteTemplate = (id: string) => {
-    deleteTemplate(id);
+    deleteTemplateFn(id);
     if (selectedId === id) setSelectedId(null);
-    setPendingDeleteTemplateId(null);
   };
-
-  const pendingDeleteTemplate = templates.find((t) => t.id === pendingDeleteTemplateId) ?? null;
-  const pendingDeleteEntry = selected?.entries.find((e) => e.id === pendingDeleteEntryId) ?? null;
 
   return (
     <>
-      <ConfirmDialog
-        open={!!pendingDeleteTemplateId}
+      <DeleteConfirmDialog
+        target={deleteTemplate.target}
         title='Delete encounter?'
-        description={
-          pendingDeleteTemplate
-            ? `"${pendingDeleteTemplate.name}" will be permanently deleted.`
-            : undefined
-        }
-        onConfirm={() => pendingDeleteTemplateId && handleDeleteTemplate(pendingDeleteTemplateId)}
-        onCancel={() => setPendingDeleteTemplateId(null)}
+        getDescription={(t) => `"${t.name}" will be permanently deleted.`}
+        onConfirm={(t) => handleDeleteTemplate(t.id)}
+        onCancel={deleteTemplate.clearDelete}
       />
-      <ConfirmDialog
-        open={!!pendingDeleteEntryId}
+      <DeleteConfirmDialog
+        target={deleteEntry.target}
         title='Remove entry?'
-        description={
-          pendingDeleteEntry ? `"${pendingDeleteEntry.instanceName}" will be removed.` : undefined
-        }
-        onConfirm={() => pendingDeleteEntryId && handleDeleteEntry(pendingDeleteEntryId)}
-        onCancel={() => setPendingDeleteEntryId(null)}
+        getDescription={(e) => `"${e.instanceName}" will be removed.`}
+        onConfirm={(e) => handleDeleteEntry(e.id)}
+        onCancel={deleteEntry.clearDelete}
       />
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent className='top-0 left-0 translate-x-0 translate-y-0 flex h-screen max-h-screen w-screen max-w-none sm:max-w-none m-0 rounded-none p-0 gap-0 flex-col'>
@@ -138,7 +128,7 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
                       className='h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0'
                       onClick={(e) => {
                         e.stopPropagation();
-                        setPendingDeleteTemplateId(t.id);
+                        deleteTemplate.requestDelete(t);
                       }}>
                       <Trash2 className='h-3.5 w-3.5' />
                     </Button>
@@ -213,7 +203,7 @@ export default function ManageEncountersDialog({ isOpen, onClose }: Props) {
                             variant='ghost'
                             size='icon'
                             className='h-8 w-8'
-                            onClick={() => setPendingDeleteEntryId(entry.id)}>
+                            onClick={() => deleteEntry.requestDelete(entry)}>
                             <Trash2 className='h-4 w-4' />
                           </Button>
                         </div>

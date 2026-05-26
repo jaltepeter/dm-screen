@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus } from 'lucide-react';
 import { Character, useCharacterStore } from '../../store/characterStore';
-import ConfirmDialog from '@/components/ui/confirmDialog';
+import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
+import { useConfirmDelete } from '@/lib/useConfirmDelete';
 
 interface ManageCharactersDialogProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharac
   const { characters, addCharacter, editCharacter, deleteCharacter } = useCharacterStore();
   const [editing, setEditing] = useState<EditingCell>(null);
   const [draft, setDraft] = useState('');
-  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+  const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Character>();
 
   const startEdit = (char: Character, field: keyof Character) => {
     setEditing({ id: char.id, field });
@@ -77,21 +78,14 @@ export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharac
     );
   };
 
-  const pendingDelete = characters.find((c) => c.id === pendingDeleteId) ?? null;
-
   return (
     <>
-      <ConfirmDialog
-        open={!!pendingDeleteId}
+      <DeleteConfirmDialog
+        target={deleteTarget}
         title='Delete character?'
-        description={
-          pendingDelete ? `"${pendingDelete.name}" will be permanently deleted.` : undefined
-        }
-        onConfirm={() => {
-          if (pendingDeleteId != null) deleteCharacter(pendingDeleteId);
-          setPendingDeleteId(null);
-        }}
-        onCancel={() => setPendingDeleteId(null)}
+        getDescription={(c) => `"${c.name}" will be permanently deleted.`}
+        onConfirm={(c) => deleteCharacter(c.id)}
+        onCancel={clearDelete}
       />
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent className='top-0 left-0 translate-x-0 translate-y-0 flex h-screen max-h-screen w-screen max-w-none sm:max-w-none m-0 rounded-none p-0 gap-0 flex-col'>
@@ -145,7 +139,7 @@ export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharac
                         variant='ghost'
                         size='icon'
                         className='h-7 w-7'
-                        onClick={() => setPendingDeleteId(char.id)}>
+                        onClick={() => requestDelete(char)}>
                         <Trash2 className='h-4 w-4' />
                       </Button>
                     </TableCell>
