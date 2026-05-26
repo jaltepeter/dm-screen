@@ -55,6 +55,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { migrateCharacterStore } from '../characterStore';
+import { migrateCombatStore } from '../combatStore';
 import { migrateImageStore } from '../imageStore';
 import { migrateNotesStore } from '../notesStore';
 import { migrateEncounterStore } from '../encounterStore';
@@ -93,6 +94,14 @@ const v0Images = {
 };
 
 const v0Notes = { notes: 'Session notes here.' };
+
+const v0Combat = { actors: [], selectedIndex: 0, round: 1 };
+
+describe('combatStore migrations', () => {
+  it('v0 state is preserved', () => {
+    expect(migrateCombatStore(v0Combat, 0), CONTRACT_BROKEN).toEqual(v0Combat);
+  });
+});
 
 describe('characterStore migrations', () => {
   it('v0 state is preserved', () => {

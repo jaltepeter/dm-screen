@@ -12,6 +12,10 @@ interface CombatStore {
   reset: () => void;
 }
 
+export function migrateCombatStore(state: unknown, _version: number): unknown {
+  return state;
+}
+
 export const useCombatStore = create<CombatStore>()(
   persist(
     (set) => ({
@@ -26,7 +30,7 @@ export const useCombatStore = create<CombatStore>()(
     {
       name: 'dm-screen/combat',
       version: 0,
-      migrate: (state) => state
+      migrate: migrateCombatStore
     }
   )
 );
