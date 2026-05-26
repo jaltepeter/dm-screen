@@ -8,6 +8,7 @@ export interface Actor {
   conditions: string[];
   hp?: number;
   maxHp?: number;
+  statBlockId?: string;
 }
 
 export type SyncMessage =

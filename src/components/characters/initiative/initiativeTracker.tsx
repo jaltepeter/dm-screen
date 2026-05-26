@@ -9,6 +9,8 @@ import { Actor, sendMessage } from '../../../lib/sync';
 import { Character } from '../../../store/characterStore';
 import { useCombatStore } from '../../../store/combatStore';
 import { useUiStore } from '../../../store/uiStore';
+import { useEncounterStore } from '../../../store/encounterStore';
+import StatBlockCard from '../../encounters/statBlockCard';
 
 interface InitiativeTrackerProps {
   characters: Character[];
@@ -20,10 +22,13 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
   const [setupOpen, setSetupOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [editingHpId, setEditingHpId] = useState<string | null>(null);
+  const [viewingStatBlockId, setViewingStatBlockId] = useState<string | null>(null);
   const hpInputRef = useRef<HTMLInputElement>(null);
   const setInitiativeActive = useUiStore((s) => s.setInitiativeActive);
+  const statBlocks = useEncounterStore((s) => s.statBlocks);
 
   useEffect(() => {
+    if (actors.length === 0) return;
     sendMessage({ cmd: 'init_update', payload: { actors, index: selectedIndex } });
   }, [selectedIndex, actors]);
 
@@ -31,12 +36,23 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
     setInitiativeActive(actors.length > 0);
   }, [actors.length, setInitiativeActive]);
 
+  useEffect(() => {
+    if (editingHpId) hpInputRef.current?.select();
+  }, [editingHpId]);
+
+  const autoFollow = (nextActors: Actor[], nextIndex: number) => {
+    const a = nextActors[nextIndex];
+    if (a?.kind === 'npc' && a.statBlockId) setViewingStatBlockId(a.statBlockId);
+  };
+
   const nextTurn = () => {
     for (let i = selectedIndex + 1; i < actors.length + selectedIndex + 1; i++) {
       if (actors[i % actors.length].active) {
         // i >= actors.length means we wrapped past the end of the list — new round
         if (i >= actors.length) setRound(round + 1);
-        setSelectedIndex(i % actors.length);
+        const nextIndex = i % actors.length;
+        setSelectedIndex(nextIndex);
+        autoFollow(actors, nextIndex);
         break;
       }
     }
@@ -47,6 +63,7 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
       const index = (selectedIndex - i + actors.length) % actors.length;
       if (actors[index].active) {
         setSelectedIndex(index);
+        autoFollow(actors, index);
         break;
       }
     }
@@ -57,11 +74,13 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
     setActors(newActors);
     setSelectedIndex(0);
     setRound(1);
+    autoFollow(newActors, 0);
   };
 
   const handleReset = () => {
     reset();
     setEndOpen(false);
+    setViewingStatBlockId(null);
   };
 
   const toggleVisible = (id: string) =>
@@ -86,8 +105,17 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
     );
   };
 
+  const handleNpcNameClick = (actor: Actor) => {
+    if (!actor.statBlockId) return;
+    setViewingStatBlockId((prev) => (prev === actor.statBlockId ? null : actor.statBlockId!));
+  };
+
+  const viewingStatBlock = viewingStatBlockId
+    ? statBlocks.find((s) => s.id === viewingStatBlockId) ?? null
+    : null;
+
   return (
-    <div className='space-y-3'>
+    <div className='flex flex-col h-full'>
       <InitiativeSetupDialog
         characters={characters}
         isOpen={setupOpen}
@@ -99,127 +127,138 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
         handleClose={() => setEndOpen(false)}
         handleEndInitiative={handleReset}
       />
-
-      {actors.length > 0 ? (
-        <>
-          <div className='text-xs text-muted-foreground'>Round {round}</div>
-          <div className='space-y-0.5'>
-            <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 px-1 text-xs text-muted-foreground'>
-              <span>Init</span>
-              <span>Name</span>
-              <span className='text-center'>HP</span>
-              <span className='text-center'>Vis</span>
-              <span className='text-center'>Alive</span>
-            </div>
-            {actors.map((actor, index) => (
-              <div
-                key={actor.id}
-                className={`grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
-                  selectedIndex === index ? 'bg-primary/10 border-primary' : 'border-transparent'
-                }`}>
-                <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
-                <span
-                  className={`flex items-center gap-1.5 ${
-                    actor.active ? '' : 'line-through text-muted-foreground'
-                  }`}>
-                  {selectedIndex === index && <Sword className='h-3 w-3 text-primary shrink-0' />}
-                  {actor.name}
-                </span>
-                <div className='flex items-center justify-center gap-0.5'>
-                  {actor.kind === 'npc' && actor.maxHp !== undefined ? (
-                    <>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='h-6 w-6 shrink-0'
-                        onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) - 1)}>
-                        <Minus className='h-3 w-3' />
-                      </Button>
-                      {editingHpId === actor.id ? (
-                        <Input
-                          ref={hpInputRef}
-                          type='number'
-                          defaultValue={actor.hp ?? actor.maxHp}
-                          className='h-6 w-10 text-xs px-1 text-center'
-                          onBlur={(e) => {
-                            updateHp(actor.id, Number(e.target.value));
-                            setEditingHpId(null);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              updateHp(actor.id, Number(e.currentTarget.value));
-                              setEditingHpId(null);
-                            } else if (e.key === 'Escape') {
-                              setEditingHpId(null);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <span
-                          className='tabular-nums text-sm w-6 text-center cursor-pointer select-none'
-                          title='Double-click to edit'
-                          onDoubleClick={() => {
-                            setEditingHpId(actor.id);
-                            // Focus after React renders the input
-                            setTimeout(() => hpInputRef.current?.select(), 0);
-                          }}>
-                          {actor.hp ?? actor.maxHp}
-                        </span>
-                      )}
-                      <span className='text-xs text-muted-foreground'>/{actor.maxHp}</span>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='h-6 w-6 shrink-0'
-                        onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) + 1)}>
-                        <Plus className='h-3 w-3' />
-                      </Button>
-                    </>
-                  ) : null}
-                </div>
-                <div className='flex justify-center'>
-                  <Switch
-                    checked={actor.visible}
-                    onCheckedChange={() => toggleVisible(actor.id)}
-                    className='scale-75'
-                  />
-                </div>
-                <div className='flex justify-center'>
-                  <Switch
-                    checked={actor.active}
-                    onCheckedChange={() => toggleActive(actor.id)}
-                    className='scale-75'
-                  />
-                </div>
+      <div className='shrink-0 p-3 space-y-3'>
+        {actors.length > 0 ? (
+          <>
+            <div className='text-xs text-muted-foreground'>Round {round}</div>
+            <div className='space-y-0.5'>
+              <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 px-1 text-xs text-muted-foreground'>
+                <span>Init</span>
+                <span>Name</span>
+                <span className='text-center'>HP</span>
+                <span className='text-center'>Vis</span>
+                <span className='text-center'>Alive</span>
               </div>
-            ))}
+              {actors.map((actor, index) => (
+                <div
+                  key={actor.id}
+                  className={`grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
+                    selectedIndex === index ? 'bg-primary/10 border-primary' : 'border-transparent'
+                  }`}>
+                  <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
+                  <span
+                    className={`flex items-center gap-1.5 ${
+                      actor.active ? '' : 'line-through text-muted-foreground'
+                    } ${
+                      actor.kind === 'npc' && actor.statBlockId
+                        ? 'cursor-pointer hover:underline'
+                        : ''
+                    }`}
+                    onClick={() => handleNpcNameClick(actor)}>
+                    {selectedIndex === index && <Sword className='h-3 w-3 text-primary shrink-0' />}
+                    {actor.name}
+                  </span>
+                  <div className='flex items-center justify-center gap-0.5'>
+                    {actor.kind === 'npc' && actor.maxHp !== undefined ? (
+                      <>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-6 w-6 shrink-0'
+                          onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) - 1)}>
+                          <Minus className='h-3 w-3' />
+                        </Button>
+                        {editingHpId === actor.id ? (
+                          <Input
+                            ref={hpInputRef}
+                            type='number'
+                            defaultValue={actor.hp ?? actor.maxHp}
+                            className='h-6 w-10 text-xs px-1 text-center'
+                            onBlur={(e) => {
+                              updateHp(actor.id, Number(e.target.value));
+                              setEditingHpId(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                updateHp(actor.id, Number(e.currentTarget.value));
+                                setEditingHpId(null);
+                              } else if (e.key === 'Escape') {
+                                setEditingHpId(null);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span
+                            className='tabular-nums text-sm w-6 text-center cursor-pointer select-none'
+                            title='Double-click to edit'
+                            onDoubleClick={() => setEditingHpId(actor.id)}>
+                            {actor.hp ?? actor.maxHp}
+                          </span>
+                        )}
+                        <span className='text-xs text-muted-foreground'>/{actor.maxHp}</span>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-6 w-6 shrink-0'
+                          onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) + 1)}>
+                          <Plus className='h-3 w-3' />
+                        </Button>
+                      </>
+                    ) : null}
+                  </div>
+                  <div className='flex justify-center'>
+                    <Switch
+                      checked={actor.visible}
+                      onCheckedChange={() => toggleVisible(actor.id)}
+                      className='scale-75'
+                    />
+                  </div>
+                  <div className='flex justify-center'>
+                    <Switch
+                      checked={actor.active}
+                      onCheckedChange={() => toggleActive(actor.id)}
+                      className='scale-75'
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className='flex flex-col items-center gap-2 py-12 text-muted-foreground'>
+            <Swords className='h-8 w-8 opacity-25' />
+            <p className='text-sm'>No combat active</p>
+          </div>
+        )}
+
+        <div className='flex items-center gap-2'>
+          <Button variant='outline' size='icon' onClick={prevTurn} disabled={actors.length === 0}>
+            <SkipBack className='h-4 w-4' />
+          </Button>
+          <Button variant='outline' size='icon' onClick={nextTurn} disabled={actors.length === 0}>
+            <SkipForward className='h-4 w-4' />
+          </Button>
+          <div className='flex-1' />
+          {actors.length === 0 ? (
+            <Button size='sm' onClick={() => setSetupOpen(true)}>
+              New Combat
+            </Button>
+          ) : (
+            <Button variant='destructive' size='sm' onClick={() => setEndOpen(true)}>
+              End
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {viewingStatBlock && (
+        <>
+          <hr className='shrink-0 border-t border-border' />
+          <div className='flex-1 overflow-auto px-3 pb-3 pt-3 min-h-0'>
+            <StatBlockCard statBlock={viewingStatBlock} />
           </div>
         </>
-      ) : (
-        <div className='flex flex-col items-center gap-2 py-12 text-muted-foreground'>
-          <Swords className='h-8 w-8 opacity-25' />
-          <p className='text-sm'>No combat active</p>
-        </div>
       )}
-
-      <div className='flex items-center gap-2'>
-        <Button variant='outline' size='icon' onClick={prevTurn} disabled={actors.length === 0}>
-          <SkipBack className='h-4 w-4' />
-        </Button>
-        <Button variant='outline' size='icon' onClick={nextTurn} disabled={actors.length === 0}>
-          <SkipForward className='h-4 w-4' />
-        </Button>
-        <div className='flex-1' />
-        {actors.length === 0 ? (
-          <Button size='sm' onClick={() => setSetupOpen(true)}>
-            New Combat
-          </Button>
-        ) : (
-          <Button variant='destructive' size='sm' onClick={() => setEndOpen(true)}>
-            End
-          </Button>
-        )}
-      </div>
     </div>
   );
 }

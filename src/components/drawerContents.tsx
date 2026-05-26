@@ -1,18 +1,22 @@
 import { Button } from '@/components/ui/button';
-import { Users, Images, Upload, Download } from 'lucide-react';
+import { Users, Images, Upload, Download, Swords, Skull } from 'lucide-react';
 
 interface DrawerContentsProps {
   onImport: () => void;
   onExport: () => void;
   onClickManageCharacters: () => void;
   onClickManageImages: () => void;
+  onClickManageStatBlocks: () => void;
+  onClickManageEncounters: () => void;
 }
 
 export default function DrawerContents({
   onImport,
   onExport,
   onClickManageCharacters,
-  onClickManageImages
+  onClickManageImages,
+  onClickManageStatBlocks,
+  onClickManageEncounters
 }: DrawerContentsProps) {
   return (
     <div className='flex flex-col gap-1 p-2'>
@@ -23,6 +27,14 @@ export default function DrawerContents({
       <Button variant='ghost' className='justify-start gap-2' onClick={onClickManageImages}>
         <Images className='h-4 w-4' />
         Manage Images
+      </Button>
+      <Button variant='ghost' className='justify-start gap-2' onClick={onClickManageStatBlocks}>
+        <Skull className='h-4 w-4' />
+        Stat Blocks
+      </Button>
+      <Button variant='ghost' className='justify-start gap-2' onClick={onClickManageEncounters}>
+        <Swords className='h-4 w-4' />
+        Encounters
       </Button>
       <div className='h-px bg-border my-1' />
       <Button variant='ghost' className='justify-start gap-2' onClick={onExport}>

@@ -1,4 +1,9 @@
-const STORE_KEYS = ['dm-screen/characters', 'dm-screen/images', 'dm-screen/notes'] as const;
+const STORE_KEYS = [
+  'dm-screen/characters',
+  'dm-screen/images',
+  'dm-screen/notes',
+  'dm-screen/encounters'
+] as const;
 
 export function exportData(): void {
   const data: Record<string, unknown> = { version: 1 };

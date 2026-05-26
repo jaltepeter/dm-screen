@@ -10,6 +10,8 @@ import InitiativeTracker from '../components/characters/initiative/initiativeTra
 import Images from '../components/images/images';
 import ManageImagesDialog from '../components/images/manageImagesDialog';
 import DrawerContents from '../components/drawerContents';
+import ManageStatBlocksDialog from '../components/encounters/manageStatBlocksDialog';
+import ManageEncountersDialog from '../components/encounters/manageEncountersDialog';
 import { useCharacterStore } from '../store/characterStore';
 import { useUiStore } from '../store/uiStore';
 import { exportData, importData } from '../lib/exportImport';
@@ -17,6 +19,8 @@ import { exportData, importData } from '../lib/exportImport';
 const DmScreen = () => {
   const [isManageCharactersOpen, setIsManageCharactersOpen] = useState(false);
   const [isManageImagesOpen, setIsManageImagesOpen] = useState(false);
+  const [isManageStatBlocksOpen, setIsManageStatBlocksOpen] = useState(false);
+  const [isManageEncountersOpen, setIsManageEncountersOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,6 +47,16 @@ const DmScreen = () => {
     setIsManageImagesOpen(true);
   };
 
+  const handleManageStatBlocks = () => {
+    setIsSheetOpen(false);
+    setIsManageStatBlocksOpen(true);
+  };
+
+  const handleManageEncounters = () => {
+    setIsSheetOpen(false);
+    setIsManageEncountersOpen(true);
+  };
+
   const handleExportData = () => exportData();
 
   const handleImportData = () => fileInputRef.current?.click();
@@ -63,6 +77,8 @@ const DmScreen = () => {
               onImport={handleImportData}
               onClickManageCharacters={handleManageCharacters}
               onClickManageImages={handleManageImages}
+              onClickManageStatBlocks={handleManageStatBlocks}
+              onClickManageEncounters={handleManageEncounters}
             />
           </SheetContent>
         </Sheet>
@@ -112,6 +128,14 @@ const DmScreen = () => {
         isOpen={isManageImagesOpen}
         onClose={() => setIsManageImagesOpen(false)}
       />
+      <ManageStatBlocksDialog
+        isOpen={isManageStatBlocksOpen}
+        onClose={() => setIsManageStatBlocksOpen(false)}
+      />
+      <ManageEncountersDialog
+        isOpen={isManageEncountersOpen}
+        onClose={() => setIsManageEncountersOpen(false)}
+      />
       <input
         ref={fileInputRef}
         type='file'
@@ -148,7 +172,7 @@ const DmScreen = () => {
           <Characters />
         </TabsContent>
 
-        <TabsContent value='combat' className='flex-1 overflow-auto p-3 mt-0'>
+        <TabsContent value='combat' className='flex-1 overflow-hidden flex flex-col mt-0'>
           <InitiativeTracker characters={characters} />
         </TabsContent>
 

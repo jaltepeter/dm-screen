@@ -17,7 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, Pencil, FolderPlus, ImagePlus } from 'lucide-react';
-import { useImageStore } from '../../store/imageStore';
+import { useImageStore, Image } from '../../store/imageStore';
+import ConfirmDialog from '@/components/ui/confirmDialog';
 
 interface ManageImagesDialogProps {
   isOpen: boolean;
@@ -36,6 +37,10 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
 
   const [targetFolder, setTargetFolder] = useState('');
   const [subDialog, setSubDialog] = useState<SubDialog>(null);
+  const [pendingDeleteImage, setPendingDeleteImage] = useState<{
+    folder: string;
+    image: Image;
+  } | null>(null);
   const [url, setUrl] = useState('');
   const [imageTitle, setImageTitle] = useState('');
   const [folderNameInput, setFolderNameInput] = useState('');
@@ -86,101 +91,119 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='top-0 left-0 translate-x-0 translate-y-0 flex h-screen max-h-screen w-screen max-w-none sm:max-w-none m-0 rounded-none p-0 gap-0 flex-col'>
-        <DialogHeader className='px-4 py-3 border-b shrink-0'>
-          <DialogTitle>Manage Images</DialogTitle>
-        </DialogHeader>
+    <>
+      <ConfirmDialog
+        open={!!pendingDeleteImage}
+        title='Delete image?'
+        description={
+          pendingDeleteImage?.image.title
+            ? `"${pendingDeleteImage.image.title}" will be permanently deleted.`
+            : 'This image will be permanently deleted.'
+        }
+        onConfirm={() => {
+          if (pendingDeleteImage) deleteImage(pendingDeleteImage.folder, pendingDeleteImage.image);
+          setPendingDeleteImage(null);
+        }}
+        onCancel={() => setPendingDeleteImage(null)}
+      />
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className='top-0 left-0 translate-x-0 translate-y-0 flex h-screen max-h-screen w-screen max-w-none sm:max-w-none m-0 rounded-none p-0 gap-0 flex-col'>
+          <DialogHeader className='px-4 py-3 border-b shrink-0'>
+            <DialogTitle>Manage Images</DialogTitle>
+          </DialogHeader>
 
-        <div className='overflow-auto flex-1 p-4 space-y-4'>
-          {folders.length === 0 ? (
-            <p className='text-sm text-muted-foreground'>No folders yet.</p>
-          ) : (
-            <Accordion type='multiple' className='space-y-1'>
-              {folders.map((folder) => (
-                <AccordionItem
-                  key={folder.folderName}
-                  value={folder.folderName}
-                  className='border rounded'>
-                  <div className='flex items-center px-3'>
-                    <AccordionTrigger className='flex-1 hover:no-underline'>
-                      <span className='flex items-center gap-1.5 text-sm font-medium'>
-                        {folder.folderName}
-                        <span className='text-xs text-muted-foreground font-normal leading-none'>
-                          ({folder.images.length})
+          <div className='overflow-auto flex-1 p-4 space-y-4'>
+            {folders.length === 0 ? (
+              <p className='text-sm text-muted-foreground'>No folders yet.</p>
+            ) : (
+              <Accordion type='multiple' className='space-y-1'>
+                {folders.map((folder) => (
+                  <AccordionItem
+                    key={folder.folderName}
+                    value={folder.folderName}
+                    className='border rounded'>
+                    <div className='flex items-center px-3'>
+                      <AccordionTrigger className='flex-1 hover:no-underline'>
+                        <span className='flex items-center gap-1.5 text-sm font-medium'>
+                          {folder.folderName}
+                          <span className='text-xs text-muted-foreground font-normal leading-none'>
+                            ({folder.images.length})
+                          </span>
                         </span>
-                      </span>
-                    </AccordionTrigger>
-                    <div className='flex gap-0.5 shrink-0'>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='h-7 w-7'
-                        onClick={() => openSub('rename', folder.folderName)}>
-                        <Pencil className='h-3.5 w-3.5' />
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='h-7 w-7 text-destructive hover:text-destructive'
-                        onClick={() => openSub('deleteFolder', folder.folderName)}>
-                        <Trash2 className='h-3.5 w-3.5' />
-                      </Button>
-                    </div>
-                  </div>
-                  <AccordionContent className='px-3 pb-3 space-y-2'>
-                    {folder.images.length > 0 ? (
-                      <div className='grid grid-cols-4 gap-2'>
-                        {folder.images.map((image) => (
-                          <div
-                            key={image.url}
-                            className='relative bg-card rounded overflow-hidden group'>
-                            <img
-                              src={image.url}
-                              alt={image.title}
-                              className='w-full h-20 object-cover'
-                            />
-                            <div className='absolute inset-x-0 bottom-0 bg-black/60 flex items-center justify-between px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity'>
-                              {image.title && (
-                                <span className='text-xs text-white/80 truncate flex-1 mr-1'>
-                                  {image.title}
-                                </span>
-                              )}
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                className='h-6 w-6 ml-auto'
-                                onClick={() => deleteImage(folder.folderName, image)}>
-                                <Trash2 className='h-3.5 w-3.5' />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                      </AccordionTrigger>
+                      <div className='flex gap-0.5 shrink-0'>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-7 w-7'
+                          onClick={() => openSub('rename', folder.folderName)}>
+                          <Pencil className='h-3.5 w-3.5' />
+                        </Button>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-7 w-7 text-destructive hover:text-destructive'
+                          onClick={() => openSub('deleteFolder', folder.folderName)}>
+                          <Trash2 className='h-3.5 w-3.5' />
+                        </Button>
                       </div>
-                    ) : (
-                      <p className='text-sm text-muted-foreground py-1'>No images yet.</p>
-                    )}
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={() => openSub('addImage', folder.folderName)}>
-                      <ImagePlus className='h-4 w-4 mr-1' />
-                      Add Image
-                    </Button>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
-        </div>
+                    </div>
+                    <AccordionContent className='px-3 pb-3 space-y-2'>
+                      {folder.images.length > 0 ? (
+                        <div className='grid grid-cols-4 gap-2'>
+                          {folder.images.map((image) => (
+                            <div
+                              key={image.url}
+                              className='relative bg-card rounded overflow-hidden group'>
+                              <img
+                                src={image.url}
+                                alt={image.title}
+                                className='w-full h-20 object-cover'
+                              />
+                              <div className='absolute inset-x-0 bottom-0 bg-black/60 flex items-center justify-between px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity'>
+                                {image.title && (
+                                  <span className='text-xs text-white/80 truncate flex-1 mr-1'>
+                                    {image.title}
+                                  </span>
+                                )}
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  className='h-6 w-6 ml-auto'
+                                  onClick={() =>
+                                    setPendingDeleteImage({ folder: folder.folderName, image })
+                                  }>
+                                  <Trash2 className='h-3.5 w-3.5' />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className='text-sm text-muted-foreground py-1'>No images yet.</p>
+                      )}
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={() => openSub('addImage', folder.folderName)}>
+                        <ImagePlus className='h-4 w-4 mr-1' />
+                        Add Image
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
+          </div>
 
-        <div className='px-4 py-3 border-t shrink-0'>
-          <Button variant='outline' size='sm' onClick={() => openSub('newFolder')}>
-            <FolderPlus className='h-4 w-4 mr-1' />
-            New Folder
-          </Button>
-        </div>
-      </DialogContent>
+          <div className='px-4 py-3 border-t shrink-0'>
+            <Button variant='outline' size='sm' onClick={() => openSub('newFolder')}>
+              <FolderPlus className='h-4 w-4 mr-1' />
+              New Folder
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={subDialog === 'addImage'} onOpenChange={(o) => !o && closeSub()}>
         <DialogContent>
@@ -297,6 +320,6 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Dialog>
+    </>
   );
 }

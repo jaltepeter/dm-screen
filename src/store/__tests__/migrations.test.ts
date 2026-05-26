@@ -57,6 +57,7 @@ import { describe, it, expect } from 'vitest';
 import { migrateCharacterStore } from '../characterStore';
 import { migrateImageStore } from '../imageStore';
 import { migrateNotesStore } from '../notesStore';
+import { migrateEncounterStore } from '../encounterStore';
 
 const CONTRACT_BROKEN =
   'Migration contract broken — store shape changed without a migration. ' +
@@ -108,5 +109,49 @@ describe('imageStore migrations', () => {
 describe('notesStore migrations', () => {
   it('v0 state is preserved', () => {
     expect(migrateNotesStore(v0Notes, 0), CONTRACT_BROKEN).toEqual(v0Notes);
+  });
+});
+
+// v0: original shape — maxHp + notes, no full stat block fields
+const v0Encounters = {
+  statBlocks: [{ id: 'abc', name: 'Goblin', maxHp: 7, ac: 15, notes: 'CR 1/4 humanoid' }],
+  templates: [
+    {
+      id: 'xyz',
+      name: 'Goblin Ambush',
+      entries: [{ id: 'e1', statBlockId: 'abc', instanceName: 'Goblin 1' }]
+    }
+  ]
+};
+
+// v1: maxHp renamed to hp, notes dropped
+const v1Encounters = {
+  statBlocks: [{ id: 'abc', name: 'Goblin', hp: 7, ac: 15 }],
+  templates: [
+    {
+      id: 'xyz',
+      name: 'Goblin Ambush',
+      entries: [{ id: 'e1', statBlockId: 'abc', instanceName: 'Goblin 1' }]
+    }
+  ]
+};
+
+describe('encounterStore migrations', () => {
+  it('v1 state is preserved', () => {
+    expect(migrateEncounterStore(structuredClone(v1Encounters), 1), CONTRACT_BROKEN).toEqual(
+      v1Encounters
+    );
+  });
+
+  it('v0 → v1: maxHp renamed to hp, notes dropped', () => {
+    const result = migrateEncounterStore(structuredClone(v0Encounters), 0) as {
+      statBlocks: Record<string, unknown>[];
+      templates: (typeof v0Encounters)['templates'];
+    };
+    expect(result.statBlocks[0].hp, CONTRACT_BROKEN).toBe(7);
+    expect(result.statBlocks[0].maxHp, CONTRACT_BROKEN).toBeUndefined();
+    expect(result.statBlocks[0].notes, CONTRACT_BROKEN).toBeUndefined();
+    expect(result.statBlocks[0].ac, CONTRACT_BROKEN).toBe(15);
+    expect(result.templates, CONTRACT_BROKEN).toEqual(v0Encounters.templates);
   });
 });
