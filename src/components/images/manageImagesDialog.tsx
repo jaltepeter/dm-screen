@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import FullscreenDialog from '@/components/ui/fullscreen-dialog';
 import {
   Accordion,
   AccordionContent,
@@ -89,95 +89,89 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
         onCreate={(name) => createFolder(name)}
       />
 
-      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className='top-0 left-0 translate-x-0 translate-y-0 flex h-screen max-h-screen w-screen max-w-none sm:max-w-none m-0 rounded-none p-0 gap-0 flex-col'>
-          <DialogHeader className='px-4 py-3 border-b shrink-0'>
-            <DialogTitle>Manage Images</DialogTitle>
-          </DialogHeader>
-
-          <div className='overflow-auto flex-1 p-4 space-y-4'>
-            {folders.length === 0 ? (
-              <p className='text-sm text-muted-foreground'>No folders yet.</p>
-            ) : (
-              <Accordion type='multiple' className='space-y-1'>
-                {folders.map((folder) => (
-                  <AccordionItem
-                    key={folder.folderName}
-                    value={folder.folderName}
-                    className='border rounded'>
-                    <div className='flex items-center px-3'>
-                      <AccordionTrigger className='flex-1 hover:no-underline'>
-                        <span className='flex items-center gap-1.5 text-sm font-medium'>
-                          {folder.folderName}
-                          <span className='text-xs text-muted-foreground font-normal leading-none'>
-                            ({folder.images.length})
-                          </span>
+      <FullscreenDialog open={isOpen} onClose={onClose} title='Manage Images'>
+        <div className='overflow-auto flex-1 p-4 space-y-4'>
+          {folders.length === 0 ? (
+            <p className='text-sm text-muted-foreground'>No folders yet.</p>
+          ) : (
+            <Accordion type='multiple' className='space-y-1'>
+              {folders.map((folder) => (
+                <AccordionItem
+                  key={folder.folderName}
+                  value={folder.folderName}
+                  className='border rounded'>
+                  <div className='flex items-center px-3'>
+                    <AccordionTrigger className='flex-1 hover:no-underline'>
+                      <span className='flex items-center gap-1.5 text-sm font-medium'>
+                        {folder.folderName}
+                        <span className='text-xs text-muted-foreground font-normal leading-none'>
+                          ({folder.images.length})
                         </span>
-                      </AccordionTrigger>
-                      <div className='flex gap-0.5 shrink-0'>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-7 w-7'
-                          onClick={() => openSub('rename', folder.folderName)}>
-                          <Pencil className='h-3.5 w-3.5' />
-                        </Button>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-7 w-7 text-destructive hover:text-destructive'
-                          onClick={() => deleteFolder.requestDelete(folder.folderName)}>
-                          <Trash2 className='h-3.5 w-3.5' />
-                        </Button>
-                      </div>
-                    </div>
-                    <AccordionContent className='px-3 pb-3 space-y-2'>
-                      {folder.images.length > 0 ? (
-                        <div className='grid grid-cols-4 gap-2'>
-                          {folder.images.map((image) => (
-                            <ImageThumbnail
-                              key={image.url}
-                              image={image}
-                              imgClassName='w-full h-20 object-cover'
-                              action={
-                                <Button
-                                  variant='ghost'
-                                  size='icon'
-                                  className='h-6 w-6 ml-auto'
-                                  onClick={() =>
-                                    deleteImage.requestDelete({ folder: folder.folderName, image })
-                                  }>
-                                  <Trash2 className='h-3.5 w-3.5' />
-                                </Button>
-                              }
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <p className='text-sm text-muted-foreground py-1'>No images yet.</p>
-                      )}
+                      </span>
+                    </AccordionTrigger>
+                    <div className='flex gap-0.5 shrink-0'>
                       <Button
-                        variant='outline'
-                        size='sm'
-                        onClick={() => openSub('addImage', folder.folderName)}>
-                        <ImagePlus className='h-4 w-4 mr-1' />
-                        Add Image
+                        variant='ghost'
+                        size='icon'
+                        className='h-7 w-7'
+                        onClick={() => openSub('rename', folder.folderName)}>
+                        <Pencil className='h-3.5 w-3.5' />
                       </Button>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            )}
-          </div>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='h-7 w-7 text-destructive hover:text-destructive'
+                        onClick={() => deleteFolder.requestDelete(folder.folderName)}>
+                        <Trash2 className='h-3.5 w-3.5' />
+                      </Button>
+                    </div>
+                  </div>
+                  <AccordionContent className='px-3 pb-3 space-y-2'>
+                    {folder.images.length > 0 ? (
+                      <div className='grid grid-cols-4 gap-2'>
+                        {folder.images.map((image) => (
+                          <ImageThumbnail
+                            key={image.url}
+                            image={image}
+                            imgClassName='w-full h-20 object-cover'
+                            action={
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                className='h-6 w-6 ml-auto'
+                                onClick={() =>
+                                  deleteImage.requestDelete({ folder: folder.folderName, image })
+                                }>
+                                <Trash2 className='h-3.5 w-3.5' />
+                              </Button>
+                            }
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className='text-sm text-muted-foreground py-1'>No images yet.</p>
+                    )}
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => openSub('addImage', folder.folderName)}>
+                      <ImagePlus className='h-4 w-4 mr-1' />
+                      Add Image
+                    </Button>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )}
+        </div>
 
-          <div className='px-4 py-3 border-t shrink-0'>
-            <Button variant='outline' size='sm' onClick={() => openSub('newFolder')}>
-              <FolderPlus className='h-4 w-4 mr-1' />
-              New Folder
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        <div className='px-4 py-3 border-t shrink-0'>
+          <Button variant='outline' size='sm' onClick={() => openSub('newFolder')}>
+            <FolderPlus className='h-4 w-4 mr-1' />
+            New Folder
+          </Button>
+        </div>
+      </FullscreenDialog>
     </>
   );
 }

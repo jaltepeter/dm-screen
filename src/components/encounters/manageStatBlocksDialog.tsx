@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import FullscreenDialog from '@/components/ui/fullscreen-dialog';
 import { Button } from '@/components/ui/button';
 import { Trash2, Plus, Search } from 'lucide-react';
 import { StatBlock, useEncounterStore } from '../../store/encounterStore';
@@ -52,83 +52,77 @@ export default function ManageStatBlocksDialog({ isOpen, onClose }: Props) {
         onClose={() => setIsSearchOpen(false)}
         onSelect={handleImport}
       />
-      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className='top-0 left-0 translate-x-0 translate-y-0 flex h-screen max-h-screen w-screen max-w-none sm:max-w-none m-0 rounded-none p-0 gap-0 flex-col'>
-          <DialogHeader className='px-4 py-3 border-b shrink-0'>
-            <DialogTitle>Stat Blocks</DialogTitle>
-          </DialogHeader>
-
-          <div className='flex flex-1 min-h-0'>
-            {/* List panel */}
-            <div className='w-56 border-r flex flex-col shrink-0'>
-              <div className='flex-1 overflow-y-auto p-2 space-y-0.5'>
-                {statBlocks.length === 0 && (
-                  <p className='text-xs text-muted-foreground px-2 py-4 text-center'>
-                    No stat blocks yet.
-                  </p>
-                )}
-                {statBlocks.map((sb) => (
-                  <div
-                    key={sb.id}
-                    className={`flex items-center gap-1 rounded px-2 py-1.5 cursor-pointer group ${
-                      selectedId === sb.id ? 'bg-accent text-accent-foreground' : 'hover:bg-muted'
-                    }`}
-                    onClick={() => setSelectedId(sb.id)}>
-                    <span className='flex-1 min-w-0'>
-                      <span className='block text-sm truncate'>{sb.name}</span>
-                      {sb.creatureType && (
-                        <span className='block text-xs text-muted-foreground truncate'>
-                          {[sb.size, sb.creatureType].filter(Boolean).join(' ')}
-                        </span>
-                      )}
-                    </span>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      className='h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        requestDelete(sb);
-                      }}>
-                      <Trash2 className='h-3.5 w-3.5' />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <div className='p-2 border-t space-y-1'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className='w-full'
-                  onClick={() => setIsSearchOpen(true)}>
-                  <Search className='h-4 w-4 mr-1' />
-                  Add from Open5e
-                </Button>
-                <Button variant='outline' size='sm' className='w-full' onClick={handleAddManual}>
-                  <Plus className='h-4 w-4 mr-1' />
-                  Add Manually
-                </Button>
-              </div>
-            </div>
-
-            {/* Editor panel */}
-            <div className='flex-1 min-h-0 overflow-hidden'>
-              {!selected ? (
-                <div className='flex h-full items-center justify-center'>
-                  <p className='text-sm text-muted-foreground'>
-                    Select a stat block or add a new one.
-                  </p>
-                </div>
-              ) : (
-                <StatBlockEditorPanel
-                  statBlock={selected}
-                  onChange={(updated) => editStatBlock(updated)}
-                />
+      <FullscreenDialog open={isOpen} onClose={onClose} title='Stat Blocks'>
+        <div className='flex flex-1 min-h-0'>
+          {/* List panel */}
+          <div className='w-56 border-r flex flex-col shrink-0'>
+            <div className='flex-1 overflow-y-auto p-2 space-y-0.5'>
+              {statBlocks.length === 0 && (
+                <p className='text-xs text-muted-foreground px-2 py-4 text-center'>
+                  No stat blocks yet.
+                </p>
               )}
+              {statBlocks.map((sb) => (
+                <div
+                  key={sb.id}
+                  className={`flex items-center gap-1 rounded px-2 py-1.5 cursor-pointer group ${
+                    selectedId === sb.id ? 'bg-accent text-accent-foreground' : 'hover:bg-muted'
+                  }`}
+                  onClick={() => setSelectedId(sb.id)}>
+                  <span className='flex-1 min-w-0'>
+                    <span className='block text-sm truncate'>{sb.name}</span>
+                    {sb.creatureType && (
+                      <span className='block text-xs text-muted-foreground truncate'>
+                        {[sb.size, sb.creatureType].filter(Boolean).join(' ')}
+                      </span>
+                    )}
+                  </span>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      requestDelete(sb);
+                    }}>
+                    <Trash2 className='h-3.5 w-3.5' />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <div className='p-2 border-t space-y-1'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='w-full'
+                onClick={() => setIsSearchOpen(true)}>
+                <Search className='h-4 w-4 mr-1' />
+                Add from Open5e
+              </Button>
+              <Button variant='outline' size='sm' className='w-full' onClick={handleAddManual}>
+                <Plus className='h-4 w-4 mr-1' />
+                Add Manually
+              </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+
+          {/* Editor panel */}
+          <div className='flex-1 min-h-0 overflow-hidden'>
+            {!selected ? (
+              <div className='flex h-full items-center justify-center'>
+                <p className='text-sm text-muted-foreground'>
+                  Select a stat block or add a new one.
+                </p>
+              </div>
+            ) : (
+              <StatBlockEditorPanel
+                statBlock={selected}
+                onChange={(updated) => editStatBlock(updated)}
+              />
+            )}
+          </div>
+        </div>
+      </FullscreenDialog>
     </>
   );
 }
