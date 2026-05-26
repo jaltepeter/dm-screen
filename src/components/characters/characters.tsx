@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import PlayerDetails from './playerDetails';
 import { Textarea } from '@/components/ui/textarea';
+import SectionHeader from '@/components/ui/section-header';
 import { useCharacterStore } from '../../store/characterStore';
 import { useNotesStore } from '../../store/notesStore';
 
@@ -26,17 +27,13 @@ export default function Characters() {
   return (
     <div className='space-y-4'>
       <section>
-        <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2'>
-          Characters
-        </h2>
+        <SectionHeader className='mb-2'>Characters</SectionHeader>
         <PlayerDetails characters={characters} />
       </section>
 
       <section>
         <div className='flex items-center justify-between mb-2'>
-          <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-            Notes
-          </h2>
+          <SectionHeader>Notes</SectionHeader>
           <span
             className={`text-xs text-muted-foreground transition-opacity duration-500 ${
               savedVisible ? 'opacity-100' : 'opacity-0'

@@ -2,18 +2,11 @@ import { StatBlock } from '../../store/encounterStore';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import SectionHeader from '@/components/ui/section-header';
 
 interface Props {
   statBlock: StatBlock;
   onChange: (updated: StatBlock) => void;
-}
-
-function SectionHeader({ children }: { children: string }) {
-  return (
-    <p className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>
-      {children}
-    </p>
-  );
 }
 
 function Field({
