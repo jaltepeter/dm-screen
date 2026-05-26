@@ -55,22 +55,22 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
 
 ---
 
-## Phase 2 — UI
+## ✅ Phase 2 — UI
 
-### 2.1 Replace MUI with shadcn/ui + Tailwind
+### ✅ 2.1 Replace MUI with shadcn/ui + Tailwind
 
 - Install Tailwind CSS and shadcn/ui
 - Replace all MUI components with shadcn/ui equivalents
 - Replace DataGrid (used for character management and initiative setup) with a custom inline-edit table — simpler and purpose-built for the use case
 - Remove all MUI packages, `@fontsource/roboto`, emotion
 
-### 2.2 Design exploration
+### ✅ 2.2 Design exploration
 
 - Before building anything, explore layout and theme direction — the current design is purely functional with no visual personality
 - Consider: overall layout structure, typography, color palette, DM screen aesthetic (parchment/fantasy vs. clean/modern vs. something else)
 - Produce 2-3 concepts before committing to a direction
 
-### 2.3 Layout + theme implementation
+### ✅ 2.3 Layout + theme implementation
 
 - Implement the chosen direction
 - Player view: rethink from scratch — currently just initiative list + image side by side
@@ -114,7 +114,7 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
 - Player characters are always added automatically from the character store; templates only define the enemy side
 - DM can still add, edit, or drop actors in the setup dialog after loading a template before starting
 
-### 3.6 Notes panel
+### ✅ 3.6 Notes panel
 
 - Simple freeform markdown text area, persisted in Zustand
 - Lives below the character/initiative panels on the DM view
