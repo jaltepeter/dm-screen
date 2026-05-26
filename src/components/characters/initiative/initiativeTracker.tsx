@@ -1,18 +1,12 @@
-import { Button, Switch } from '@mui/material';
 import { useEffect, useState } from 'react';
-
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { SkipBack, SkipForward } from 'lucide-react';
 import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
-import Paper from '@mui/material/Paper';
-import SkipNextIcon from '@mui/icons-material/SkipNext';
-import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import { Actor, sendMessage } from '../../../lib/sync';
 import { Character } from '../../../store/characterStore';
+import { useUiStore } from '../../../store/uiStore';
 
 interface InitiativeTrackerProps {
   characters: Character[];
@@ -21,12 +15,17 @@ interface InitiativeTrackerProps {
 export default function InitiativeTracker({ characters }: InitiativeTrackerProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [actors, setActors] = useState<Actor[]>([]);
-  const [setupInitDialogOpen, setSetupInitDialogOpen] = useState(false);
-  const [endInitDialogOpen, setEndInitDialogOpen] = useState(false);
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [endOpen, setEndOpen] = useState(false);
+  const setInitiativeActive = useUiStore((s) => s.setInitiativeActive);
 
   useEffect(() => {
     sendMessage({ cmd: 'init_update', payload: { actors, index: selectedIndex } });
   }, [selectedIndex, actors]);
+
+  useEffect(() => {
+    setInitiativeActive(actors.length > 0);
+  }, [actors.length, setInitiativeActive]);
 
   const nextTurn = () => {
     for (let i = selectedIndex + 1; i < actors.length + selectedIndex + 1; i++) {
@@ -48,79 +47,98 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
   };
 
   const startInitiative = (newActors: Actor[]) => {
-    setSetupInitDialogOpen(false);
+    setSetupOpen(false);
     setActors(newActors);
     setSelectedIndex(0);
   };
 
-  const handleResetInitiative = () => {
+  const handleReset = () => {
     setActors([]);
-    setEndInitDialogOpen(false);
+    setEndOpen(false);
   };
 
-  const toggleActorVisible = (actorId: number) => {
-    setActors(actors.map((a) => (a.id === actorId ? { ...a, visible: !a.visible } : a)));
-  };
+  const toggleVisible = (id: number) =>
+    setActors(actors.map((a) => (a.id === id ? { ...a, visible: !a.visible } : a)));
 
-  const toggleActorActive = (actorId: number) => {
-    setActors(actors.map((a) => (a.id === actorId ? { ...a, active: !a.active } : a)));
-  };
+  const toggleActive = (id: number) =>
+    setActors(actors.map((a) => (a.id === id ? { ...a, active: !a.active } : a)));
+
+  const round = actors.length > 0 ? Math.floor(selectedIndex / actors.length) + 1 : null;
 
   return (
-    <Paper>
+    <div className='space-y-3'>
       <InitiativeSetupDialog
         characters={characters}
-        isOpen={setupInitDialogOpen}
-        handleClose={() => setSetupInitDialogOpen(false)}
+        isOpen={setupOpen}
+        handleClose={() => setSetupOpen(false)}
         onStartInitiative={startInitiative}
       />
       <InitiativeEndDialog
-        isOpen={endInitDialogOpen}
-        handleClose={() => setEndInitDialogOpen(false)}
-        handleEndInitiative={handleResetInitiative}
+        isOpen={endOpen}
+        handleClose={() => setEndOpen(false)}
+        handleEndInitiative={handleReset}
       />
+
       {actors.length > 0 ? (
-        <Table size='small'>
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell flex='1'>Name</TableCell>
-              <TableCell align='center'>Visible</TableCell>
-              <TableCell align='center'>Alive</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+        <>
+          <div className='text-xs text-muted-foreground'>Round {round}</div>
+          <div className='space-y-0.5'>
+            <div className='grid grid-cols-[2.5rem_1fr_4rem_4rem] gap-1 px-1 text-xs text-muted-foreground'>
+              <span>Init</span>
+              <span>Name</span>
+              <span className='text-center'>Vis</span>
+              <span className='text-center'>Alive</span>
+            </div>
             {actors.map((actor, index) => (
-              <TableRow key={actor.id} selected={selectedIndex === index}>
-                <TableCell>{actor.init}</TableCell>
-                <TableCell
-                  component='th'
-                  scope='row'
-                  sx={{ textDecoration: actor.active ? '' : 'line-through' }}>
+              <div
+                key={actor.id}
+                className={`grid grid-cols-[2.5rem_1fr_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm ${
+                  selectedIndex === index ? 'bg-accent' : ''
+                }`}>
+                <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
+                <span className={actor.active ? '' : 'line-through text-muted-foreground'}>
                   {actor.name}
-                </TableCell>
-                <TableCell align='center'>
-                  <Switch checked={actor.visible} onChange={() => toggleActorVisible(actor.id)} />
-                </TableCell>
-                <TableCell align='center'>
-                  <Switch checked={actor.active} onChange={() => toggleActorActive(actor.id)} />
-                </TableCell>
-              </TableRow>
+                </span>
+                <div className='flex justify-center'>
+                  <Switch
+                    checked={actor.visible}
+                    onCheckedChange={() => toggleVisible(actor.id)}
+                    className='scale-75'
+                  />
+                </div>
+                <div className='flex justify-center'>
+                  <Switch
+                    checked={actor.active}
+                    onCheckedChange={() => toggleActive(actor.id)}
+                    className='scale-75'
+                  />
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        </>
       ) : (
-        <div>No combat</div>
+        <p className='text-sm text-muted-foreground'>No combat</p>
       )}
 
-      <Button onClick={prevTurn}>
-        <SkipPreviousIcon />
-      </Button>
-      <Button onClick={nextTurn}>
-        <SkipNextIcon />
-      </Button>
-      {actors.length > 0 && <Button onClick={() => setEndInitDialogOpen(true)}>End</Button>}
-      {actors.length === 0 && <Button onClick={() => setSetupInitDialogOpen(true)}>New</Button>}
-    </Paper>
+      <div className='flex items-center gap-2'>
+        <Button variant='outline' size='icon' onClick={prevTurn} disabled={actors.length === 0}>
+          <SkipBack className='h-4 w-4' />
+        </Button>
+        <Button variant='outline' size='icon' onClick={nextTurn} disabled={actors.length === 0}>
+          <SkipForward className='h-4 w-4' />
+        </Button>
+        <div className='flex-1' />
+        {actors.length === 0 ? (
+          <Button size='sm' onClick={() => setSetupOpen(true)}>
+            New Combat
+          </Button>
+        ) : (
+          <Button variant='destructive' size='sm' onClick={() => setEndOpen(true)}>
+            End
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }

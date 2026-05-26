@@ -1,13 +1,6 @@
-import Box from '@mui/material/Box';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import IconButton from '@mui/material/IconButton';
-import Paper from '@mui/material/Paper';
-import SendIcon from '@mui/icons-material/Send';
-import { alpha } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Trash2, Send } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Image } from '../../store/imageStore';
-
-const Columns = 4;
 
 interface ImageGridProps {
   folderName: string;
@@ -22,66 +15,34 @@ export default function ImageGrid({
   onSendImage,
   onDeleteImage
 }: ImageGridProps) {
-  const gridContainerStyle = {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${Columns}, 1fr)`,
-    position: 'relative'
-  };
-
-  const gridItemStyle = {
-    margin: 'auto'
-  };
-
-  const overlayStyle = {
-    background: alpha('#1A2027', 0.6)
-  };
-
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(2),
-    margin: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    position: 'relative'
-  }));
-
   return (
-    <Box sx={gridContainerStyle}>
+    <div className='grid grid-cols-4 gap-2'>
       {images.map((image) => (
-        <Item key={image.url}>
-          <Box sx={gridItemStyle} position='relative' height='100%'>
-            <Box
-              component='img'
-              src={image.url}
-              width='100%'
-              sx={{
-                maxHeight: '250px',
-                maxWidth: '250px',
-                objectFit: 'contain',
-                margin: 'auto'
-              }}
-            />
-            <Box position='absolute' bottom='0px' width='100%' sx={overlayStyle}>
-              <Box>{image.title}</Box>
-              <IconButton
-                size='small'
-                aria-label='delete'
-                sx={{ marginX: 2 }}
+        <div key={image.url} className='relative bg-card rounded overflow-hidden group'>
+          <img src={image.url} alt={image.title} className='w-full h-24 object-cover' />
+          <div className='absolute inset-x-0 bottom-0 bg-black/60 flex items-center justify-between px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity'>
+            {image.title && (
+              <span className='text-xs text-white/80 truncate flex-1 mr-1'>{image.title}</span>
+            )}
+            <div className='flex gap-0.5 ml-auto'>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-6 w-6'
                 onClick={() => onDeleteImage({ folderName, image })}>
-                <DeleteForeverIcon />
-              </IconButton>
-              <IconButton
-                size='small'
-                aria-label='send to player view'
-                sx={{ marginX: 2 }}
+                <Trash2 className='h-3.5 w-3.5' />
+              </Button>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-6 w-6'
                 onClick={() => onSendImage(image)}>
-                <SendIcon />
-              </IconButton>
-            </Box>
-          </Box>
-        </Item>
+                <Send className='h-3.5 w-3.5' />
+              </Button>
+            </div>
+          </div>
+        </div>
       ))}
-    </Box>
+    </div>
   );
 }

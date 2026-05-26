@@ -1,32 +1,30 @@
+import { ChangeEvent, useState } from 'react';
 import {
   Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Button,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Divider,
-  IconButton,
-  ListItemIcon,
-  Menu,
-  MenuItem,
-  TextField,
-  Typography
-} from '@mui/material';
-import { ChangeEvent, useState } from 'react';
-
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import FolderDeleteIcon from '@mui/icons-material/FolderDelete';
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MoreVertical, ImagePlus, FolderPlus, Pencil, FolderX } from 'lucide-react';
 import ImageGrid from './imageGrid';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { SlideUpTransition } from '../slideUp';
 import { Image, ImageFolder } from '../../store/imageStore';
 
 interface FolderListProps {
@@ -39,6 +37,8 @@ interface FolderListProps {
   onAddPhoto: (folderName: string, url: string, title?: string) => void;
 }
 
+type ActiveDialog = 'addImage' | 'rename' | 'delete' | null;
+
 export default function FolderList({
   folders,
   onRenameFolder,
@@ -48,262 +48,209 @@ export default function FolderList({
   onDeleteImage,
   onAddPhoto
 }: FolderListProps) {
-  const [folderName, setFolderName] = useState('');
-  const [newFolderName, setNewFolderName] = useState('');
+  const [targetFolder, setTargetFolder] = useState('');
+  const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
   const [url, setUrl] = useState('');
-  const [title, setTitle] = useState('');
-  const [expanded, setExpanded] = useState<string | false>(
-    folders.length > 0 ? folders[0].folderName : false
-  );
-  const [isAddImageDialogOpen, setIsAddImageDialogOpen] = useState(false);
-  const [isRenameFolderDialogOpen, setIsRenameFolderDialogOpen] = useState(false);
-  const [isDeleteFolderDialogOpen, setIsDeleteFolderDialogOpen] = useState(false);
-  const [isRenameFolderError, setIsRenameFolderError] = useState(false);
-  const [renameFolderErrorMessage, setRenameFolderErrorMessage] = useState('');
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [menuOpenElem, setMenuOpenElem] = useState<string | null>(null);
+  const [imageTitle, setImageTitle] = useState('');
+  const [newFolderName, setNewFolderName] = useState('');
+  const [renameError, setRenameError] = useState('');
 
-  const handleAddImage = (name: string) => {
-    resetMenu();
-    setFolderName(name);
-    setIsAddImageDialogOpen(true);
+  const openDialog = (dialog: ActiveDialog, folderName: string) => {
+    setTargetFolder(folderName);
+    setNewFolderName(folderName);
+    setActiveDialog(dialog);
   };
 
-  const handleRenameFolder = (name: string) => {
-    resetMenu();
-    setFolderName(name);
-    setNewFolderName(name);
-    setIsRenameFolderDialogOpen(true);
-  };
-
-  const handleDeleteFolder = (name: string) => {
-    resetMenu();
-    setFolderName(name);
-    setIsDeleteFolderDialogOpen(true);
-  };
-
-  const handleCancelDialog = () => {
-    setFolderName('');
+  const closeDialog = () => {
+    setActiveDialog(null);
     setUrl('');
-    setTitle('');
-    setIsAddImageDialogOpen(false);
-    setIsRenameFolderDialogOpen(false);
-    setIsDeleteFolderDialogOpen(false);
-  };
-
-  const handleRenameFolderDialogSave = () => {
-    if (folders.filter((f) => f.folderName === newFolderName).length > 0) {
-      setIsRenameFolderError(true);
-      setRenameFolderErrorMessage('Folder already exists');
-    } else {
-      onRenameFolder(folderName, newFolderName);
-      setExpanded(newFolderName);
-      setIsRenameFolderDialogOpen(false);
-    }
-  };
-
-  const resetMenu = () => {
-    setAnchorEl(null);
-    setMenuOpenElem(null);
-  };
-
-  const handleUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setUrl(event.target.value);
-  };
-
-  const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
-  };
-
-  const handleFolderNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsRenameFolderError(false);
-    setRenameFolderErrorMessage('');
-    setNewFolderName(event.target.value);
+    setImageTitle('');
+    setRenameError('');
   };
 
   const handleSaveImage = () => {
-    onAddPhoto(folderName, url, title);
-    handleCancelDialog();
+    if (url.trim()) {
+      onAddPhoto(targetFolder, url.trim(), imageTitle.trim() || undefined);
+      closeDialog();
+    }
   };
 
-  const handleChange = (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpanded(isExpanded ? panel : false);
+  const handleRename = () => {
+    if (folders.some((f) => f.folderName === newFolderName && f.folderName !== targetFolder)) {
+      setRenameError('A folder with that name already exists');
+      return;
+    }
+    onRenameFolder(targetFolder, newFolderName);
+    closeDialog();
   };
 
-  const handleClickMenuButton = (name: string) => (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-    setMenuOpenElem(name);
+  const handleDelete = () => {
+    onDeleteFolder(targetFolder);
+    closeDialog();
   };
 
-  const handleCloseMenu = () => {
-    resetMenu();
-  };
+  if (folders.length === 0) {
+    return (
+      <Button variant='outline' onClick={onCreateFolder}>
+        <FolderPlus className='h-4 w-4 mr-2' />
+        Create a Folder
+      </Button>
+    );
+  }
 
   return (
-    <div>
-      {folders.length <= 0 ? (
-        <Button variant='contained' onClick={() => onCreateFolder()}>
-          Create a Folder
-        </Button>
-      ) : (
-        folders.map((folder, index) => (
-          <Accordion
-            key={index}
-            expanded={expanded === folder.folderName}
-            onChange={handleChange(folder.folderName)}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls='panel1a-content'
-              id='panel1a-header'>
-              <Typography>{folder.folderName}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <ImageGrid
-                folderName={folder.folderName}
-                images={folder.images}
-                onSendImage={onSendImage}
-                onDeleteImage={onDeleteImage}
-              />
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'row-reverse'
-                }}>
-                <IconButton
-                  aria-label='more'
-                  id='basic-button'
-                  aria-haspopup='true'
-                  onClick={handleClickMenuButton(folder.folderName)}>
-                  <MoreVertIcon />
-                </IconButton>
-                <Menu
-                  id='basic-menu'
-                  anchorEl={anchorEl}
-                  open={menuOpenElem === folder.folderName}
-                  onClose={handleCloseMenu}
-                  MenuListProps={{
-                    'aria-labelledby': 'basic-button'
-                  }}>
-                  <MenuItem onClick={() => handleAddImage(folder.folderName)}>
-                    <ListItemIcon>
-                      <AddPhotoAlternateIcon />
-                    </ListItemIcon>
+    <>
+      <Accordion
+        type='single'
+        collapsible
+        defaultValue={folders[0]?.folderName}
+        className='space-y-1'>
+        {folders.map((folder) => (
+          <AccordionItem
+            key={folder.folderName}
+            value={folder.folderName}
+            className='border rounded'>
+            <div className='flex items-center px-3'>
+              <AccordionTrigger className='flex-1 text-sm font-medium hover:no-underline'>
+                {folder.folderName}
+                <span className='ml-2 text-xs text-muted-foreground font-normal'>
+                  ({folder.images.length})
+                </span>
+              </AccordionTrigger>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant='ghost' size='icon' className='h-7 w-7 shrink-0'>
+                    <MoreVertical className='h-4 w-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end'>
+                  <DropdownMenuItem onClick={() => openDialog('addImage', folder.folderName)}>
+                    <ImagePlus className='h-4 w-4 mr-2' />
                     Add Image
-                  </MenuItem>
-                  <Divider sx={{ my: 0.5 }} />
-                  <MenuItem onClick={() => handleRenameFolder(folder.folderName)}>
-                    <ListItemIcon>
-                      <DriveFileRenameOutlineIcon />
-                    </ListItemIcon>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => openDialog('rename', folder.folderName)}>
+                    <Pencil className='h-4 w-4 mr-2' />
                     Rename Folder
-                  </MenuItem>
-                  <MenuItem onClick={() => onCreateFolder()}>
-                    <ListItemIcon>
-                      <CreateNewFolderIcon />
-                    </ListItemIcon>
-                    Create New Folder
-                  </MenuItem>
-                  <MenuItem onClick={() => handleDeleteFolder(folder.folderName)}>
-                    <ListItemIcon>
-                      <FolderDeleteIcon />
-                    </ListItemIcon>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onCreateFolder}>
+                    <FolderPlus className='h-4 w-4 mr-2' />
+                    New Folder
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className='text-destructive'
+                    onClick={() => openDialog('delete', folder.folderName)}>
+                    <FolderX className='h-4 w-4 mr-2' />
                     Delete Folder
-                  </MenuItem>
-                </Menu>
-              </Box>
-            </AccordionDetails>
-          </Accordion>
-        ))
-      )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <AccordionContent className='px-3 pb-3'>
+              {folder.images.length > 0 ? (
+                <ImageGrid
+                  folderName={folder.folderName}
+                  images={folder.images}
+                  onSendImage={onSendImage}
+                  onDeleteImage={onDeleteImage}
+                />
+              ) : (
+                <p className='text-sm text-muted-foreground py-2'>No images yet.</p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
 
-      {/** Add Image Dialog */}
-      <Dialog
-        open={isAddImageDialogOpen}
-        onClose={handleCancelDialog}
-        TransitionComponent={SlideUpTransition}>
-        <DialogTitle>Add an Image</DialogTitle>
+      {/* Add Image Dialog */}
+      <Dialog open={activeDialog === 'addImage'} onOpenChange={(o) => !o && closeDialog()}>
         <DialogContent>
-          <DialogContentText>
-            Paste an image URL here to save it to the &quot;{folderName}&quot; folder.
-          </DialogContentText>
-          <TextField
-            margin='dense'
-            id='title'
-            label='Image Title (optional)'
-            fullWidth
-            variant='standard'
-            value={title}
-            onChange={handleTitleChange}
-          />
-          <TextField
-            autoFocus
-            margin='dense'
-            id='url'
-            label='Image URL'
-            fullWidth
-            variant='standard'
-            value={url}
-            onChange={handleUrlChange}
-          />
+          <DialogHeader>
+            <DialogTitle>Add Image</DialogTitle>
+            <DialogDescription>
+              Save an image URL to the &quot;{targetFolder}&quot; folder.
+            </DialogDescription>
+          </DialogHeader>
+          <div className='space-y-3'>
+            <div className='space-y-1'>
+              <Label htmlFor='img-title'>Title (optional)</Label>
+              <Input
+                id='img-title'
+                value={imageTitle}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setImageTitle(e.target.value)}
+                placeholder='Goblin archer'
+              />
+            </div>
+            <div className='space-y-1'>
+              <Label htmlFor='img-url'>Image URL</Label>
+              <Input
+                id='img-url'
+                autoFocus
+                value={url}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
+                placeholder='https://…'
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={closeDialog}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveImage} disabled={!url.trim()}>
+              Save
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDialog}>Cancel</Button>
-          <Button onClick={handleSaveImage}>Save</Button>
-        </DialogActions>
       </Dialog>
 
-      {/** Rename Folder Dialog */}
-      <Dialog
-        open={isRenameFolderDialogOpen}
-        onClose={handleCancelDialog}
-        TransitionComponent={SlideUpTransition}>
-        <DialogTitle>Rename Folder</DialogTitle>
+      {/* Rename Dialog */}
+      <Dialog open={activeDialog === 'rename'} onOpenChange={(o) => !o && closeDialog()}>
         <DialogContent>
-          <DialogContentText>Enter a new folder name</DialogContentText>
-          <TextField
-            autoFocus
-            error={isRenameFolderError}
-            helperText={renameFolderErrorMessage}
-            margin='dense'
-            id='url'
-            label='Image URL'
-            fullWidth
-            variant='standard'
-            value={newFolderName}
-            onChange={handleFolderNameChange}
-          />
+          <DialogHeader>
+            <DialogTitle>Rename Folder</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-1'>
+            <Label htmlFor='folder-name'>New name</Label>
+            <Input
+              id='folder-name'
+              autoFocus
+              value={newFolderName}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                setRenameError('');
+                setNewFolderName(e.target.value);
+              }}
+            />
+            {renameError && <p className='text-sm text-destructive'>{renameError}</p>}
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={closeDialog}>
+              Cancel
+            </Button>
+            <Button onClick={handleRename}>Save</Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDialog}>Cancel</Button>
-          <Button onClick={handleRenameFolderDialogSave}>Save</Button>
-        </DialogActions>
       </Dialog>
 
-      {/** Delete Folder Dialog */}
-      <Dialog
-        open={isDeleteFolderDialogOpen}
-        onClose={handleCancelDialog}
-        TransitionComponent={SlideUpTransition}>
-        <DialogTitle>Delete Folder?</DialogTitle>
+      {/* Delete Dialog */}
+      <Dialog open={activeDialog === 'delete'} onOpenChange={(o) => !o && closeDialog()}>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete the &quot;{folderName}&quot; folder? This will also
-            remove all saved images.
-          </DialogContentText>
+          <DialogHeader>
+            <DialogTitle>Delete Folder?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete &quot;{targetFolder}&quot; and all its saved images.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant='outline' onClick={closeDialog}>
+              Cancel
+            </Button>
+            <Button variant='destructive' onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDialog}>Cancel</Button>
-          <Button
-            onClick={() => {
-              onDeleteFolder(folderName);
-              setExpanded(folders.length > 1 ? folders[0].folderName : false);
-              setIsDeleteFolderDialogOpen(false);
-            }}>
-            Delete It
-          </Button>
-        </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }

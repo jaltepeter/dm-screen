@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
-
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
-import Slide from '@mui/material/Slide';
-import Typography from '@mui/material/Typography';
 import { Actor, onMessage } from '../lib/sync';
 
 export default function PlayerView() {
@@ -33,38 +28,31 @@ export default function PlayerView() {
   }, []);
 
   return (
-    <Grid container spacing={0}>
-      <Slide direction='right' timeout={500} in={showInit} mountOnEnter unmountOnExit>
-        <Grid
-          item
-          alignContent='center'
-          md={2}
-          m={1}
-          sx={{
-            borderColor: '#1A2027',
-            m: 1,
-            border: 1,
-            borderRadius: 2
-          }}>
-          <Typography sx={{ textAlign: 'center' }} variant='h4'>
+    <div className='relative w-screen h-screen overflow-hidden bg-black'>
+      {imageSource ? (
+        <img
+          src={imageSource.url}
+          alt={imageSource.title}
+          className='w-full h-full object-contain'
+        />
+      ) : (
+        <div className='flex items-center justify-center w-full h-full text-white/20 text-sm select-none'>
+          Waiting for image…
+        </div>
+      )}
+
+      {/* Corner initiative overlay */}
+      <div
+        className={`absolute top-4 right-4 transition-all duration-300 ${
+          showInit ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}>
+        <div className='bg-black/60 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 min-w-32'>
+          <p className='text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5'>
             Initiative
-          </Typography>
+          </p>
           <InitiativePlayerView actors={actors} turnNumber={index} />
-        </Grid>
-      </Slide>
-      <Grid item flex='1' container direction='column' height='100vh' width='100vw'>
-        {imageSource && (
-          <Box
-            component='img'
-            src={imageSource.url}
-            margin='auto'
-            sx={{
-              maxHeight: '99%',
-              maxWidth: '99%'
-            }}
-          />
-        )}
-      </Grid>
-    </Grid>
+        </div>
+      </div>
+    </div>
   );
 }

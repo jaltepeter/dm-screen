@@ -1,16 +1,16 @@
-import { GridActionsCellItem, GridColDef, GridToolbarContainer } from '@mui/x-data-grid';
-
-import AddIcon from '@mui/icons-material/Add';
-import AppBar from '@mui/material/AppBar';
-import Button from '@mui/material/Button';
-import CloseIcon from '@mui/icons-material/Close';
-import { DataGrid } from '@mui/x-data-grid';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Dialog from '@mui/material/Dialog';
-import IconButton from '@mui/material/IconButton';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import { SlideUpTransition } from '../slideUp';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Trash2, Plus } from 'lucide-react';
 import { Character } from '../../store/characterStore';
 
 interface ManageCharactersDialogProps {
@@ -22,117 +22,136 @@ interface ManageCharactersDialogProps {
   onDeleteCharacter: (id: number) => void;
 }
 
+type EditingCell = { id: number; field: keyof Character } | null;
+
 export default function ManageCharactersDialog({
   characters,
   isOpen,
-  onEditCharacter,
+  onClose,
   onAddCharacter,
-  onDeleteCharacter,
-  onClose
+  onEditCharacter,
+  onDeleteCharacter
 }: ManageCharactersDialogProps) {
-  const allColumnProps = { editable: true, sortable: false };
-  const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Name', width: 140, ...allColumnProps },
-    { field: 'charClass', headerName: 'Class', width: 140, ...allColumnProps },
-    { field: 'background', headerName: 'Background', width: 140, ...allColumnProps },
-    { field: 'ac', type: 'number', headerName: 'AC', ...allColumnProps },
-    {
-      field: 'pp',
-      type: 'number',
-      headerName: 'PP',
-      description: 'Passive Perception',
-      ...allColumnProps
-    },
-    {
-      field: 'pi',
-      type: 'number',
-      headerName: 'PI',
-      description: 'Passive Insight',
-      ...allColumnProps
-    },
-    {
-      field: 'init',
-      type: 'number',
-      headerName: 'Init',
-      description: 'Initiative Bonus',
-      ...allColumnProps
-    },
-    {
-      field: 'sheetUrl',
-      type: 'string',
-      headerName: 'url',
-      description: 'Character Sheet URL',
-      flex: 1,
-      ...allColumnProps
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      cellClassName: 'actions',
-      width: 75,
-      getActions: ({ id }) => {
-        return [
-          <GridActionsCellItem
-            key='delete'
-            icon={<DeleteIcon />}
-            label='Delete'
-            onClick={() => onDeleteCharacter(id as number)}
-            color='inherit'
-          />
-        ];
-      }
-    }
-  ];
+  const [editing, setEditing] = useState<EditingCell>(null);
+  const [draft, setDraft] = useState('');
 
-  const processRowUpdate = (newRow: Character): Character => {
-    onEditCharacter(newRow);
-    return newRow;
+  const startEdit = (char: Character, field: keyof Character) => {
+    setEditing({ id: char.id, field });
+    setDraft(String(char[field] ?? ''));
   };
 
-  function EditToolbar() {
+  const commitEdit = (char: Character) => {
+    if (!editing) return;
+    const { field } = editing;
+    const numFields: (keyof Character)[] = ['ac', 'pp', 'pi', 'init'];
+    const value = numFields.includes(field) ? Number(draft) : draft;
+    onEditCharacter({ ...char, [field]: value });
+    setEditing(null);
+  };
+
+  const isEditing = (id: number, field: keyof Character) =>
+    editing?.id === id && editing?.field === field;
+
+  const EditableCell = ({
+    char,
+    field,
+    className
+  }: {
+    char: Character;
+    field: keyof Character;
+    className?: string;
+  }) => {
+    if (isEditing(char.id, field)) {
+      return (
+        <Input
+          autoFocus
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={() => commitEdit(char)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commitEdit(char);
+            if (e.key === 'Escape') setEditing(null);
+          }}
+          className={`h-7 text-sm px-1 ${className ?? ''}`}
+        />
+      );
+    }
     return (
-      <GridToolbarContainer>
-        <Button color='primary' startIcon={<AddIcon />} onClick={onAddCharacter}>
-          Add Character
-        </Button>
-      </GridToolbarContainer>
+      <span
+        className={`cursor-pointer hover:underline hover:text-foreground ${className ?? ''}`}
+        onClick={() => startEdit(char, field)}>
+        {String(char[field] ?? '')}
+      </span>
     );
-  }
+  };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullScreen TransitionComponent={SlideUpTransition}>
-      <AppBar sx={{ position: 'relative' }}>
-        <Toolbar>
-          <IconButton edge='start' color='inherit' onClick={onClose} aria-label='close'>
-            <CloseIcon />
-          </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant='h6' component='div'>
-            Manage Characters
-          </Typography>
-          <Button autoFocus color='inherit' onClick={onClose}>
-            save
-          </Button>
-        </Toolbar>
-      </AppBar>
-      <div style={{ height: '100%' }}>
-        <DataGrid
-          rows={characters}
-          columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[10]}
-          disableSelectionOnClick
-          disableColumnFilter
-          disableColumnMenu
-          editMode='row'
-          components={{
-            Toolbar: EditToolbar
-          }}
-          experimentalFeatures={{ newEditingApi: true }}
-          processRowUpdate={processRowUpdate}
-          onProcessRowUpdateError={() => console.error('Error updating character')}
-        />
-      </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className='max-w-4xl max-h-[80vh] flex flex-col'>
+        <DialogHeader>
+          <DialogTitle>Manage Characters</DialogTitle>
+        </DialogHeader>
+        <div className='overflow-auto flex-1'>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Class</TableHead>
+                <TableHead>Background</TableHead>
+                <TableHead className='text-center'>AC</TableHead>
+                <TableHead className='text-center'>PP</TableHead>
+                <TableHead className='text-center'>PI</TableHead>
+                <TableHead className='text-center'>Init</TableHead>
+                <TableHead>Sheet URL</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {characters.map((char) => (
+                <TableRow key={char.id}>
+                  <TableCell>
+                    <EditableCell char={char} field='name' />
+                  </TableCell>
+                  <TableCell>
+                    <EditableCell char={char} field='charClass' />
+                  </TableCell>
+                  <TableCell>
+                    <EditableCell char={char} field='background' />
+                  </TableCell>
+                  <TableCell className='text-center'>
+                    <EditableCell char={char} field='ac' className='tabular-nums' />
+                  </TableCell>
+                  <TableCell className='text-center'>
+                    <EditableCell char={char} field='pp' className='tabular-nums' />
+                  </TableCell>
+                  <TableCell className='text-center'>
+                    <EditableCell char={char} field='pi' className='tabular-nums' />
+                  </TableCell>
+                  <TableCell className='text-center'>
+                    <EditableCell char={char} field='init' className='tabular-nums' />
+                  </TableCell>
+                  <TableCell>
+                    <EditableCell char={char} field='sheetUrl' className='text-xs' />
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='h-7 w-7'
+                      onClick={() => onDeleteCharacter(char.id)}>
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <Button variant='outline' size='sm' onClick={onAddCharacter} className='mt-2 self-start'>
+          <Plus className='h-4 w-4 mr-1' />
+          Add Character
+        </Button>
+      </DialogContent>
     </Dialog>
   );
 }

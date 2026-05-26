@@ -1,11 +1,8 @@
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import InitiativeTracker from './initiative/initiativeTracker';
 import ManageCharactersDialog from './manageCharactersDialog';
 import PlayerDetails from './playerDetails';
-import { Section } from '../../components/section';
-import Typography from '@mui/material/Typography';
+import { Textarea } from '@/components/ui/textarea';
 import { useCharacterStore } from '../../store/characterStore';
+import { useNotesStore } from '../../store/notesStore';
 
 interface CharactersProps {
   isManageCharDialogOpen: boolean;
@@ -20,26 +17,11 @@ export default function Characters({
   const addCharacter = useCharacterStore((s) => s.addCharacter);
   const editCharacter = useCharacterStore((s) => s.editCharacter);
   const deleteCharacter = useCharacterStore((s) => s.deleteCharacter);
+  const notes = useNotesStore((s) => s.notes);
+  const setNotes = useNotesStore((s) => s.setNotes);
 
   return (
-    <Grid container spacing={2} mb={2} alignItems='stretch'>
-      <Grid item md={8} sm={12}>
-        <Section>
-          <Typography variant='h4'>Characters</Typography>
-          <Box m={1}>
-            <PlayerDetails characters={characters} />
-          </Box>
-        </Section>
-      </Grid>
-      <Grid item md={4} sm={12}>
-        <Section>
-          <Typography variant='h4'>Initiative</Typography>
-          <Box m={1}>
-            <InitiativeTracker characters={characters} />
-          </Box>
-        </Section>
-      </Grid>
-
+    <>
       <ManageCharactersDialog
         characters={characters}
         isOpen={isManageCharDialogOpen}
@@ -48,6 +30,27 @@ export default function Characters({
         onEditCharacter={editCharacter}
         onDeleteCharacter={deleteCharacter}
       />
-    </Grid>
+
+      <div className='space-y-4'>
+        <section>
+          <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2'>
+            Characters
+          </h2>
+          <PlayerDetails characters={characters} />
+        </section>
+
+        <section>
+          <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2'>
+            Notes
+          </h2>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder='Session notes…'
+            className='min-h-32 resize-y text-sm font-mono'
+          />
+        </section>
+      </div>
+    </>
   );
 }

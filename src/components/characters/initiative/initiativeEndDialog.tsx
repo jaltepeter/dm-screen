@@ -1,9 +1,12 @@
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface InitiativeEndDialogProps {
   isOpen: boolean;
@@ -17,23 +20,23 @@ export default function InitiativeEndDialog({
   handleEndInitiative
 }: InitiativeEndDialogProps) {
   return (
-    <Dialog
-      open={isOpen}
-      onClose={handleClose}
-      aria-labelledby='alert-dialog-title'
-      aria-describedby='alert-dialog-description'>
-      <DialogTitle id='alert-dialog-title'>{'End Initiative?'}</DialogTitle>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
-        <DialogContentText id='alert-dialog-description'>
-          This will end the current combat and delete all entries from the initiative tracker
-        </DialogContentText>
+        <DialogHeader>
+          <DialogTitle>End Initiative?</DialogTitle>
+          <DialogDescription>
+            This will end the current combat and delete all entries from the initiative tracker.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant='outline' onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant='destructive' onClick={handleEndInitiative}>
+            End Initiative
+          </Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleEndInitiative} autoFocus>
-          End Initiative
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }
