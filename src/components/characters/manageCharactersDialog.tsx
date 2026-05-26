@@ -11,28 +11,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus } from 'lucide-react';
-import { Character } from '../../store/characterStore';
+import { Character, useCharacterStore } from '../../store/characterStore';
 import ConfirmDialog from '@/components/ui/confirmDialog';
 
 interface ManageCharactersDialogProps {
-  characters: Character[];
   isOpen: boolean;
   onClose: () => void;
-  onAddCharacter: () => void;
-  onEditCharacter: (character: Character) => void;
-  onDeleteCharacter: (id: number) => void;
 }
 
 type EditingCell = { id: number; field: keyof Character } | null;
 
-export default function ManageCharactersDialog({
-  characters,
-  isOpen,
-  onClose,
-  onAddCharacter,
-  onEditCharacter,
-  onDeleteCharacter
-}: ManageCharactersDialogProps) {
+export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharactersDialogProps) {
+  const { characters, addCharacter, editCharacter, deleteCharacter } = useCharacterStore();
   const [editing, setEditing] = useState<EditingCell>(null);
   const [draft, setDraft] = useState('');
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
@@ -47,7 +37,7 @@ export default function ManageCharactersDialog({
     const { field } = editing;
     const numFields: (keyof Character)[] = ['ac', 'pp', 'pi', 'init'];
     const value = numFields.includes(field) ? Number(draft) : draft;
-    onEditCharacter({ ...char, [field]: value });
+    editCharacter({ ...char, [field]: value });
     setEditing(null);
   };
 
@@ -98,7 +88,7 @@ export default function ManageCharactersDialog({
           pendingDelete ? `"${pendingDelete.name}" will be permanently deleted.` : undefined
         }
         onConfirm={() => {
-          if (pendingDeleteId != null) onDeleteCharacter(pendingDeleteId);
+          if (pendingDeleteId != null) deleteCharacter(pendingDeleteId);
           setPendingDeleteId(null);
         }}
         onCancel={() => setPendingDeleteId(null)}
@@ -165,7 +155,7 @@ export default function ManageCharactersDialog({
             </Table>
           </div>
           <div className='px-4 py-3 border-t shrink-0'>
-            <Button variant='outline' size='sm' onClick={onAddCharacter}>
+            <Button variant='outline' size='sm' onClick={addCharacter}>
               <Plus className='h-4 w-4 mr-1' />
               Add Character
             </Button>

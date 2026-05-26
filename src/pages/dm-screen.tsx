@@ -25,9 +25,6 @@ const DmScreen = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const characters = useCharacterStore((s) => s.characters);
-  const addCharacter = useCharacterStore((s) => s.addCharacter);
-  const editCharacter = useCharacterStore((s) => s.editCharacter);
-  const deleteCharacter = useCharacterStore((s) => s.deleteCharacter);
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const initiativeActive = useUiStore((s) => s.initiativeActive);
 
@@ -117,12 +114,8 @@ const DmScreen = () => {
       </header>
 
       <ManageCharactersDialog
-        characters={characters}
         isOpen={isManageCharactersOpen}
         onClose={() => setIsManageCharactersOpen(false)}
-        onAddCharacter={addCharacter}
-        onEditCharacter={editCharacter}
-        onDeleteCharacter={deleteCharacter}
       />
       <ManageImagesDialog
         isOpen={isManageImagesOpen}
