@@ -285,18 +285,18 @@ These are deferred from Phase 1 migration intentionally. They are non-urgent but
 
 ## 3. Execution Plan
 
-### Phase A — Housekeeping (zero behavior change, low risk)
+### ~~Phase A — Housekeeping~~ ✅
 
 **Goal:** Fix naming mistakes, missing test coverage, dead code, and the one prop-drilling inconsistency. Every change here can be verified by running `npm test -- --run` and doing a visual smoke-test of both views.
 
-| #   | Task                                                                      | Files to modify                               | Verify                                           |
-| --- | ------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------ |
-| A-1 | Rename `PlayerViewState` → `UiState` in `uiStore.ts`                      | `uiStore.ts`                                  | `npm run lint` passes                            |
-| A-2 | Export `migrateCombatStore`, add v0 contract test                         | `combatStore.ts`, `migrations.test.ts`        | `npm test -- --run`                              |
-| A-3 | Delete `App.css`, remove import                                           | `App.css`, `App.tsx`                          | App loads without errors                         |
-| A-4 | `ManageCharactersDialog` reads its own store                              | `manageCharactersDialog.tsx`, `dm-screen.tsx` | Characters tab renders, add/edit/delete all work |
-| A-5 | Configure vitest `environment: 'happy-dom'`, upgrade testing-library      | `vite.config.ts`, `package.json`              | `npm test -- --run` still passes                 |
-| A-6 | Export `STORE_KEY` constants from each store, import in `exportImport.ts` | 4 store files, `exportImport.ts`              | Export/import round-trip works                   |
+| #          | Task                                                                      | Files to modify                               | Verify                                           |
+| ---------- | ------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------ |
+| ~~A-1~~ ✅ | Rename `PlayerViewState` → `UiState` in `uiStore.ts`                      | `uiStore.ts`                                  | `npm run lint` passes                            |
+| ~~A-2~~ ✅ | Export `migrateCombatStore`, add v0 contract test                         | `combatStore.ts`, `migrations.test.ts`        | `npm test -- --run`                              |
+| ~~A-3~~ ✅ | Delete `App.css`, remove import                                           | `App.css`, `App.tsx`                          | App loads without errors                         |
+| ~~A-4~~ ✅ | `ManageCharactersDialog` reads its own store                              | `manageCharactersDialog.tsx`, `dm-screen.tsx` | Characters tab renders, add/edit/delete all work |
+| ~~A-5~~ ✅ | Configure vitest `environment: 'happy-dom'`, upgrade testing-library      | `vite.config.ts`, `package.json`              | `npm test -- --run` still passes                 |
+| ~~A-6~~ ✅ | Export `STORE_KEY` constants from each store, import in `exportImport.ts` | 4 store files, `exportImport.ts`              | Export/import round-trip works                   |
 
 ---
 
