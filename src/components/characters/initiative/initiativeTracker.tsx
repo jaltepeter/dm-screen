@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Minus, Plus, SkipBack, SkipForward, Sword, Swords } from 'lucide-react';
+import { SkipBack, SkipForward, Sword, Swords } from 'lucide-react';
+import HpCell from './hpCell';
 import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
 import { Actor, sendMessage } from '../../../lib/sync';
@@ -21,9 +21,7 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
     useCombatStore();
   const [setupOpen, setSetupOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
-  const [editingHpId, setEditingHpId] = useState<string | null>(null);
   const [viewingStatBlockId, setViewingStatBlockId] = useState<string | null>(null);
-  const hpInputRef = useRef<HTMLInputElement>(null);
   const setInitiativeActive = useUiStore((s) => s.setInitiativeActive);
   const statBlocks = useEncounterStore((s) => s.statBlocks);
 
@@ -35,10 +33,6 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
   useEffect(() => {
     setInitiativeActive(actors.length > 0);
   }, [actors.length, setInitiativeActive]);
-
-  useEffect(() => {
-    if (editingHpId) hpInputRef.current?.select();
-  }, [editingHpId]);
 
   const autoFollow = (nextActors: Actor[], nextIndex: number) => {
     const a = nextActors[nextIndex];
@@ -159,52 +153,13 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
                     {actor.name}
                   </span>
                   <div className='flex items-center justify-center gap-0.5'>
-                    {actor.kind === 'npc' && actor.maxHp !== undefined ? (
-                      <>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-6 w-6 shrink-0'
-                          onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) - 1)}>
-                          <Minus className='h-3 w-3' />
-                        </Button>
-                        {editingHpId === actor.id ? (
-                          <Input
-                            ref={hpInputRef}
-                            type='number'
-                            defaultValue={actor.hp ?? actor.maxHp}
-                            className='h-6 w-10 text-xs px-1 text-center'
-                            onBlur={(e) => {
-                              updateHp(actor.id, Number(e.target.value));
-                              setEditingHpId(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                updateHp(actor.id, Number(e.currentTarget.value));
-                                setEditingHpId(null);
-                              } else if (e.key === 'Escape') {
-                                setEditingHpId(null);
-                              }
-                            }}
-                          />
-                        ) : (
-                          <span
-                            className='tabular-nums text-sm w-6 text-center cursor-pointer select-none'
-                            title='Double-click to edit'
-                            onDoubleClick={() => setEditingHpId(actor.id)}>
-                            {actor.hp ?? actor.maxHp}
-                          </span>
-                        )}
-                        <span className='text-xs text-muted-foreground'>/{actor.maxHp}</span>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-6 w-6 shrink-0'
-                          onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) + 1)}>
-                          <Plus className='h-3 w-3' />
-                        </Button>
-                      </>
-                    ) : null}
+                    {actor.kind === 'npc' && actor.maxHp !== undefined && (
+                      <HpCell
+                        hp={actor.hp}
+                        maxHp={actor.maxHp}
+                        onCommit={(newHp) => updateHp(actor.id, newHp)}
+                      />
+                    )}
                   </div>
                   <div className='flex justify-center'>
                     <Switch
