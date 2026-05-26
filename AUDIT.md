@@ -300,17 +300,17 @@ These are deferred from Phase 1 migration intentionally. They are non-urgent but
 
 ---
 
-### Phase B — Component extraction (reduce duplication, no new features)
+### ~~Phase B — Component extraction~~ ✅
 
 **Goal:** Extract repeated UI patterns into shared primitives so future changes are one-place edits. Each extraction is a pure refactor — no logic changes.
 
 | #          | Task                                                              | Files to modify                                                                         | Verify                                  |
 | ---------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------- |
-| B-1        | Extract `<SectionHeader>` to `src/components/ui/`                 | `statBlockEditorPanel.tsx`, `characters.tsx`, `images.tsx`, new `ui/section-header.tsx` | Visual — headings still appear          |
-| B-2        | Add `<NativeSelect>` to `src/components/ui/`                      | New `ui/native-select.tsx`; `initiativeSetupDialog.tsx`, `manageEncountersDialog.tsx`   | Dropdowns still work                    |
-| B-3        | Extract `<ImageThumbnail>`                                        | New `images/imageThumbnail.tsx`; `imageGrid.tsx`, `manageImagesDialog.tsx`              | Image hover overlay works in both views |
+| ~~B-1~~ ✅ | Extract `<SectionHeader>` to `src/components/ui/`                 | `statBlockEditorPanel.tsx`, `characters.tsx`, `images.tsx`, new `ui/section-header.tsx` | Visual — headings still appear          |
+| ~~B-2~~ ✅ | Add `<NativeSelect>` to `src/components/ui/`                      | New `ui/native-select.tsx`; `initiativeSetupDialog.tsx`, `manageEncountersDialog.tsx`   | Dropdowns still work                    |
+| ~~B-3~~ ✅ | Extract `<ImageThumbnail>`                                        | New `images/image-thumbnail.tsx`; `imageGrid.tsx`, `manageImagesDialog.tsx`             | Image hover overlay works in both views |
 | ~~B-4~~ ✅ | ~~Extract `<HpCell>` from `initiativeTracker.tsx`~~               | Done — includes delta badge + hold-to-repeat                                            |                                         |
-| B-5        | Extract `AddImageDialog`, `RenameFolderDialog`, `NewFolderDialog` | `manageImagesDialog.tsx` split into 4 files                                             | All image folder operations still work  |
+| ~~B-5~~ ✅ | Extract `AddImageDialog`, `RenameFolderDialog`, `NewFolderDialog` | `manageImagesDialog.tsx` split into 5 files; new `ui/simple-dialog.tsx` shell           | All image folder operations still work  |
 
 ---
 
