@@ -92,12 +92,16 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
 - Display in character table (current/max, e.g. `18/24`)
 - Inline edit from the table (click to edit, not a full dialog)
 
-### 3.3 Monster / NPC support in combat
+### ✅ 3.3 NPC support in combat
 
-- Initiative setup: distinguish between player characters and monsters/NPCs
-- Monsters get HP tracked during combat (current/max)
-- DM can add ad-hoc monsters during setup with name, init roll, HP
-- Dead monsters (HP = 0) auto-marked inactive
+- Initiative setup: distinguish between player characters and NPCs
+- NPCs get HP tracked during combat (current/max); auto-inactive at 0
+- DM can add ad-hoc NPCs during setup with name, init roll, max HP
+- Bloodied condition (≤50% HP) auto-applied and broadcast to player view
+- `Actor.id` changed to `string` (UUID); `kind`, `conditions`, `hp`, `maxHp` added
+- HP stripped from sync payload before broadcast; conditions included
+- Round counter tracks wraps correctly via dedicated state (was always round 1)
+- Combat state persisted in Zustand (`dm-screen/combat`) — survives page refresh
 
 ### 3.4 Conditions tracking
 

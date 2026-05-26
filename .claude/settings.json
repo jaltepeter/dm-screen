@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:registry.npmjs.org)",
+      "Read(//private/var/folders/8j/1cgkb6b14yq8ds0mj0czlxhm0000gn/T/**)",
+      "Read(//var/folders/cs/9zbpx4ld4qg_mgxjfh_qw5hw0000gq/T/**)",
+      "Read(//private/var/folders/cs/9zbpx4ld4qg_mgxjfh_qw5hw0000gq/T/**)"
+    ]
+  }
+}

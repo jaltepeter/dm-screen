@@ -13,7 +13,7 @@ export default function InitiativePlayerView({ actors, turnNumber }: InitiativeP
         const isCurrent = index === turnNumber;
         return (
           <li
-            key={index}
+            key={actor.id}
             className={`flex items-center gap-1.5 px-2 py-1 rounded text-sm ${
               isCurrent ? 'bg-white/10 font-semibold' : 'text-white/70'
             } ${!actor.active ? 'line-through opacity-50' : ''}`}>

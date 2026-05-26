@@ -1,9 +1,13 @@
 export interface Actor {
-  id: number;
+  id: string;
+  kind: 'player' | 'npc';
   name: string;
   init: number;
   visible: boolean;
   active: boolean;
+  conditions: string[];
+  hp?: number;
+  maxHp?: number;
 }
 
 export type SyncMessage =
@@ -13,7 +17,14 @@ export type SyncMessage =
 const channel = new BroadcastChannel('dm-screen');
 
 export function sendMessage(msg: SyncMessage): void {
-  channel.postMessage(msg);
+  if (msg.cmd === 'init_update') {
+    // hp and maxHp are DM-only; strip them before broadcasting to the player view
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const actors = msg.payload.actors.map(({ hp: _hp, maxHp: _maxHp, ...rest }) => rest);
+    channel.postMessage({ ...msg, payload: { ...msg.payload, actors } });
+  } else {
+    channel.postMessage(msg);
+  }
 }
 
 /** Returns an unsubscribe function. */

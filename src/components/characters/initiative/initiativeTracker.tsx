@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { SkipBack, SkipForward, Sword, Swords } from 'lucide-react';
+import { Minus, Plus, SkipBack, SkipForward, Sword, Swords } from 'lucide-react';
 import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
 import { Actor, sendMessage } from '../../../lib/sync';
 import { Character } from '../../../store/characterStore';
+import { useCombatStore } from '../../../store/combatStore';
 import { useUiStore } from '../../../store/uiStore';
 
 interface InitiativeTrackerProps {
@@ -13,10 +15,12 @@ interface InitiativeTrackerProps {
 }
 
 export default function InitiativeTracker({ characters }: InitiativeTrackerProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [actors, setActors] = useState<Actor[]>([]);
+  const { actors, selectedIndex, round, setActors, setSelectedIndex, setRound, reset } =
+    useCombatStore();
   const [setupOpen, setSetupOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
+  const [editingHpId, setEditingHpId] = useState<string | null>(null);
+  const hpInputRef = useRef<HTMLInputElement>(null);
   const setInitiativeActive = useUiStore((s) => s.setInitiativeActive);
 
   useEffect(() => {
@@ -30,6 +34,8 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
   const nextTurn = () => {
     for (let i = selectedIndex + 1; i < actors.length + selectedIndex + 1; i++) {
       if (actors[i % actors.length].active) {
+        // i >= actors.length means we wrapped past the end of the list — new round
+        if (i >= actors.length) setRound(round + 1);
         setSelectedIndex(i % actors.length);
         break;
       }
@@ -50,20 +56,35 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
     setSetupOpen(false);
     setActors(newActors);
     setSelectedIndex(0);
+    setRound(1);
   };
 
   const handleReset = () => {
-    setActors([]);
+    reset();
     setEndOpen(false);
   };
 
-  const toggleVisible = (id: number) =>
+  const toggleVisible = (id: string) =>
     setActors(actors.map((a) => (a.id === id ? { ...a, visible: !a.visible } : a)));
 
-  const toggleActive = (id: number) =>
+  const toggleActive = (id: string) =>
     setActors(actors.map((a) => (a.id === id ? { ...a, active: !a.active } : a)));
 
-  const round = actors.length > 0 ? Math.floor(selectedIndex / actors.length) + 1 : null;
+  const updateHp = (id: string, rawHp: number) => {
+    setActors(
+      actors.map((a) => {
+        if (a.id !== id) return a;
+        const hp = Math.max(0, rawHp);
+        const isBloodied = a.maxHp !== undefined && hp > 0 && hp <= a.maxHp / 2;
+        const conditions = [
+          ...(a.conditions ?? []).filter((c) => c !== 'bloodied'),
+          ...(isBloodied ? ['bloodied'] : [])
+        ];
+        // Auto-mark inactive when HP reaches 0
+        return { ...a, hp, active: hp > 0 ? a.active : false, conditions };
+      })
+    );
+  };
 
   return (
     <div className='space-y-3'>
@@ -83,16 +104,17 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
         <>
           <div className='text-xs text-muted-foreground'>Round {round}</div>
           <div className='space-y-0.5'>
-            <div className='grid grid-cols-[2.5rem_1fr_4rem_4rem] gap-1 px-1 text-xs text-muted-foreground'>
+            <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 px-1 text-xs text-muted-foreground'>
               <span>Init</span>
               <span>Name</span>
+              <span className='text-center'>HP</span>
               <span className='text-center'>Vis</span>
               <span className='text-center'>Alive</span>
             </div>
             {actors.map((actor, index) => (
               <div
                 key={actor.id}
-                className={`grid grid-cols-[2.5rem_1fr_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
+                className={`grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
                   selectedIndex === index ? 'bg-primary/10 border-primary' : 'border-transparent'
                 }`}>
                 <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
@@ -103,6 +125,58 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
                   {selectedIndex === index && <Sword className='h-3 w-3 text-primary shrink-0' />}
                   {actor.name}
                 </span>
+                <div className='flex items-center justify-center gap-0.5'>
+                  {actor.kind === 'npc' && actor.maxHp !== undefined ? (
+                    <>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='h-6 w-6 shrink-0'
+                        onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) - 1)}>
+                        <Minus className='h-3 w-3' />
+                      </Button>
+                      {editingHpId === actor.id ? (
+                        <Input
+                          ref={hpInputRef}
+                          type='number'
+                          defaultValue={actor.hp ?? actor.maxHp}
+                          className='h-6 w-10 text-xs px-1 text-center'
+                          onBlur={(e) => {
+                            updateHp(actor.id, Number(e.target.value));
+                            setEditingHpId(null);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              updateHp(actor.id, Number(e.currentTarget.value));
+                              setEditingHpId(null);
+                            } else if (e.key === 'Escape') {
+                              setEditingHpId(null);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span
+                          className='tabular-nums text-sm w-6 text-center cursor-pointer select-none'
+                          title='Double-click to edit'
+                          onDoubleClick={() => {
+                            setEditingHpId(actor.id);
+                            // Focus after React renders the input
+                            setTimeout(() => hpInputRef.current?.select(), 0);
+                          }}>
+                          {actor.hp ?? actor.maxHp}
+                        </span>
+                      )}
+                      <span className='text-xs text-muted-foreground'>/{actor.maxHp}</span>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='h-6 w-6 shrink-0'
+                        onClick={() => updateHp(actor.id, (actor.hp ?? actor.maxHp ?? 0) + 1)}>
+                        <Plus className='h-3 w-3' />
+                      </Button>
+                    </>
+                  ) : null}
+                </div>
                 <div className='flex justify-center'>
                   <Switch
                     checked={actor.visible}
