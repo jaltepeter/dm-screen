@@ -86,11 +86,9 @@ The goal is to replace the dead CRA toolchain with Vite, add TypeScript, and fix
 - Import: JSON file picker → validate shape → load into stores
 - Both wired up in the drawer (currently stubbed)
 
-### 3.2 HP tracking
+### ~~3.2 HP tracking~~ — dropped
 
-- Add `hp`, `maxHp`, `tempHp` to `Character`
-- Display in character table (current/max, e.g. `18/24`)
-- Inline edit from the table (click to edit, not a full dialog)
+Player HP tracking not needed; HP tracking is NPC-only (covered in 3.3).
 
 ### ✅ 3.3 NPC support in combat
 
