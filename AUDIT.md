@@ -314,14 +314,14 @@ These are deferred from Phase 1 migration intentionally. They are non-urgent but
 
 ---
 
-### Phase C — Pattern consolidation
+### ~~Phase C — Pattern consolidation~~ ✅
 
 **Goal:** Centralize the two patterns that have the most duplicated state management logic.
 
-| #   | Task                                                   | Files to modify                                                                                                      | Verify                                        |
-| --- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| C-1 | `useConfirmDelete<T>()` hook + `<DeleteConfirmDialog>` | New `lib/useConfirmDelete.ts`, 5 dialog components                                                                   | Delete flows work in all affected dialogs     |
-| C-2 | `<FullscreenDialog>` layout wrapper                    | New `ui/fullscreen-dialog.tsx`; `manageStatBlocksDialog.tsx`, `manageEncountersDialog.tsx`, `manageImagesDialog.tsx` | Fullscreen dialogs still open/close correctly |
+| #          | Task                                                   | Files to modify                                                                                                      | Verify                                        |
+| ---------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| ~~C-1~~ ✅ | `useConfirmDelete<T>()` hook + `<DeleteConfirmDialog>` | New `lib/useConfirmDelete.ts`, 5 dialog components                                                                   | Delete flows work in all affected dialogs     |
+| ~~C-2~~ ✅ | `<FullscreenDialog>` layout wrapper                    | New `ui/fullscreen-dialog.tsx`; all 4 fullscreen dialogs (ManageCharacters included)                                 | Fullscreen dialogs still open/close correctly |
 
 ---
 
