@@ -337,17 +337,17 @@ These are deferred from Phase 1 migration intentionally. They are non-urgent but
 
 ---
 
-### Phase E — Toolchain upgrades (do in a single PR, test everything after)
+### ~~Phase E — Toolchain upgrades~~ ✅
 
 **Goal:** Get off EOL packages. This phase is the riskiest — ESLint v9 and Prettier v3 both have breaking config changes.
 
-| #   | Task                                                              | Verify                                        |
-| --- | ----------------------------------------------------------------- | --------------------------------------------- |
-| E-1 | Upgrade ESLint 8 → 9, migrate to flat config (`eslint.config.ts`) | `npm run lint` passes                         |
-| E-2 | Upgrade Prettier 2 → 3                                            | `npm run format`, check no unexpected changes |
-| E-3 | Upgrade vitest 1 → 3                                              | `npm test -- --run`                           |
-| E-4 | Upgrade vite 5 → 6                                                | `npm run build` succeeds, dev server starts   |
-| E-5 | Upgrade @testing-library packages                                 | Existing tests still pass                     |
+| #          | Task                                                               | Verify                                        |
+| ---------- | ------------------------------------------------------------------ | --------------------------------------------- |
+| ~~E-1~~ ✅ | Upgrade ESLint 8 → 9, migrate to flat config (`eslint.config.js`) | `npm run lint` passes                         |
+| ~~E-2~~ ✅ | Upgrade Prettier 2 → 3                                             | `npm run format`, check no unexpected changes |
+| ~~E-3~~ ✅ | Upgrade vitest 1 → 3                                               | `npm test -- --run`                           |
+| ~~E-4~~ ✅ | Upgrade vite 5 → 6                                                 | `npm run build` succeeds, dev server starts   |
+| ~~E-5~~ ✅ | Upgrade @testing-library packages                                  | Existing tests still pass                     |
 
 ---
 
