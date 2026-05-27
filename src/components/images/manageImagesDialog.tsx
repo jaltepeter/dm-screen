@@ -87,7 +87,10 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
         open={subDialog === 'newFolder'}
         onClose={closeSub}
         existingFolderNames={folderNames}
-        onCreate={(name) => createFolder(name)}
+        onCreate={(name) => {
+          createFolder(name);
+          setOpenFolders((prev) => [...prev, name]);
+        }}
       />
 
       <FullscreenDialog open={isOpen} onClose={onClose} title='Manage Images'>
