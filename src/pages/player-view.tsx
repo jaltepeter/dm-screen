@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
 import { Actor, onMessage, sendMessage } from '../lib/sync';
@@ -12,6 +12,36 @@ export default function PlayerView() {
   const [waiting, setWaiting] = useState(true);
 
   const showInit = actors.length > 0;
+  const centeredMode = showInit && !imageSource;
+
+  const centeredContentRef = useRef<HTMLDivElement>(null);
+  const [centeredScale, setCenteredScale] = useState(1);
+  const cornerContentRef = useRef<HTMLDivElement>(null);
+  const [cornerScale, setCornerScale] = useState(1);
+
+  // Scale initiative down to fit viewport when there are many actors.
+  // transform: scale() doesn't affect layout metrics, so offsetHeight always
+  // returns the natural height regardless of the current scale — no feedback loop.
+  const makeScaleUpdater =
+    (ref: React.RefObject<HTMLDivElement | null>, setScale: (s: number) => void) => () => {
+      const el = ref.current;
+      if (!el) return;
+      const update = () => {
+        const available = window.innerHeight * 0.9;
+        setScale(Math.min(1, available / el.offsetHeight));
+      };
+      update();
+      const ro = new ResizeObserver(update);
+      ro.observe(el);
+      window.addEventListener('resize', update);
+      return () => {
+        ro.disconnect();
+        window.removeEventListener('resize', update);
+      };
+    };
+
+  useEffect(makeScaleUpdater(centeredContentRef, setCenteredScale), [imageSource]);
+  useEffect(makeScaleUpdater(cornerContentRef, setCornerScale), [imageSource]);
 
   useEffect(() => {
     document.title = 'Player View';
@@ -75,7 +105,7 @@ export default function PlayerView() {
           alt={imageSource.title}
           className='w-full h-full object-contain'
         />
-      ) : (
+      ) : !centeredMode ? (
         <div className='flex items-center justify-center w-full h-full select-none'>
           {waiting ? (
             <span className='animate-pulse animation-duration-[5s] text-3xl text-white/40'>
@@ -85,20 +115,37 @@ export default function PlayerView() {
             <img src='/beholder.svg' alt='' className='w-[80vmin] h-[80vmin] opacity-10' />
           )}
         </div>
-      )}
+      ) : null}
 
-      {/* Corner initiative overlay */}
-      <div
-        className={`absolute top-4 right-4 transition-all duration-300 ${
-          showInit ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
-        }`}>
-        <div className='bg-black/60 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 min-w-32'>
-          <p className='text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5'>
-            Initiative
-          </p>
-          <InitiativePlayerView actors={actors} turnNumber={index} round={round} />
+      {/* Initiative overlay — corner when image is showing, centered+large when not */}
+      {imageSource ? (
+        <div
+          className={`absolute top-4 right-4 transition-all duration-300 ${
+            showInit ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+          }`}>
+          <div
+            ref={cornerContentRef}
+            style={{ transform: `scale(${cornerScale})`, transformOrigin: 'top right' }}
+            className='bg-black/60 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 min-w-32'>
+            <p className='text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5'>
+              Initiative
+            </p>
+            <InitiativePlayerView actors={actors} turnNumber={index} round={round} />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+            centeredMode ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}>
+          <div
+            ref={centeredContentRef}
+            style={{ transform: `scale(${centeredScale})`, transformOrigin: 'center center' }}
+            className='min-w-80 px-8'>
+            <InitiativePlayerView actors={actors} turnNumber={index} round={round} large />
+          </div>
+        </div>
+      )}
 
       {/* Fullscreen toggle */}
       <button
