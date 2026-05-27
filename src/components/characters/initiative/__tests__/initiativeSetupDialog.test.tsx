@@ -8,8 +8,26 @@ import type { Actor } from '../../../../lib/sync';
 beforeEach(() => {
   useCharacterStore.setState({
     characters: [
-      { id: '1', name: 'Gandalf', charClass: 'Wizard', ac: 12, pp: 14, pi: 14, init: 0 },
-      { id: '2', name: 'Bilbo', charClass: 'Rogue', ac: 13, pp: 13, pi: 11, init: 0 }
+      {
+        id: '1',
+        name: 'Gandalf',
+        charClass: 'Wizard',
+        background: '',
+        ac: 12,
+        pp: 14,
+        pi: 14,
+        init: 0
+      },
+      {
+        id: '2',
+        name: 'Bilbo',
+        charClass: 'Rogue',
+        background: '',
+        ac: 13,
+        pp: 13,
+        pi: 11,
+        init: 0
+      }
     ]
   });
   useEncounterStore.setState({

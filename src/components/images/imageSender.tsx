@@ -17,7 +17,7 @@ export default function ImageSender({ onSendImage }: ImageSenderProps) {
 
   const handleSend = () => {
     if (imageUrl.trim()) {
-      onSendImage({ url: imageUrl.trim() });
+      onSendImage({ id: crypto.randomUUID(), url: imageUrl.trim() });
       setImageUrl('');
     }
   };

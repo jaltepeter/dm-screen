@@ -22,13 +22,14 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc -p tsconfig.app.json --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
-    "prepare": "husky"
+    "prepare": "husky",
+    "all-checks": "npm run format . && npm run lint:fix && vitest run"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
