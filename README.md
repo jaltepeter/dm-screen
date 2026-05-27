@@ -50,7 +50,6 @@ Serves the app at `http://localhost:8080/`.
 
 ## Backlog
 
-- Center initiative when no image — player view currently anchors initiative to top-right; when no image is displayed, center it instead
 - Keep main menu open in "manage mode" — option to keep the drawer open while managing characters/images/encounters
 - Stat block preview during edit — show the rendered StatBlockCard alongside the editor panel so the DM can see how the stat block will look while filling it in
 
