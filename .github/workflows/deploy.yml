@@ -67,6 +67,7 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - run: npx partykit deploy --token $PARTYKIT_TOKEN
+      - run: npx partykit deploy
         env:
           PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
+          PARTYKIT_LOGIN: jaltepeter
