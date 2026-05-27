@@ -1,6 +1,6 @@
 # DM Screen
 
-A lightweight DM screen for true tabletop play. Open the DM view on your laptop, the player view on an external display, and push images and combat info to your players — no server, no account, no internet required.
+A lightweight DM screen for true tabletop play. Open the DM view on your laptop, share a link with your players, and push images and combat info to any screen at the table — phone, TV, or second monitor.
 
 ## What it does
 
@@ -18,7 +18,7 @@ A lightweight DM screen for true tabletop play. Open the DM view on your laptop,
 - Conditions and round count displayed per actor
 - Displays whatever image the DM sends
 
-The two views sync via the browser's `BroadcastChannel` API — both windows need to be open in the same browser on the same machine.
+The two views sync via **PartyKit** WebSockets — the DM and players can be on completely different devices and networks. Open the DM view on your laptop, share the player link with anyone at the table, and push images and combat state in real time.
 
 ## Running locally
 
@@ -27,7 +27,7 @@ npm install
 npm start
 ```
 
-Opens at `http://localhost:5173/`. Open a second window/tab and navigate to `/players` for the player view, then drag it to your second monitor.
+Opens at `http://localhost:5173/`. The player view is at `/players/<slug>` where `<slug>` is your campaign's slug — set one up in Prep Mode first, then click Go Live.
 
 ## Docker
 
@@ -45,26 +45,30 @@ Serves the app at `http://localhost:8080/`.
 | Language          | TypeScript                    | Type safety                             |
 | UI                | shadcn/ui + Tailwind          | Own the components, no runtime overhead |
 | State             | Zustand + persist             | Replaces manual localStorage wiring     |
-| DM↔Player sync    | BroadcastChannel (abstracted) | Zero setup, works offline               |
-| Cross-device sync | Planned: PartyKit (free tier) | See below                               |
+| DM↔Player sync    | PartyKit WebSockets           | Ephemeral rooms, free tier, 10-line server |
 
-## Cross-device sync (planned)
+## Cross-device sync
 
-The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping in a network transport won't touch any component code. The plan is **PartyKit** on its free tier.
+The sync layer (`src/lib/sync.ts`) is a module-level singleton wrapping `partysocket`. All components call `sendMessage`/`onMessage` — nothing touches the WebSocket directly, so the transport is invisible to the rest of the app.
 
-**Why PartyKit:**
+**How a session works:**
 
-- Designed for exactly this: ephemeral real-time state broadcast to a room
-- Free tier supports unlimited concurrent rooms within a project — a DM session is one room
-- The 24-hour storage reset is irrelevant; state lives in the browser, not the server
-- 10-line server file, minimal setup
+1. DM creates a campaign in Prep Mode and assigns it a slug (e.g. `my-campaign`)
+2. DM clicks **Go Live** — connects to a PartyKit room keyed on the slug
+3. Players navigate to `/players/my-campaign` on any device, enter their name, and connect
+4. DM sees a live player count with join times; players see initiative and whatever image the DM sends
 
-**UX sketch:**
+**DM presence:**
 
-- DM opens the app → a short session code is generated and shown in the header
-- Player opens `/players` on any device (phone, TV browser, laptop) → enters the code → connects and syncs immediately via the existing `player_ready` handshake
+The server tracks `dmConnected` and `everHadDm` in room state. Players use this to distinguish three cases: unknown room ("No active session"), DM temporarily offline ("DM Disconnected" overlay), and intentional end ("The session has ended" full wipe). A `checkRoom` HTTP probe happens before the player even enters their name, so they don't get to the name screen if the room was never real.
 
-This would make it practical to use a projector or TV in a different room, or let players follow along on their phones.
+**State on reconnect:**
+
+When the DM reconnects, `onConnectionChange` fires and immediately pushes current local combat state and the last-sent image to the server. Players get a `dm_sync` and are up to date without any action from the DM. `lastSentImage` is persisted in `uiStore` so it survives a DM browser refresh.
+
+**HP privacy:**
+
+The PartyKit server strips `hp`/`maxHp` from every actor before broadcasting to players — HP is DM-only data and never reaches the player view.
 
 ## Deployment
 
