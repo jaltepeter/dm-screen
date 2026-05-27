@@ -129,7 +129,7 @@ export default function InitiativeTracker() {
         {actors.length > 0 ? (
           <>
             <div className='text-xs text-muted-foreground'>Round {round}</div>
-            <div className='space-y-0.5'>
+            <div className='space-y-1'>
               <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem_2rem] gap-1 px-1 text-xs text-muted-foreground'>
                 <span>Init</span>
                 <span>Name</span>
@@ -142,7 +142,9 @@ export default function InitiativeTracker() {
                 <div
                   key={actor.id}
                   className={`px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
-                    selectedIndex === index ? 'bg-primary/10 border-primary' : 'border-transparent'
+                    selectedIndex === index
+                      ? 'bg-primary/10 border-primary'
+                      : 'bg-muted/40 border-transparent'
                   }`}>
                   <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem_2rem] gap-1 items-center'>
                     <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
