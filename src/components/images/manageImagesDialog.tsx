@@ -33,6 +33,7 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
 
   const [targetFolder, setTargetFolder] = useState('');
   const [subDialog, setSubDialog] = useState<SubDialog>(null);
+  const [openFolders, setOpenFolders] = useState<string[]>([]);
   const deleteImage = useConfirmDelete<{ folder: string; image: Image }>();
   const deleteFolder = useConfirmDelete<string>();
 
@@ -94,7 +95,11 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
           {folders.length === 0 ? (
             <p className='text-sm text-muted-foreground'>No folders yet.</p>
           ) : (
-            <Accordion type='multiple' className='space-y-1'>
+            <Accordion
+              type='multiple'
+              value={openFolders}
+              onValueChange={setOpenFolders}
+              className='space-y-1'>
               {folders.map((folder) => (
                 <AccordionItem
                   key={folder.folderName}
@@ -131,7 +136,7 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
                       <div className='grid grid-cols-4 gap-2'>
                         {folder.images.map((image) => (
                           <ImageThumbnail
-                            key={image.url}
+                            key={image.id}
                             image={image}
                             imgClassName='w-full h-20 object-cover'
                             action={
