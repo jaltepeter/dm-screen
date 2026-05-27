@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface Character {
-  id: number;
+  id: string;
   name: string;
   charClass: string;
   background: string;
@@ -17,12 +17,12 @@ interface CharacterStore {
   characters: Character[];
   addCharacter: () => void;
   editCharacter: (character: Character) => void;
-  deleteCharacter: (id: number) => void;
+  deleteCharacter: (id: string) => void;
 }
 
 const DEFAULT_CHARACTERS: Character[] = [
   {
-    id: 1,
+    id: crypto.randomUUID(),
     name: 'Bruenor',
     charClass: 'Fighter',
     background: 'Soldier',
@@ -33,7 +33,7 @@ const DEFAULT_CHARACTERS: Character[] = [
     sheetUrl: 'https://dndbeyond.com'
   },
   {
-    id: 2,
+    id: crypto.randomUUID(),
     name: 'Meepo',
     charClass: 'Rogue',
     background: 'Criminal',
@@ -49,9 +49,20 @@ export const STORE_KEY = 'dm-screen/characters';
 
 export function migrateCharacterStore(
   state: unknown,
-  _version: number
+  version: number
 ): { characters: Character[] } {
-  return state as { characters: Character[] };
+  let s = state as { characters: Character[] };
+  if (version < 1) {
+    // Convert numeric ids to strings to align with all other entity types.
+    s = {
+      ...s,
+      characters: s.characters.map((c) => ({
+        ...c,
+        id: String((c as unknown as { id: number }).id)
+      }))
+    };
+  }
+  return s;
 }
 
 export const useCharacterStore = create<CharacterStore>()(
@@ -61,12 +72,11 @@ export const useCharacterStore = create<CharacterStore>()(
 
       addCharacter: () => {
         const { characters } = get();
-        const nextId = characters.length > 0 ? Math.max(...characters.map((c) => c.id)) + 1 : 1;
         set({
           characters: [
             ...characters,
             {
-              id: nextId,
+              id: crypto.randomUUID(),
               name: 'New Character',
               charClass: 'Fighter',
               background: 'Soldier',
@@ -93,7 +103,7 @@ export const useCharacterStore = create<CharacterStore>()(
     }),
     {
       name: STORE_KEY,
-      version: 0,
+      version: 1,
       migrate: migrateCharacterStore
     }
   )

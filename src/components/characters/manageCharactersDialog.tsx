@@ -20,7 +20,7 @@ interface ManageCharactersDialogProps {
   onClose: () => void;
 }
 
-type EditingCell = { id: number; field: keyof Character } | null;
+type EditingCell = { id: string; field: keyof Character } | null;
 
 export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharactersDialogProps) {
   const { characters, addCharacter, editCharacter, deleteCharacter } = useCharacterStore();
@@ -42,7 +42,7 @@ export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharac
     setEditing(null);
   };
 
-  const isEditing = (id: number, field: keyof Character) =>
+  const isEditing = (id: string, field: keyof Character) =>
     editing?.id === id && editing?.field === field;
 
   const EditableCell = ({

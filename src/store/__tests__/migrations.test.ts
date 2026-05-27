@@ -118,9 +118,33 @@ describe('combatStore migrations', () => {
   });
 });
 
+const v1Characters = {
+  characters: [
+    {
+      id: '1',
+      name: 'Bruenor',
+      charClass: 'Fighter',
+      background: 'Soldier',
+      ac: 18,
+      pp: 10,
+      pi: 10,
+      init: 2,
+      sheetUrl: 'https://dndbeyond.com'
+    }
+  ]
+};
+
 describe('characterStore migrations', () => {
-  it('v0 state is preserved', () => {
-    expect(migrateCharacterStore(v0Characters, 0), CONTRACT_BROKEN).toEqual(v0Characters);
+  it('v1 state is preserved', () => {
+    expect(migrateCharacterStore(structuredClone(v1Characters), 1), CONTRACT_BROKEN).toEqual(
+      v1Characters
+    );
+  });
+
+  it('v0 → v1: numeric id converted to string', () => {
+    const result = migrateCharacterStore(structuredClone(v0Characters), 0) as typeof v1Characters;
+    expect(result.characters[0].id, CONTRACT_BROKEN).toBe('1');
+    expect(result.characters[0].name, CONTRACT_BROKEN).toBe('Bruenor');
   });
 });
 
