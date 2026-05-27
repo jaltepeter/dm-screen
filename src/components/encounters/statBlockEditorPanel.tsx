@@ -40,7 +40,7 @@ export default function StatBlockEditorPanel({ statBlock: sb, onChange }: Props)
   const set = (patch: Partial<StatBlock>) => onChange({ ...sb, ...patch });
   const setNum = (field: keyof StatBlock, raw: string) => {
     const n = raw === '' ? undefined : Number(raw);
-    set({ [field]: n });
+    if (n === undefined || !Number.isNaN(n)) set({ [field]: n });
   };
   const setStr = (field: keyof StatBlock, raw: string) => {
     set({ [field]: raw || undefined });
@@ -143,7 +143,7 @@ export default function StatBlockEditorPanel({ statBlock: sb, onChange }: Props)
           label='Proficiency Bonus'
           value={sb.proficiencyBonus?.toString()}
           onChange={(v) => setNum('proficiencyBonus', v)}
-          placeholder='+2'
+          placeholder='2'
         />
         <Field
           label='Saving Throws'
