@@ -31,14 +31,14 @@ The two views communicate via the browser's `BroadcastChannel` API. No server, n
 
 **State layer** (`src/store/`) — Zustand stores with `persist` middleware:
 
-| Store           | localStorage key         | Notes                                    |
-| --------------- | ------------------------ | ---------------------------------------- |
-| `characterStore` | `dm-screen/characters`  | Characters with UUID ids                 |
-| `imageStore`    | `dm-screen/images`       | Folders + image URLs; enforces unique URLs |
-| `notesStore`    | `dm-screen/notes`        |                                          |
-| `encounterStore` | `dm-screen/encounters`  | Stat blocks + named encounter templates  |
-| `combatStore`   | `dm-screen/combat`       | Active initiative state; survives refresh |
-| `uiStore`       | (memory only)            | `lastSentImage`, `initiativeActive`      |
+| Store            | localStorage key       | Notes                                      |
+| ---------------- | ---------------------- | ------------------------------------------ |
+| `characterStore` | `dm-screen/characters` | Characters with UUID ids                   |
+| `imageStore`     | `dm-screen/images`     | Folders + image URLs; enforces unique URLs |
+| `notesStore`     | `dm-screen/notes`      |                                            |
+| `encounterStore` | `dm-screen/encounters` | Stat blocks + named encounter templates    |
+| `combatStore`    | `dm-screen/combat`     | Active initiative state; survives refresh  |
+| `uiStore`        | (memory only)          | `lastSentImage`, `initiativeActive`        |
 
 **Sync layer** (`src/lib/sync.ts`) — module-level BroadcastChannel singleton:
 

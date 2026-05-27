@@ -50,7 +50,6 @@ Serves the app at `http://localhost:8080/`.
 
 ## Backlog
 
-- Player view auto-sync at launch — player view should request current state on open, not wait for the next DM action
 - Clear image — DM ability to clear the current image from the player view
 - Force resync — DM button to re-broadcast current initiative + image state to the player view
 - Center initiative when no image — player view currently anchors initiative to top-right; when no image is displayed, center it instead
@@ -61,11 +60,11 @@ Serves the app at `http://localhost:8080/`.
 
 The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping in a network transport doesn't touch any component code. Candidates:
 
-| Option                | Tradeoff                                                 |
-| --------------------- | -------------------------------------------------------- |
-| **Supabase Realtime** | Easiest, managed, requires internet                      |
+| Option                | Tradeoff                                                  |
+| --------------------- | --------------------------------------------------------- |
+| **Supabase Realtime** | Easiest, managed, requires internet                       |
 | **PartyKit**          | Designed for ephemeral real-time state, requires internet |
-| **WebRTC**            | Peer-to-peer, works on local network, more complex setup |
+| **WebRTC**            | Peer-to-peer, works on local network, more complex setup  |
 
 ## Why not a VTT?
 

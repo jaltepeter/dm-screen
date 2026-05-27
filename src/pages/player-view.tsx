@@ -73,13 +73,13 @@ export default function PlayerView() {
           className='w-full h-full object-contain'
         />
       ) : (
-        <div className='flex items-center justify-center w-full h-full text-sm select-none'>
+        <div className='flex items-center justify-center w-full h-full select-none'>
           {waiting ? (
             <span className='animate-pulse animation-duration-[5s] text-3xl text-white/40'>
               Waiting for DM…
             </span>
           ) : (
-            <span className='text-white/20'>Waiting for image…</span>
+            <img src='/beholder.svg' alt='' className='w-[80vmin] h-[80vmin] opacity-10' />
           )}
         </div>
       )}
