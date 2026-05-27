@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
-import { Actor, onMessage } from '../lib/sync';
+import { Actor, onMessage, sendMessage } from '../lib/sync';
 
 export default function PlayerView() {
   const [imageSource, setImageSource] = useState<{ url: string; title?: string } | null>(null);
@@ -9,6 +9,7 @@ export default function PlayerView() {
   const [index, setIndex] = useState(0);
   const [round, setRound] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [waiting, setWaiting] = useState(true);
 
   const showInit = actors.length > 0;
 
@@ -17,7 +18,9 @@ export default function PlayerView() {
   }, []);
 
   useEffect(() => {
-    return onMessage((msg) => {
+    const poll = { id: undefined as ReturnType<typeof setInterval> | undefined };
+
+    const unsub = onMessage((msg) => {
       switch (msg.cmd) {
         case 'image':
           setImageSource(msg.payload);
@@ -27,8 +30,24 @@ export default function PlayerView() {
           setIndex(msg.payload.index);
           setRound(msg.payload.round);
           break;
+        case 'dm_sync':
+          setImageSource(msg.payload.image);
+          setActors(msg.payload.actors);
+          setIndex(msg.payload.index);
+          setRound(msg.payload.round);
+          clearInterval(poll.id);
+          setWaiting(false);
+          break;
       }
     });
+
+    sendMessage({ cmd: 'player_ready' });
+    poll.id = setInterval(() => sendMessage({ cmd: 'player_ready' }), 500);
+
+    return () => {
+      unsub();
+      clearInterval(poll.id);
+    };
   }, []);
 
   useEffect(() => {
@@ -54,8 +73,14 @@ export default function PlayerView() {
           className='w-full h-full object-contain'
         />
       ) : (
-        <div className='flex items-center justify-center w-full h-full text-white/20 text-sm select-none'>
-          Waiting for image…
+        <div className='flex items-center justify-center w-full h-full text-sm select-none'>
+          {waiting ? (
+            <span className='animate-pulse animation-duration-[5s] text-3xl text-white/40'>
+              Waiting for DM…
+            </span>
+          ) : (
+            <span className='text-white/20'>Waiting for image…</span>
+          )}
         </div>
       )}
 

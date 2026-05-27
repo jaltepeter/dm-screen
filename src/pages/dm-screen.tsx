@@ -13,6 +13,8 @@ import DrawerContents from '../components/drawerContents';
 import ManageStatBlocksDialog from '../components/encounters/manageStatBlocksDialog';
 import ManageEncountersDialog from '../components/encounters/manageEncountersDialog';
 import { useUiStore } from '../store/uiStore';
+import { useCombatStore } from '../store/combatStore';
+import { onMessage, sendMessage } from '../lib/sync';
 import { exportData, importData } from '../lib/exportImport';
 
 const DmScreen = () => {
@@ -25,9 +27,29 @@ const DmScreen = () => {
 
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const initiativeActive = useUiStore((s) => s.initiativeActive);
+  const actors = useCombatStore((s) => s.actors);
+  const selectedIndex = useCombatStore((s) => s.selectedIndex);
+  const round = useCombatStore((s) => s.round);
+
+  const syncStateRef = useRef({ actors, selectedIndex, round, lastSentImage });
+  useEffect(() => {
+    syncStateRef.current = { actors, selectedIndex, round, lastSentImage };
+  });
 
   useEffect(() => {
     document.title = 'DM Screen';
+  }, []);
+
+  useEffect(() => {
+    return onMessage((msg) => {
+      if (msg.cmd === 'player_ready') {
+        const { actors, selectedIndex, round, lastSentImage } = syncStateRef.current;
+        sendMessage({
+          cmd: 'dm_sync',
+          payload: { actors, index: selectedIndex, round, image: lastSentImage }
+        });
+      }
+    });
   }, []);
 
   const handleOpenPlayerView = () => window.open('/players', '_blank');
