@@ -318,22 +318,22 @@ These are deferred from Phase 1 migration intentionally. They are non-urgent but
 
 **Goal:** Centralize the two patterns that have the most duplicated state management logic.
 
-| #          | Task                                                   | Files to modify                                                                                                      | Verify                                        |
-| ---------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| ~~C-1~~ ✅ | `useConfirmDelete<T>()` hook + `<DeleteConfirmDialog>` | New `lib/useConfirmDelete.ts`, 5 dialog components                                                                   | Delete flows work in all affected dialogs     |
-| ~~C-2~~ ✅ | `<FullscreenDialog>` layout wrapper                    | New `ui/fullscreen-dialog.tsx`; all 4 fullscreen dialogs (ManageCharacters included)                                 | Fullscreen dialogs still open/close correctly |
+| #          | Task                                                   | Files to modify                                                                      | Verify                                        |
+| ---------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------------- |
+| ~~C-1~~ ✅ | `useConfirmDelete<T>()` hook + `<DeleteConfirmDialog>` | New `lib/useConfirmDelete.ts`, 5 dialog components                                   | Delete flows work in all affected dialogs     |
+| ~~C-2~~ ✅ | `<FullscreenDialog>` layout wrapper                    | New `ui/fullscreen-dialog.tsx`; all 4 fullscreen dialogs (ManageCharacters included) | Fullscreen dialogs still open/close correctly |
 
 ---
 
-### Phase D — Data integrity improvements
+### ~~Phase D — Data integrity improvements~~ ✅
 
 **Goal:** Fix the one correctness issue and the ID type inconsistency before they cause real problems.
 
-| #   | Task                                                                                        | Files to modify                                                                                     | Verify                                                           |
-| --- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| D-1 | Enforce unique URLs in `imageStore.addImage`; use stable image ID as key in `imageGrid.tsx` | `imageStore.ts`, `imageGrid.tsx`                                                                    | Adding duplicate URL is prevented (or deduplicated gracefully)   |
-| D-2 | Migrate `Character.id` from `number` to `string` (UUID)                                     | `characterStore.ts` (bump to v1, add migration), `manageCharactersDialog.tsx`, `migrations.test.ts` | All existing character data survives; add/edit/delete still work |
-| D-3 | Move `fmtBonus` to `lib/utils.ts`                                                           | `open5eSearchDialog.tsx`, `utils.ts`                                                                | Open5e search still maps bonus values correctly                  |
+| #          | Task                                                                                        | Files to modify                                                                                     | Verify                                                           |
+| ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| ~~D-1~~ ✅ | Enforce unique URLs in `imageStore.addImage`; use stable image ID as key in `imageGrid.tsx` | `imageStore.ts`, `imageGrid.tsx`, `add-image-dialog.tsx`                                            | Adding duplicate URL shows inline error; images have stable IDs  |
+| ~~D-2~~ ✅ | Migrate `Character.id` from `number` to `string` (UUID)                                     | `characterStore.ts` (bump to v1, add migration), `manageCharactersDialog.tsx`, `migrations.test.ts` | All existing character data survives; add/edit/delete still work |
+| ~~D-3~~ ✅ | Move `fmtBonus` to `lib/utils.ts` as `formatBonus`                                          | `open5eSearchDialog.tsx`, `utils.ts`                                                                | Open5e search still maps bonus values correctly                  |
 
 ---
 
