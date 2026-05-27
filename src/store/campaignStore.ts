@@ -5,6 +5,7 @@ export interface Campaign {
   id: string;
   name: string;
   slug: string;
+  description?: string;
   createdAt: number;
 }
 
@@ -12,12 +13,15 @@ interface CampaignStore {
   campaigns: Campaign[];
   activeCampaignId: string | null;
   addCampaign: (name: string) => Campaign;
-  renameCampaign: (id: string, name: string) => void;
+  updateCampaign: (
+    id: string,
+    patch: Partial<Pick<Campaign, 'name' | 'slug' | 'description'>>
+  ) => void;
   deleteCampaign: (id: string) => void;
   setActiveCampaign: (id: string | null) => void;
 }
 
-function nameToSlug(name: string, id: string): string {
+export function nameToSlug(name: string, id: string): string {
   const base = name
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
@@ -32,9 +36,14 @@ export const STORE_KEY = 'dm-screen/campaigns';
 
 export function migrateCampaignStore(
   state: unknown,
-  _version: number
+  version: number
 ): { campaigns: Campaign[]; activeCampaignId: string | null } {
-  return state as { campaigns: Campaign[]; activeCampaignId: string | null };
+  const s = state as { campaigns: Campaign[]; activeCampaignId: string | null };
+  if (version < 1) {
+    // description field added; existing campaigns have none
+    s.campaigns = s.campaigns.map((c) => ({ description: undefined, ...c }));
+  }
+  return s;
 }
 
 export const useCampaignStore = create<CampaignStore>()(
@@ -50,11 +59,9 @@ export const useCampaignStore = create<CampaignStore>()(
         return campaign;
       },
 
-      renameCampaign: (id, name) => {
+      updateCampaign: (id, patch) => {
         set({
-          campaigns: get().campaigns.map((c) =>
-            c.id === id ? { ...c, name, slug: nameToSlug(name, id) } : c
-          )
+          campaigns: get().campaigns.map((c) => (c.id === id ? { ...c, ...patch } : c))
         });
       },
 
@@ -68,7 +75,7 @@ export const useCampaignStore = create<CampaignStore>()(
     }),
     {
       name: STORE_KEY,
-      version: 0,
+      version: 1,
       migrate: migrateCampaignStore
     }
   )

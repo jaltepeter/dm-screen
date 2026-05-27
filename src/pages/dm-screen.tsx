@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,7 +23,6 @@ import Characters from '../components/characters/characters';
 import InitiativeTracker from '../components/characters/initiative/initiativeTracker';
 import Images from '../components/images/images';
 import CampaignSwitcher from '../components/campaigns/campaignSwitcher';
-import ManageCampaignsDialog from '../components/campaigns/manageCampaignsDialog';
 import { useUiStore } from '../store/uiStore';
 import { useCombatStore } from '../store/combatStore';
 import { onMessage, sendMessage } from '../lib/sync';
@@ -31,8 +30,6 @@ import { exportData, importData } from '../lib/exportImport';
 
 const DmScreen = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [manageCampaignsOpen, setManageCampaignsOpen] = useState(false);
-
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const initiativeActive = useUiStore((s) => s.initiativeActive);
   const setLastSentImage = useUiStore((s) => s.setLastSentImage);
@@ -105,7 +102,7 @@ const DmScreen = () => {
           ) : null}
         </div>
 
-        <CampaignSwitcher onManage={() => setManageCampaignsOpen(true)} />
+        <CampaignSwitcher />
 
         <Button variant='outline' size='sm' onClick={handleOpenPlayerView} className='gap-1.5'>
           <MonitorPlay className='h-4 w-4' />
@@ -172,11 +169,6 @@ const DmScreen = () => {
           <Images />
         </TabsContent>
       </Tabs>
-
-      <ManageCampaignsDialog
-        open={manageCampaignsOpen}
-        onClose={() => setManageCampaignsOpen(false)}
-      />
     </div>
   );
 };

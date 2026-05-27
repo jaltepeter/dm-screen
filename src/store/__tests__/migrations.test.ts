@@ -172,13 +172,29 @@ describe('characterStore migrations', () => {
   });
 });
 
-const v0Campaigns = { campaigns: [], activeCampaignId: null };
+const v0Campaigns = {
+  campaigns: [{ id: 'abc', name: 'Lost Mines', slug: 'lost-mines-abc1', createdAt: 0 }],
+  activeCampaignId: null
+};
+
+const v1Campaigns = {
+  campaigns: [
+    { id: 'abc', name: 'Lost Mines', slug: 'lost-mines-abc1', description: undefined, createdAt: 0 }
+  ],
+  activeCampaignId: null
+};
 
 describe('campaignStore migrations', () => {
-  it('v0 state is preserved', () => {
-    expect(migrateCampaignStore(structuredClone(v0Campaigns), 0), CONTRACT_BROKEN).toEqual(
-      v0Campaigns
+  it('v1 state is preserved', () => {
+    expect(migrateCampaignStore(structuredClone(v1Campaigns), 1), CONTRACT_BROKEN).toEqual(
+      v1Campaigns
     );
+  });
+
+  it('v0 → v1: description added as undefined', () => {
+    const result = migrateCampaignStore(structuredClone(v0Campaigns), 0) as typeof v1Campaigns;
+    expect(result.campaigns[0].description, CONTRACT_BROKEN).toBeUndefined();
+    expect(result.campaigns[0].name, CONTRACT_BROKEN).toBe('Lost Mines');
   });
 });
 

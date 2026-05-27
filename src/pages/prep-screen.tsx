@@ -1,16 +1,25 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Upload, Download } from 'lucide-react';
+import ManageCampaignsPanel from '../components/campaigns/manageCampaignsPanel';
+import CampaignSwitcher from '../components/campaigns/campaignSwitcher';
 import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
 import ManageImagesDialog from '../components/images/manageImagesDialog';
 import ManageStatBlocksDialog from '../components/encounters/manageStatBlocksDialog';
 import ManageEncountersDialog from '../components/encounters/manageEncountersDialog';
 import { exportData, importData } from '../lib/exportImport';
 
+const VALID_TABS = ['campaigns', 'characters', 'statblocks', 'encounters', 'images'] as const;
+type PrepTab = (typeof VALID_TABS)[number];
+
 const PrepScreen = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab: PrepTab = (VALID_TABS as readonly string[]).includes(searchParams.get('tab') ?? '')
+    ? (searchParams.get('tab') as PrepTab)
+    : 'characters';
 
   useEffect(() => {
     document.title = 'DM Screen | Prep Mode';
@@ -29,6 +38,8 @@ const PrepScreen = () => {
         <span className='text-sm font-semibold tracking-wide'>DM Screen | Prep Mode</span>
 
         <div className='flex-1' />
+
+        <CampaignSwitcher />
 
         <Button variant='outline' size='sm' className='gap-1.5' onClick={() => exportData()}>
           <Upload className='h-4 w-4' />
@@ -55,14 +66,21 @@ const PrepScreen = () => {
         />
       </header>
 
-      <Tabs defaultValue='characters' className='flex flex-col flex-1 min-h-0'>
+      <Tabs
+        value={tab}
+        onValueChange={(v) => setSearchParams({ tab: v })}
+        className='flex flex-col flex-1 min-h-0'>
         <TabsList className='shrink-0 w-full mt-2 rounded-none px-3'>
+          <TabsTrigger value='campaigns'>Campaigns</TabsTrigger>
           <TabsTrigger value='characters'>Player Characters</TabsTrigger>
           <TabsTrigger value='statblocks'>NPCs</TabsTrigger>
           <TabsTrigger value='encounters'>Encounters</TabsTrigger>
           <TabsTrigger value='images'>Images</TabsTrigger>
         </TabsList>
 
+        <TabsContent value='campaigns' className='flex-1 flex flex-col min-h-0 mt-0'>
+          <ManageCampaignsPanel />
+        </TabsContent>
         <TabsContent value='characters' className='flex-1 flex flex-col min-h-0 mt-0'>
           <ManageCharactersDialog />
         </TabsContent>

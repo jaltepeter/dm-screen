@@ -21,6 +21,7 @@ type EditingCell = { id: string; field: keyof Character } | null;
 export default function ManageCharactersDialog() {
   const { characters, addCharacter, editCharacter, deleteCharacter } = useCharacterStore();
   const campaigns = useCampaignStore((s) => s.campaigns);
+  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
   const [editing, setEditing] = useState<EditingCell>(null);
   const [draft, setDraft] = useState('');
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Character>();
@@ -158,7 +159,10 @@ export default function ManageCharactersDialog() {
           </Table>
         </div>
         <div className='px-4 py-3 border-t shrink-0'>
-          <Button variant='outline' size='sm' onClick={addCharacter}>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => addCharacter(activeCampaignId ?? undefined)}>
             <Plus className='h-4 w-4 mr-1' />
             Add Character
           </Button>

@@ -1,6 +1,7 @@
 import './index.css';
 
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Toaster } from 'sonner';
 
 import DmScreen from './pages/dm-screen';
 import PlayerView from './pages/player-view';
@@ -14,6 +15,7 @@ function App() {
         <Route path='/players' element={<PlayerView />} />
         <Route path='/prep' element={<PrepScreen />} />
       </Routes>
+      <Toaster theme='dark' position='bottom-right' />
     </Router>
   );
 }
