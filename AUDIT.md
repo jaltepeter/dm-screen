@@ -1,6 +1,6 @@
 # Repository Audit — dm-screen
 
-Date: 2026-05-26  
+Date: 2026-05-26 (updated 2026-05-26 after Phase E)  
 Scope: Full source audit (all 54 TypeScript/TSX files)
 
 ---
@@ -341,38 +341,107 @@ These are deferred from Phase 1 migration intentionally. They are non-urgent but
 
 **Goal:** Get off EOL packages. This phase is the riskiest — ESLint v9 and Prettier v3 both have breaking config changes.
 
-| #          | Task                                                               | Verify                                        |
-| ---------- | ------------------------------------------------------------------ | --------------------------------------------- |
+| #          | Task                                                              | Verify                                        |
+| ---------- | ----------------------------------------------------------------- | --------------------------------------------- |
 | ~~E-1~~ ✅ | Upgrade ESLint 8 → 9, migrate to flat config (`eslint.config.js`) | `npm run lint` passes                         |
-| ~~E-2~~ ✅ | Upgrade Prettier 2 → 3                                             | `npm run format`, check no unexpected changes |
-| ~~E-3~~ ✅ | Upgrade vitest 1 → 3                                               | `npm test -- --run`                           |
-| ~~E-4~~ ✅ | Upgrade vite 5 → 6                                                 | `npm run build` succeeds, dev server starts   |
-| ~~E-5~~ ✅ | Upgrade @testing-library packages                                  | Existing tests still pass                     |
+| ~~E-2~~ ✅ | Upgrade Prettier 2 → 3                                            | `npm run format`, check no unexpected changes |
+| ~~E-3~~ ✅ | Upgrade vitest 1 → 3                                              | `npm test -- --run`                           |
+| ~~E-4~~ ✅ | Upgrade vite 5 → 6                                                | `npm run build` succeeds, dev server starts   |
+| ~~E-5~~ ✅ | Upgrade @testing-library packages                                 | Existing tests still pass                     |
 
 ---
 
-### Phase F — Next planned feature (per PLAN.md §3.4)
+### Phase F — Conditions tracking + last prop-drill cleanup
 
-**Goal:** Implement Conditions tracking — the only remaining Phase 3 item not marked complete.
+**Goal:** Implement Conditions tracking (last planned feature from PLAN.md §3.4) and resolve the remaining code-quality issues uncovered in the post-Phase-E audit.
 
-**Scope (per plan):**
+#### New findings (post Phase E)
 
-- Predefined D&D condition list (blinded, charmed, frightened, etc.)
-- Apply one or more conditions to any actor in the initiative tracker
-- Show condition chips on the actor's row (DM view only — not synced to player view)
-- `Actor.conditions[]` is already on the type and persisted; the UI is the missing piece
+---
 
-**Files to modify:** `initiativeTracker.tsx`, possibly a new `ConditionPicker` component, `sync.ts` (conditions should be excluded from broadcast, similar to hp/maxHp)
+##### N-1 · Last remaining prop-drill: `characters` flows DmScreen → InitiativeTracker → InitiativeSetupDialog
+
+`dm-screen.tsx` reads `useCharacterStore(s => s.characters)` only to pass it to `InitiativeTracker`. `InitiativeTracker` doesn't use it — it passes the value straight to `InitiativeSetupDialog`. Same shape as the `ManageCharactersDialog` issue fixed in A-4.
+
+**Files:** `dm-screen.tsx`, `initiativeTracker.tsx`, `initiativeSetupDialog.tsx`  
+**Fix:** `InitiativeSetupDialog` reads `useCharacterStore` directly. Remove `InitiativeTrackerProps` and the store call + prop pass in `DmScreen`.
+
+---
+
+##### N-2 · `sync.ts` broadcasts `conditions` to the player view — leaks DM-only data
+
+`sync.ts` strips `hp`/`maxHp` but leaves `conditions` in the broadcast payload. PLAN.md §3.4 explicitly says conditions are DM-only. Currently invisible because `InitiativePlayerView` never renders conditions — but `bloodied` is already silently leaking. When Phase F adds more conditions, they'd all be player-readable.
+
+**Files:** `sync.ts`  
+**Fix:** Add `conditions` to the destructured strip alongside `hp`/`maxHp`. Decide at Phase F time whether `bloodied` is an exception (player-visible).
+
+---
+
+##### N-3 · Tab active-state customization in `dm-screen.tsx` is dead code
+
+Three `TabsTrigger` elements in `dm-screen.tsx` use `data-active:bg-primary ...`. Radix UI sets `data-state="active"`, not `data-active`. In Tailwind v4, `data-active:` matches a `data-active` attribute which Radix never sets — these classes never fire. Tabs still look correct because shadcn's internal `data-[state=active]:` handles it; the manual overrides are just noise.
+
+**Files:** `dm-screen.tsx:148-160`  
+**Fix:** Remove the dead `data-active:` overrides, or replace with `data-[state=active]:bg-primary data-[state=active]:text-primary-foreground` if custom coloring is actually wanted.
+
+---
+
+##### N-4 · `StatBlock.proficiencyBonus` is typed `string?` but represents a numeric value
+
+`encounterStore.ts:11` — `proficiencyBonus?: string`. The open5e API delivers `proficiency_bonus: number | null`. The field is a number stored as string; passing it to `formatBonus(n: number)` is a type error waiting to happen.
+
+**Files:** `encounterStore.ts`, `open5eSearchDialog.tsx`  
+**Fix:** Change to `proficiencyBonus?: number` and format on display, or rename to `proficiencyBonusDisplay?: string` to make explicit it's pre-formatted.
+
+---
+
+##### N-5 · Zero component test coverage despite infra being ready
+
+`migrations.test.ts` is the only test file. `@testing-library/react` v16 + `happy-dom` + `vitest` 3 are all wired up. These behaviors are complex enough to warrant regression coverage:
+
+- `HpCell`: hold-to-repeat, delta badge, double-click-to-type, commit-on-idle, 0-floor clamp
+- `InitiativeSetupDialog`: `startInitiative` sort order, load-encounter merge logic
+- `imageStore.addImage`: duplicate-URL rejection
+- `exportData`/`importData`: round-trip serialization
+
+**Fix:** Add `src/components/**/__tests__/` coverage for the above.
+
+---
+
+#### Phase F task table
+
+| #   | Task                                                                   | Files to modify                                                       | Verify                                                             |
+| --- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| F-1 | Fix `sync.ts` to strip `conditions` from broadcast (N-2)               | `sync.ts`                                                             | Player-view actors arrive with `conditions: []`; DM-side unchanged |
+| F-2 | Add `<ConditionPicker>` popover — predefined 5e conditions, toggleable | New `initiative/conditionPicker.tsx`                                  | Opens on click; toggle adds/removes condition from actor's array   |
+| F-3 | Add condition chips to each actor row in `InitiativeTracker`           | `initiativeTracker.tsx`                                               | Chips appear on actor rows; widen grid to accommodate              |
+| F-4 | Resolve N-1: remove `characters` prop-drill                            | `initiativeTracker.tsx`, `initiativeSetupDialog.tsx`, `dm-screen.tsx` | Setup dialog still pre-populates player actors from store          |
+
+Predefined condition list (do not include `bloodied` — that's auto-managed by `updateHp`):  
+`blinded · charmed · deafened · exhaustion · frightened · grappled · incapacitated · invisible · paralyzed · petrified · poisoned · prone · restrained · stunned · unconscious`
+
+---
+
+### Phase G — Polish & test coverage
+
+**Goal:** Close the remaining quality gaps. Every item is low-risk and isolated to 1–2 files.
+
+| #   | Task                                                                                  | Files to modify                               | Verify                                              |
+| --- | ------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------- |
+| G-1 | Fix or remove dead `data-active:` tab overrides (N-3)                                 | `dm-screen.tsx:148-160`                       | Active tab visually highlights with primary color   |
+| G-2 | Fix `StatBlock.proficiencyBonus` type (N-4)                                           | `encounterStore.ts`, `open5eSearchDialog.tsx` | `npm run lint` passes; stat block display unchanged |
+| G-3 | Add component tests for HpCell, imageStore.addImage, InitiativeSetupDialog sort (N-5) | New `__tests__/` files                        | `npm test -- --run` passes                          |
 
 ---
 
 ## Summary Priority Order
 
 ```
-A (quick fixes)    → commit individually, low risk
-B (extractions)    → per-extraction PRs, all pure refactors
-C (consolidation)  → two PRs (hook + layout), medium complexity
-D (data integrity) → D-1 and D-3 are trivial; D-2 requires a migration
-E (toolchain)      → one branch, tackle last, needs time for breakage
-F (feature)        → after Phase E is clean
+A (quick fixes)      → ✅ done
+B (extractions)      → ✅ done
+C (consolidation)    → ✅ done
+D (data integrity)   → ✅ done
+E (toolchain)        → ✅ done
+F (feature + fixes)  → conditions UI + last prop-drill + sync leak fix
+G (polish + tests)   → dead code removal + type fix + component test coverage
 ```
