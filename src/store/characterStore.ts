@@ -11,6 +11,7 @@ export interface Character {
   pi: number;
   init: number;
   sheetUrl?: string;
+  campaignId?: string;
 }
 
 interface CharacterStore {
@@ -62,6 +63,13 @@ export function migrateCharacterStore(
       }))
     };
   }
+  if (version < 2) {
+    // Add campaignId field; existing characters are unassigned.
+    s = {
+      ...s,
+      characters: s.characters.map((c) => ({ campaignId: undefined, ...c }))
+    };
+  }
   return s;
 }
 
@@ -103,7 +111,7 @@ export const useCharacterStore = create<CharacterStore>()(
     }),
     {
       name: STORE_KEY,
-      version: 1,
+      version: 2,
       migrate: migrateCharacterStore
     }
   )

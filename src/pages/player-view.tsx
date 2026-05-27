@@ -22,26 +22,34 @@ export default function PlayerView() {
   // Scale initiative down to fit viewport when there are many actors.
   // transform: scale() doesn't affect layout metrics, so offsetHeight always
   // returns the natural height regardless of the current scale — no feedback loop.
-  const makeScaleUpdater =
-    (ref: React.RefObject<HTMLDivElement | null>, setScale: (s: number) => void) => () => {
-      const el = ref.current;
-      if (!el) return;
-      const update = () => {
-        const available = window.innerHeight * 0.9;
-        setScale(Math.min(1, available / el.offsetHeight));
-      };
-      update();
-      const ro = new ResizeObserver(update);
-      ro.observe(el);
-      window.addEventListener('resize', update);
-      return () => {
-        ro.disconnect();
-        window.removeEventListener('resize', update);
-      };
+  useEffect(() => {
+    const el = centeredContentRef.current;
+    if (!el) return;
+    const update = () =>
+      setCenteredScale(Math.min(1, (window.innerHeight * 0.9) / el.offsetHeight));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
     };
+  }, [imageSource]);
 
-  useEffect(makeScaleUpdater(centeredContentRef, setCenteredScale), [imageSource]);
-  useEffect(makeScaleUpdater(cornerContentRef, setCornerScale), [imageSource]);
+  useEffect(() => {
+    const el = cornerContentRef.current;
+    if (!el) return;
+    const update = () => setCornerScale(Math.min(1, (window.innerHeight * 0.9) / el.offsetHeight));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [imageSource]);
 
   useEffect(() => {
     document.title = 'Player View';
