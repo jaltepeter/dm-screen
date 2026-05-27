@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        VITE_APP_VERSION: ${VITE_APP_VERSION:-dev}
+        VITE_GIT_SHA: ${VITE_GIT_SHA:-local}
+    ports:
+      - "8080:80"
+    restart: unless-stopped
