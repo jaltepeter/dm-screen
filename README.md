@@ -66,6 +66,10 @@ The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping i
 
 This would make it practical to use a projector or TV in a different room, or let players follow along on their phones.
 
+## Backlog
+
+- **Auto-fill new manual NPCs** — when adding an NPC by hand, pre-populate sensible defaults (AC, HP, etc.) and generate a random adjective-noun name (e.g. "Grizzled Shepherd", "Hollow Knight")
+
 ## Why not a VTT?
 
 This is for physical tabletop play. The table is the VTT. This tool exists to give the DM a second screen without the complexity of Roll20, Foundry, or Owlbear Rodeo — which are all built around digital maps and tokens.
