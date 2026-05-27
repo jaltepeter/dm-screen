@@ -6,13 +6,16 @@ A lightweight DM screen for true tabletop play. Open the DM view on your laptop,
 
 **DM view** — your private screen:
 
-- Track player characters (AC, Passive Perception, Passive Insight, Initiative bonus, sheet link)
-- Run initiative: add monsters/NPCs, enter rolls, advance turns, toggle visible/alive
+- Track player characters (AC, Passive Perception, Passive Insight, initiative bonus, sheet link, background)
+- Run initiative: add monsters/NPCs with HP, enter rolls, advance turns, apply conditions, toggle visible/alive
+- Manage encounter templates — pre-build enemy rosters, load them at the table
 - Manage saved images in folders, push any image to the player screen
+- Freeform markdown notes panel
 
 **Player view** — shown on your second monitor:
 
 - Sees the current initiative order (with hidden enemies shown as `? ? ? ? ? ?`)
+- Conditions and round count displayed per actor
 - Displays whatever image the DM sends
 
 The two views sync via the browser's `BroadcastChannel` API — both windows need to be open in the same browser on the same machine.
@@ -24,7 +27,15 @@ npm install
 npm start
 ```
 
-Opens at `http://localhost:3000/dm-screen`. Open a second window/tab and navigate to `/dm-screen/players` for the player view, then drag it to your second monitor.
+Opens at `http://localhost:5173/`. Open a second window/tab and navigate to `/players` for the player view, then drag it to your second monitor.
+
+## Docker
+
+```bash
+docker compose up
+```
+
+Serves the app at `http://localhost:8080/`.
 
 ## Tech decisions
 
@@ -37,18 +48,24 @@ Opens at `http://localhost:3000/dm-screen`. Open a second window/tab and navigat
 | DM↔Player sync    | BroadcastChannel (abstracted)                      | Zero setup, works offline                    |
 | Cross-device sync | Not yet — abstraction layer makes it a future swap | Supabase / PartyKit / WebRTC are all options |
 
-## Roadmap
+## Backlog
 
-- [x] Character tracking (AC, PP, PI, initiative bonus, sheet link)
-- [x] Initiative tracker with visible/alive toggles
-- [x] Image folders — save URLs, push to player view
-- [ ] Migrate from CRA → Vite + TypeScript
-- [ ] HP tracking (current / max / temp)
-- [ ] Monster/NPC HP in combat
-- [ ] Conditions tracking
-- [ ] Notes panel
-- [ ] Export / import data
-- [ ] Cross-device sync (DM laptop → player TV on separate device)
+- Player view auto-sync at launch — player view should request current state on open, not wait for the next DM action
+- Clear image — DM ability to clear the current image from the player view
+- Force resync — DM button to re-broadcast current initiative + image state to the player view
+- Center initiative when no image — player view currently anchors initiative to top-right; when no image is displayed, center it instead
+- Keep main menu open in "manage mode" — option to keep the drawer open while managing characters/images/encounters
+- Stat block preview during edit — show the rendered StatBlockCard alongside the editor panel so the DM can see how the stat block will look while filling it in
+
+## Stretch: cross-device sync
+
+The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping in a network transport doesn't touch any component code. Candidates:
+
+| Option                | Tradeoff                                                 |
+| --------------------- | -------------------------------------------------------- |
+| **Supabase Realtime** | Easiest, managed, requires internet                      |
+| **PartyKit**          | Designed for ephemeral real-time state, requires internet |
+| **WebRTC**            | Peer-to-peer, works on local network, more complex setup |
 
 ## Why not a VTT?
 
