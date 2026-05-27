@@ -16,6 +16,7 @@ import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import { useCharacterStore } from '../../../store/characterStore';
 import { useEncounterStore } from '../../../store/encounterStore';
+import { randomNpcName } from '@/lib/utils';
 
 function newPlayerActors(characters: { name: string }[]): Actor[] {
   return characters.map((c) => ({
@@ -65,7 +66,7 @@ export default function InitiativeSetupDialog({
       {
         id: crypto.randomUUID(),
         kind: 'npc',
-        name: 'New NPC',
+        name: randomNpcName(),
         init: 0,
         maxHp: 10,
         hp: 10,

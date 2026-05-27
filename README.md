@@ -68,7 +68,7 @@ This would make it practical to use a projector or TV in a different room, or le
 
 ## Backlog
 
-- **Auto-fill new manual NPCs** — when adding an NPC by hand, pre-populate sensible defaults (AC, HP, etc.) and generate a random adjective-noun name (e.g. "Grizzled Shepherd", "Hollow Knight")
+_Nothing here yet._
 
 ## Why not a VTT?
 

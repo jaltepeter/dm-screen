@@ -9,8 +9,8 @@ function mod(score: number): string {
 
 function InfoLine({ label, value }: { label: string; value: string }) {
   return (
-    <p className='text-sm'>
-      <span className='font-semibold'>{label}</span> {value}
+    <p className='text-sm font-light'>
+      <span className='font-bold'>{label}</span> {value}
     </p>
   );
 }
@@ -77,18 +77,18 @@ export default function StatBlockCard({ statBlock: sb }: Props) {
       {/* Combat stats */}
       <div className='flex flex-wrap gap-x-4 gap-y-1 text-sm mb-2'>
         {sb.ac != null && (
-          <span>
-            <span className='font-semibold'>AC</span> {sb.ac}
+          <span className='font-light'>
+            <span className='font-bold'>AC</span> {sb.ac}
             {sb.acDesc ? ` (${sb.acDesc})` : ''}
           </span>
         )}
-        <span>
-          <span className='font-semibold'>HP</span> {sb.hp}
+        <span className='font-light'>
+          <span className='font-bold'>HP</span> {sb.hp}
           {sb.hitDice ? ` (${sb.hitDice})` : ''}
         </span>
         {sb.speed && (
-          <span>
-            <span className='font-semibold'>Speed</span> {sb.speed}
+          <span className='font-light'>
+            <span className='font-bold'>Speed</span> {sb.speed}
           </span>
         )}
       </div>
@@ -100,7 +100,7 @@ export default function StatBlockCard({ statBlock: sb }: Props) {
           <div className='grid grid-cols-6 gap-1 text-center text-sm mb-2'>
             {abilities.map(({ label, score }) => (
               <div key={label}>
-                <div className='font-semibold text-xs'>{label}</div>
+                <div className='font-bold text-xs'>{label}</div>
                 <div>{score != null ? `${score} (${mod(score)})` : '—'}</div>
               </div>
             ))}
@@ -125,14 +125,16 @@ export default function StatBlockCard({ statBlock: sb }: Props) {
           <ReactMarkdown
             components={{
               h2: ({ children }) => (
-                <h2 className='text-xs font-bold uppercase tracking-wide mt-3 mb-1 border-b border-foreground/20 pb-0.5 break-after-avoid'>
+                <h2 className='text-xl font-bold uppercase tracking-wide mt-3 first:mt-0 mb-1 border-b border-foreground/20 pb-0.5 break-after-avoid'>
                   {children}
                 </h2>
               ),
               p: ({ children }) => (
-                <p className='text-sm mb-1.5 leading-snug break-inside-avoid'>{children}</p>
+                <p className='text-sm font-light mb-1.5 leading-snug break-inside-avoid'>
+                  {children}
+                </p>
               ),
-              strong: ({ children }) => <strong className='font-semibold'>{children}</strong>,
+              strong: ({ children }) => <strong className='font-bold'>{children}</strong>,
               em: ({ children }) => <em>{children}</em>
             }}>
             {sb.body}

@@ -46,7 +46,7 @@ interface EncounterStore {
   statBlocks: StatBlock[];
   templates: EncounterTemplate[];
 
-  addStatBlock: (initial?: Omit<StatBlock, 'id'>) => string;
+  addStatBlock: (initial?: Partial<Omit<StatBlock, 'id'>>) => string;
   editStatBlock: (statBlock: StatBlock) => void;
   deleteStatBlock: (id: string) => void;
 
@@ -89,9 +89,28 @@ export const useEncounterStore = create<EncounterStore>()(
 
       addStatBlock: (initial) => {
         const id = crypto.randomUUID();
-        set({
-          statBlocks: [...get().statBlocks, { name: 'New Creature', hp: 10, ...initial, id }]
-        });
+        const defaults: Omit<StatBlock, 'id'> = {
+          name: 'New Creature',
+          size: 'Small',
+          creatureType: 'Humanoid (Goblinoid)',
+          proficiencyBonus: 2,
+          ac: 15,
+          acDesc: 'leather armor, shield',
+          hp: 7,
+          hitDice: '2d6',
+          speed: '30 ft.',
+          str: 8,
+          dex: 14,
+          con: 10,
+          int: 10,
+          wis: 8,
+          cha: 8,
+          skills: 'Stealth +6',
+          senses: 'Darkvision 60 ft., Passive Perception 9',
+          languages: 'Common, Goblin',
+          body: `## Traits\n\n***Nimble Escape.*** The goblin can take the Disengage or Hide action as a bonus action on each of its turns.\n\n## Actions\n\n***Scimitar.*** *Melee Weapon Attack:* +4 to hit, reach 5 ft., one target. *Hit:* 5 (1d6 + 2) slashing damage.\n\n***Shortbow.*** *Ranged Weapon Attack:* +4 to hit, range 80/320 ft., one target. *Hit:* 5 (1d6 + 2) piercing damage.`
+        };
+        set({ statBlocks: [...get().statBlocks, { ...defaults, ...initial, id }] });
         return id;
       },
       editStatBlock: (statBlock) => {

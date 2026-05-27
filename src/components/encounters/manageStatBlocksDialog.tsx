@@ -7,6 +7,7 @@ import StatBlockEditorPanel from './statBlockEditorPanel';
 import StatBlockCard from './statBlockCard';
 import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
+import { randomNpcName } from '@/lib/utils';
 
 export default function ManageStatBlocksDialog() {
   const [previewWidth, setPreviewWidth] = useState(380);
@@ -54,7 +55,7 @@ export default function ManageStatBlocksDialog() {
   };
 
   const handleAddManual = () => {
-    setSelectedId(addStatBlock());
+    setSelectedId(addStatBlock({ name: randomNpcName() }));
   };
 
   const handleDelete = (id: string) => {
