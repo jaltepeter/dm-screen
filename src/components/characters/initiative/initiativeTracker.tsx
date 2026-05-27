@@ -23,8 +23,8 @@ export default function InitiativeTracker() {
 
   useEffect(() => {
     if (actors.length === 0) return;
-    sendMessage({ cmd: 'init_update', payload: { actors, index: selectedIndex } });
-  }, [selectedIndex, actors]);
+    sendMessage({ cmd: 'init_update', payload: { actors, index: selectedIndex, round } });
+  }, [selectedIndex, actors, round]);
 
   useEffect(() => {
     setInitiativeActive(actors.length > 0);

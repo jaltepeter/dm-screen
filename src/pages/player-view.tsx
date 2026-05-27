@@ -7,6 +7,7 @@ export default function PlayerView() {
   const [imageSource, setImageSource] = useState<{ url: string; title?: string } | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [index, setIndex] = useState(0);
+  const [round, setRound] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const showInit = actors.length > 0;
@@ -24,6 +25,7 @@ export default function PlayerView() {
         case 'init_update':
           setActors(msg.payload.actors);
           setIndex(msg.payload.index);
+          setRound(msg.payload.round);
           break;
       }
     });
@@ -66,7 +68,7 @@ export default function PlayerView() {
           <p className='text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5'>
             Initiative
           </p>
-          <InitiativePlayerView actors={actors} turnNumber={index} />
+          <InitiativePlayerView actors={actors} turnNumber={index} round={round} />
         </div>
       </div>
 
