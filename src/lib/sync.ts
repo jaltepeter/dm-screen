@@ -13,6 +13,7 @@ export interface Actor {
 
 export type SyncMessage =
   | { cmd: 'image'; payload: { url: string; title?: string } }
+  | { cmd: 'clear_image' }
   | { cmd: 'init_update'; payload: { actors: Actor[]; index: number; round: number } }
   | { cmd: 'player_ready' }
   | {

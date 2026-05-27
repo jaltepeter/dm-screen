@@ -25,6 +25,9 @@ export default function PlayerView() {
         case 'image':
           setImageSource(msg.payload);
           break;
+        case 'clear_image':
+          setImageSource(null);
+          break;
         case 'init_update':
           setActors(msg.payload.actors);
           setIndex(msg.payload.index);

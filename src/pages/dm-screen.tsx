@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, MonitorPlay, Swords } from 'lucide-react';
+import { Menu, MonitorPlay, Swords, X } from 'lucide-react';
 import Characters from '../components/characters/characters';
 import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
 import InitiativeTracker from '../components/characters/initiative/initiativeTracker';
@@ -74,6 +74,13 @@ const DmScreen = () => {
     setIsManageEncountersOpen(true);
   };
 
+  const setLastSentImage = useUiStore((s) => s.setLastSentImage);
+
+  const handleClearImage = () => {
+    setLastSentImage(null);
+    sendMessage({ cmd: 'clear_image' });
+  };
+
   const handleExportData = () => exportData();
 
   const handleImportData = () => fileInputRef.current?.click();
@@ -107,7 +114,7 @@ const DmScreen = () => {
         {/* Player view indicator */}
         <div className='flex items-center gap-1.5'>
           {lastSentImage ? (
-            <div className='relative'>
+            <div className='relative group/img'>
               <img
                 src={lastSentImage.url}
                 alt={lastSentImage.title}
@@ -119,6 +126,12 @@ const DmScreen = () => {
                   <Swords className='h-2 w-2 text-black' />
                 </span>
               )}
+              <button
+                onClick={handleClearImage}
+                title='Clear player image'
+                className='absolute inset-0 flex items-center justify-center rounded bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity'>
+                <X className='h-4 w-4 text-white' />
+              </button>
             </div>
           ) : initiativeActive ? (
             <span className='flex h-6 w-6 items-center justify-center rounded bg-amber-500/20 text-amber-400'>

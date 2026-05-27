@@ -50,8 +50,6 @@ Serves the app at `http://localhost:8080/`.
 
 ## Backlog
 
-- Clear image — DM ability to clear the current image from the player view
-- Force resync — DM button to re-broadcast current initiative + image state to the player view
 - Center initiative when no image — player view currently anchors initiative to top-right; when no image is displayed, center it instead
 - Keep main menu open in "manage mode" — option to keep the drawer open while managing characters/images/encounters
 - Stat block preview during edit — show the rendered StatBlockCard alongside the editor panel so the DM can see how the stat block will look while filling it in
