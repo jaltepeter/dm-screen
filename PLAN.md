@@ -101,12 +101,12 @@ Player HP tracking not needed; HP tracking is NPC-only (covered in 3.3).
 - Round counter tracks wraps correctly via dedicated state (was always round 1)
 - Combat state persisted in Zustand (`dm-screen/combat`) — survives page refresh
 
-### 3.4 Conditions tracking
+### ✅ 3.4 Conditions tracking
 
-- Predefined D&D condition list (blinded, charmed, frightened, etc.)
-- Apply one or more conditions to any actor in initiative
-- Show condition icons/chips on that actor's row
-- Conditions visible to DM only (not sent to player view)
+- Predefined 5e condition list (15 standard conditions — bloodied dropped as non-official)
+- Apply one or more conditions to any actor via popover picker in initiative tracker
+- Colored all-caps chips on DM and player view actor rows
+- Conditions synced to player view (public table information)
 
 ### ✅ 3.5 Encounter templates
 
@@ -147,6 +147,16 @@ Because Phase 1 built the sync abstraction layer, this is a transport swap, not 
 - Current initiative state (same as now)
 - Active image (same as now)
 - Nothing else — character data and image library stay local to the DM
+
+---
+
+## Next features (backlog)
+
+- Player view auto-sync at launch — player view should request current state on open, not wait for the next DM action
+- Clear image — DM ability to clear the current image from the player view
+- Force resync — DM button to re-broadcast current initiative + image state to the player view
+- Center initiative when no image — player view currently anchors initiative to top-right; when no image is displayed, center it instead
+- Keep main menu open in "manage mode" — option to keep the drawer open while managing characters/images/encounters
 
 ---
 

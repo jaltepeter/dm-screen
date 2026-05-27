@@ -1,6 +1,6 @@
 # Repository Audit — dm-screen
 
-Date: 2026-05-26 (updated 2026-05-26 after Phase E)  
+Date: 2026-05-26 (updated 2026-05-27 after Phase F)  
 Scope: Full source audit (all 54 TypeScript/TSX files)
 
 ---
@@ -351,7 +351,7 @@ These are deferred from Phase 1 migration intentionally. They are non-urgent but
 
 ---
 
-### Phase F — Conditions tracking + last prop-drill cleanup
+### ~~Phase F — Conditions tracking + last prop-drill cleanup~~ ✅
 
 **Goal:** Implement Conditions tracking (last planned feature from PLAN.md §3.4) and resolve the remaining code-quality issues uncovered in the post-Phase-E audit.
 
@@ -410,15 +410,13 @@ Three `TabsTrigger` elements in `dm-screen.tsx` use `data-active:bg-primary ...`
 
 #### Phase F task table
 
-| #   | Task                                                                   | Files to modify                                                       | Verify                                                             |
-| --- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| F-1 | Fix `sync.ts` to strip `conditions` from broadcast (N-2)               | `sync.ts`                                                             | Player-view actors arrive with `conditions: []`; DM-side unchanged |
-| F-2 | Add `<ConditionPicker>` popover — predefined 5e conditions, toggleable | New `initiative/conditionPicker.tsx`                                  | Opens on click; toggle adds/removes condition from actor's array   |
-| F-3 | Add condition chips to each actor row in `InitiativeTracker`           | `initiativeTracker.tsx`                                               | Chips appear on actor rows; widen grid to accommodate              |
-| F-4 | Resolve N-1: remove `characters` prop-drill                            | `initiativeTracker.tsx`, `initiativeSetupDialog.tsx`, `dm-screen.tsx` | Setup dialog still pre-populates player actors from store          |
-
-Predefined condition list (do not include `bloodied` — that's auto-managed by `updateHp`):  
-`blinded · charmed · deafened · exhaustion · frightened · grappled · incapacitated · invisible · paralyzed · petrified · poisoned · prone · restrained · stunned · unconscious`
+| #          | Task                                                                                    | Files to modify                                                       | Verify                                                    |
+| ---------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
+| ~~F-1~~ ✅ | Remove bloodied concept; simplify `updateHp`; note conditions are public in `sync.ts`   | `initiativeTracker.tsx`, `sync.ts`                                    | HP changes no longer add/remove any condition             |
+| ~~F-2~~ ✅ | Add `<ConditionPicker>` popover — 15 standard 5e conditions, color-coded all-caps chips | New `initiative/conditionPicker.tsx`, new `ui/popover.tsx`            | Opens on click; toggle adds/removes condition             |
+| ~~F-3~~ ✅ | Add condition chips + picker trigger to DM actor rows                                   | `initiativeTracker.tsx`                                               | Chips appear inside active highlight; grey row treatment  |
+| ~~F-4~~ ✅ | Display condition chips on player view; add round count                                 | `initiativePlayerView.tsx`, `player-view.tsx`, `sync.ts`              | Conditions and round visible to players                   |
+| ~~F-5~~ ✅ | Resolve N-1: remove `characters` prop-drill                                             | `initiativeTracker.tsx`, `initiativeSetupDialog.tsx`, `dm-screen.tsx` | Setup dialog still pre-populates player actors from store |
 
 ---
 
@@ -442,6 +440,6 @@ B (extractions)      → ✅ done
 C (consolidation)    → ✅ done
 D (data integrity)   → ✅ done
 E (toolchain)        → ✅ done
-F (feature + fixes)  → conditions UI + last prop-drill + sync leak fix
+F (feature + fixes)  → ✅ done
 G (polish + tests)   → dead code removal + type fix + component test coverage
 ```
