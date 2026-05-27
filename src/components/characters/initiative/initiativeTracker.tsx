@@ -105,7 +105,7 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
   };
 
   const viewingStatBlock = viewingStatBlockId
-    ? statBlocks.find((s) => s.id === viewingStatBlockId) ?? null
+    ? (statBlocks.find((s) => s.id === viewingStatBlockId) ?? null)
     : null;
 
   return (
