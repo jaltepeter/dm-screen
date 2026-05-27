@@ -50,8 +50,8 @@ Serves the app at `http://localhost:8080/`.
 
 ## Backlog
 
-- Keep main menu open in "manage mode" — option to keep the drawer open while managing characters/images/encounters
-- Stat block preview during edit — show the rendered StatBlockCard alongside the editor panel so the DM can see how the stat block will look while filling it in
+- NPC stat block preview during edit — show the rendered StatBlockCard alongside the editor panel so the DM can see how the stat block will look while filling it in
+- Player Characters table header styling — table headers are visually indistinct from data rows; needs stronger differentiation (weight, color, or border)
 
 ## Cross-device sync (planned)
 

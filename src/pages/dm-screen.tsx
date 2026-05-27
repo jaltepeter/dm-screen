@@ -1,32 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, MonitorPlay, Swords, X } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  ClipboardList,
+  MonitorPlay,
+  MoreHorizontal,
+  Swords,
+  Upload,
+  Download,
+  X
+} from 'lucide-react';
 import Characters from '../components/characters/characters';
-import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
 import InitiativeTracker from '../components/characters/initiative/initiativeTracker';
 import Images from '../components/images/images';
-import ManageImagesDialog from '../components/images/manageImagesDialog';
-import DrawerContents from '../components/drawerContents';
-import ManageStatBlocksDialog from '../components/encounters/manageStatBlocksDialog';
-import ManageEncountersDialog from '../components/encounters/manageEncountersDialog';
 import { useUiStore } from '../store/uiStore';
 import { useCombatStore } from '../store/combatStore';
 import { onMessage, sendMessage } from '../lib/sync';
 import { exportData, importData } from '../lib/exportImport';
 
 const DmScreen = () => {
-  const [isManageCharactersOpen, setIsManageCharactersOpen] = useState(false);
-  const [isManageImagesOpen, setIsManageImagesOpen] = useState(false);
-  const [isManageStatBlocksOpen, setIsManageStatBlocksOpen] = useState(false);
-  const [isManageEncountersOpen, setIsManageEncountersOpen] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const initiativeActive = useUiStore((s) => s.initiativeActive);
+  const setLastSentImage = useUiStore((s) => s.setLastSentImage);
   const actors = useCombatStore((s) => s.actors);
   const selectedIndex = useCombatStore((s) => s.selectedIndex);
   const round = useCombatStore((s) => s.round);
@@ -54,59 +60,15 @@ const DmScreen = () => {
 
   const handleOpenPlayerView = () => window.open('/players', '_blank');
 
-  const handleManageCharacters = () => {
-    setIsSheetOpen(false);
-    setIsManageCharactersOpen(true);
-  };
-
-  const handleManageImages = () => {
-    setIsSheetOpen(false);
-    setIsManageImagesOpen(true);
-  };
-
-  const handleManageStatBlocks = () => {
-    setIsSheetOpen(false);
-    setIsManageStatBlocksOpen(true);
-  };
-
-  const handleManageEncounters = () => {
-    setIsSheetOpen(false);
-    setIsManageEncountersOpen(true);
-  };
-
-  const setLastSentImage = useUiStore((s) => s.setLastSentImage);
-
   const handleClearImage = () => {
     setLastSentImage(null);
     sendMessage({ cmd: 'clear_image' });
   };
 
-  const handleExportData = () => exportData();
-
-  const handleImportData = () => fileInputRef.current?.click();
-
   return (
     <div className='flex flex-col h-screen'>
       {/* Header */}
       <header className='flex items-center gap-3 px-3 py-2 border-b bg-card shrink-0'>
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button variant='ghost' size='icon' className='h-8 w-8'>
-              <Menu className='h-4 w-4' />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side='left' className='w-56 p-0 pt-8'>
-            <DrawerContents
-              onExport={handleExportData}
-              onImport={handleImportData}
-              onClickManageCharacters={handleManageCharacters}
-              onClickManageImages={handleManageImages}
-              onClickManageStatBlocks={handleManageStatBlocks}
-              onClickManageEncounters={handleManageEncounters}
-            />
-          </SheetContent>
-        </Sheet>
-
         <span className='text-sm font-semibold tracking-wide'>DM Screen</span>
 
         <div className='flex-1' />
@@ -144,35 +106,46 @@ const DmScreen = () => {
           <MonitorPlay className='h-4 w-4' />
           Open Players
         </Button>
-      </header>
 
-      <ManageCharactersDialog
-        isOpen={isManageCharactersOpen}
-        onClose={() => setIsManageCharactersOpen(false)}
-      />
-      <ManageImagesDialog
-        isOpen={isManageImagesOpen}
-        onClose={() => setIsManageImagesOpen(false)}
-      />
-      <ManageStatBlocksDialog
-        isOpen={isManageStatBlocksOpen}
-        onClose={() => setIsManageStatBlocksOpen(false)}
-      />
-      <ManageEncountersDialog
-        isOpen={isManageEncountersOpen}
-        onClose={() => setIsManageEncountersOpen(false)}
-      />
-      <input
-        ref={fileInputRef}
-        type='file'
-        accept='.json'
-        className='hidden'
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) importData(file);
-          e.target.value = '';
-        }}
-      />
+        <DropdownMenu>
+          <DropdownMenuTrigger className='inline-flex items-center justify-center size-8 rounded-lg hover:bg-muted hover:text-foreground transition-colors'>
+            <MoreHorizontal className='h-4 w-4' />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem asChild>
+              <Link to='/prep'>
+                <ClipboardList className='h-4 w-4 mr-2' />
+                Prep Mode
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => exportData()}>
+              <Upload className='h-4 w-4 mr-2' />
+              Export Data
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }}>
+              <Download className='h-4 w-4 mr-2' />
+              Import Data
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <input
+          ref={fileInputRef}
+          type='file'
+          accept='.json'
+          className='hidden'
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) importData(file);
+            e.target.value = '';
+          }}
+        />
+      </header>
 
       {/* Tabs */}
       <Tabs defaultValue='home' className='flex flex-col flex-1 min-h-0'>

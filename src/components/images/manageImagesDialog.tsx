@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import FullscreenDialog from '@/components/ui/fullscreen-dialog';
 import {
   Accordion,
   AccordionContent,
@@ -16,14 +15,9 @@ import AddImageDialog from './add-image-dialog';
 import RenameFolderDialog from './rename-folder-dialog';
 import NewFolderDialog from './new-folder-dialog';
 
-interface ManageImagesDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
 type SubDialog = 'addImage' | 'rename' | 'newFolder' | null;
 
-export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDialogProps) {
+export default function ManageImagesDialog() {
   const folders = useImageStore((s) => s.folders);
   const createFolder = useImageStore((s) => s.createFolder);
   const renameFolder = useImageStore((s) => s.renameFolder);
@@ -93,7 +87,7 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
         }}
       />
 
-      <FullscreenDialog open={isOpen} onClose={onClose} title='Manage Images'>
+      <div className='flex flex-col flex-1 min-h-0'>
         <div className='overflow-auto flex-1 p-4 space-y-4'>
           {folders.length === 0 ? (
             <p className='text-sm text-muted-foreground'>No folders yet.</p>
@@ -179,7 +173,7 @@ export default function ManageImagesDialog({ isOpen, onClose }: ManageImagesDial
             New Folder
           </Button>
         </div>
-      </FullscreenDialog>
+      </div>
     </>
   );
 }

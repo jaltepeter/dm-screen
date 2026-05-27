@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import FullscreenDialog from '@/components/ui/fullscreen-dialog';
 import {
   Table,
   TableBody,
@@ -15,14 +14,9 @@ import { Character, useCharacterStore } from '../../store/characterStore';
 import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
 
-interface ManageCharactersDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
 type EditingCell = { id: string; field: keyof Character } | null;
 
-export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharactersDialogProps) {
+export default function ManageCharactersDialog() {
   const { characters, addCharacter, editCharacter, deleteCharacter } = useCharacterStore();
   const [editing, setEditing] = useState<EditingCell>(null);
   const [draft, setDraft] = useState('');
@@ -87,7 +81,7 @@ export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharac
         onConfirm={(c) => deleteCharacter(c.id)}
         onCancel={clearDelete}
       />
-      <FullscreenDialog open={isOpen} onClose={onClose} title='Manage Characters'>
+      <div className='flex flex-col flex-1 min-h-0'>
         <div className='overflow-auto flex-1 p-4'>
           <Table>
             <TableHeader>
@@ -150,7 +144,7 @@ export default function ManageCharactersDialog({ isOpen, onClose }: ManageCharac
             Add Character
           </Button>
         </div>
-      </FullscreenDialog>
+      </div>
     </>
   );
 }

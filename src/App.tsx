@@ -4,6 +4,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import DmScreen from './pages/dm-screen';
 import PlayerView from './pages/player-view';
+import PrepScreen from './pages/prep-screen';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path='/' element={<DmScreen />} />
         <Route path='/players' element={<PlayerView />} />
+        <Route path='/prep' element={<PrepScreen />} />
       </Routes>
     </Router>
   );
