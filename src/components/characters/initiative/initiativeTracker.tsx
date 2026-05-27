@@ -69,6 +69,7 @@ export default function InitiativeTracker() {
 
   const handleReset = () => {
     reset();
+    sendMessage({ cmd: 'init_update', payload: { actors: [], index: 0, round: 1 } });
     setEndOpen(false);
     setViewingStatBlockId(null);
   };

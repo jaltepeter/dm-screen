@@ -19,20 +19,24 @@ interface RoomState {
   round: number;
   image: { url: string; title?: string } | null;
   players: { id: string; name: string; connectedAt: number }[];
+  dmConnected: boolean;
+  everHadDm: boolean;
 }
 
 function stripHp(actors: Actor[]): Omit<Actor, 'hp' | 'maxHp'>[] {
   return actors.map(({ hp: _hp, maxHp: _maxHp, ...rest }) => rest);
 }
 
-function getRole(ws: Party.Connection): string {
-  return (ws as unknown as { _url?: string })._url
-    ? (new URL((ws as unknown as { _url: string })._url).searchParams.get('role') ?? 'player')
-    : 'player';
-}
-
 export default class DmScreenServer implements Party.Server {
-  state: RoomState = { actors: [], index: 0, round: 1, image: null, players: [] };
+  state: RoomState = {
+    actors: [],
+    index: 0,
+    round: 1,
+    image: null,
+    players: [],
+    dmConnected: false,
+    everHadDm: false
+  };
 
   constructor(readonly room: Party.Room) {}
 
@@ -43,10 +47,21 @@ export default class DmScreenServer implements Party.Server {
 
     ws.serializeAttachment({ role, name });
 
+    if (role === 'dm') {
+      this.state.dmConnected = true;
+      this.state.everHadDm = true;
+      this.broadcastToPlayers({ cmd: 'dm_online' });
+      ws.send(
+        JSON.stringify({
+          cmd: 'players_update',
+          payload: this.state.players.map(({ name, connectedAt }) => ({ name, connectedAt }))
+        })
+      );
+    }
+
     if (role === 'player') {
       this.state.players = [...this.state.players, { id: ws.id, name, connectedAt: Date.now() }];
 
-      // Send current state to the newly connected player
       ws.send(
         JSON.stringify({
           cmd: 'dm_sync',
@@ -59,7 +74,8 @@ export default class DmScreenServer implements Party.Server {
         })
       );
 
-      // Notify DM of updated player list
+      ws.send(JSON.stringify({ cmd: this.state.dmConnected ? 'dm_online' : 'dm_offline' }));
+
       this.broadcastToDm({
         cmd: 'players_update',
         payload: this.state.players.map(({ name, connectedAt }) => ({ name, connectedAt }))
@@ -89,6 +105,13 @@ export default class DmScreenServer implements Party.Server {
           this.state.image = null;
           this.broadcastToPlayers(msg);
           break;
+        case 'session_ended':
+          this.state.actors = [];
+          this.state.index = 0;
+          this.state.round = 1;
+          this.state.image = null;
+          this.broadcastToPlayers(msg);
+          break;
       }
     }
 
@@ -107,6 +130,15 @@ export default class DmScreenServer implements Party.Server {
     }
   }
 
+  async onRequest(_req: Party.Request): Promise<Response> {
+    return new Response(
+      JSON.stringify({ dmConnected: this.state.dmConnected, everHadDm: this.state.everHadDm }),
+      {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      }
+    );
+  }
+
   async onClose(ws: Party.Connection) {
     const { role } = (ws.deserializeAttachment() ?? { role: 'player' }) as {
       role: string;
@@ -119,6 +151,11 @@ export default class DmScreenServer implements Party.Server {
         cmd: 'players_update',
         payload: this.state.players.map(({ name, connectedAt }) => ({ name, connectedAt }))
       });
+    }
+
+    if (role === 'dm') {
+      this.state.dmConnected = false;
+      this.broadcastToPlayers({ cmd: 'dm_offline' });
     }
   }
 

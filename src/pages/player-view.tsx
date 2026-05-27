@@ -1,19 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Maximize2, Minimize2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
-import { Actor, connect, disconnect, onMessage, sendMessage } from '../lib/sync';
+import { Actor, checkRoom, connect, disconnect, onMessage, sendMessage } from '../lib/sync';
 import DebugPanel from '@/components/ui/debug-panel';
+import { usePlayerStore } from '../store/playerStore';
 
 export default function PlayerView() {
+  const { slug } = useParams<{ slug: string }>();
+  const { playerName: storedName, setPlayerName: persistName } = usePlayerStore();
+  const [nameInput, setNameInput] = useState(storedName);
+  const [playerName, setPlayerName] = useState<string | null>(null);
+  const [roomStatus, setRoomStatus] = useState<'checking' | 'active' | 'inactive'>(() =>
+    slug ? 'checking' : 'inactive'
+  );
   const [imageSource, setImageSource] = useState<{ url: string; title?: string } | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [index, setIndex] = useState(0);
   const [round, setRound] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [waiting, setWaiting] = useState(true);
-  const [searchParams] = useSearchParams();
-  const room = searchParams.get('room');
+  const [dmStatus, setDmStatus] = useState<'waiting' | 'online' | 'offline' | 'ended'>('waiting');
 
   const showInit = actors.length > 0;
   const centeredMode = showInit && !imageSource;
@@ -60,16 +68,18 @@ export default function PlayerView() {
   }, []);
 
   useEffect(() => {
-    if (room) {
-      const name = localStorage.getItem('dm-screen/player-name') ?? 'Player';
-      connect(room, 'player', name);
-    }
-    return disconnect;
-  }, [room]);
+    if (!slug) return;
+    checkRoom(slug)
+      .then((data) => setRoomStatus(data.dmConnected || data.everHadDm ? 'active' : 'inactive'))
+      .catch(() => setRoomStatus('active'));
+  }, [slug]);
 
   useEffect(() => {
-    const poll = { id: undefined as ReturnType<typeof setInterval> | undefined };
+    if (slug && playerName && roomStatus === 'active') connect(slug, 'player', playerName);
+    return disconnect;
+  }, [slug, playerName, roomStatus]);
 
+  useEffect(() => {
     const unsub = onMessage((msg) => {
       switch (msg.cmd) {
         case 'image':
@@ -88,19 +98,24 @@ export default function PlayerView() {
           setActors(msg.payload.actors);
           setIndex(msg.payload.index);
           setRound(msg.payload.round);
-          clearInterval(poll.id);
-          setWaiting(false);
+          break;
+        case 'dm_online':
+          setDmStatus('online');
+          break;
+        case 'dm_offline':
+          setDmStatus((prev) => (prev === 'ended' ? 'ended' : 'offline'));
+          break;
+        case 'session_ended':
+          setImageSource(null);
+          setActors([]);
+          setIndex(0);
+          setRound(1);
+          setDmStatus('ended');
           break;
       }
     });
-
     sendMessage({ cmd: 'player_ready' });
-    poll.id = setInterval(() => sendMessage({ cmd: 'player_ready' }), 500);
-
-    return () => {
-      unsub();
-      clearInterval(poll.id);
-    };
+    return unsub;
   }, []);
 
   useEffect(() => {
@@ -117,6 +132,56 @@ export default function PlayerView() {
     }
   };
 
+  const handleJoin = () => {
+    const name = nameInput.trim() || 'Player';
+    persistName(name);
+    setPlayerName(name);
+  };
+
+  if (roomStatus === 'checking') {
+    return (
+      <div className='w-screen h-screen bg-black flex items-center justify-center'>
+        <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
+        <span className='relative animate-pulse text-white/30 text-xl'>Connecting…</span>
+      </div>
+    );
+  }
+
+  if (roomStatus === 'inactive') {
+    return (
+      <div className='w-screen h-screen bg-black flex items-center justify-center'>
+        <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
+        <span className='relative text-white/30 text-2xl'>No active session here.</span>
+      </div>
+    );
+  }
+
+  if (!playerName) {
+    return (
+      <div className='w-screen h-screen bg-black flex flex-col items-center justify-center gap-6'>
+        <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
+        <h1 className='relative text-2xl font-semibold text-white'>What&apos;s your name?</h1>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleJoin();
+          }}
+          className='relative flex gap-2'>
+          <Input
+            autoFocus
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            placeholder='Your name'
+            className='w-48 bg-white/10 border-white/20 text-white placeholder:text-white/30'
+          />
+          <Button type='submit' disabled={!nameInput.trim()}>
+            Join
+          </Button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className='group relative w-screen h-screen overflow-hidden bg-black'>
       {imageSource ? (
@@ -127,12 +192,11 @@ export default function PlayerView() {
         />
       ) : !centeredMode ? (
         <div className='flex items-center justify-center w-full h-full select-none'>
-          {waiting ? (
-            <span className='animate-pulse animation-duration-[5s] text-3xl text-white/40'>
+          <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
+          {dmStatus === 'waiting' && (
+            <span className='relative animate-pulse animation-duration-[5s] text-3xl text-white/40'>
               Waiting for DM…
             </span>
-          ) : (
-            <img src='/beholder.svg' alt='' className='w-[80vmin] h-[80vmin] opacity-10' />
           )}
         </div>
       ) : null}
@@ -167,12 +231,29 @@ export default function PlayerView() {
         </div>
       )}
 
+      {/* DM offline overlay */}
+      {dmStatus === 'offline' && (
+        <div className='absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none'>
+          <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
+          <span className='relative animate-pulse text-white/60 text-xl'>DM Disconnected</span>
+        </div>
+      )}
+
+      {/* Session ended — full black wipe */}
+      {dmStatus === 'ended' && (
+        <div className='absolute inset-0 bg-black flex items-center justify-center z-20'>
+          <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
+          <span className='relative text-white/30 text-2xl'>The session has ended.</span>
+        </div>
+      )}
+
       {/* Fullscreen toggle */}
       <button
         onClick={toggleFullscreen}
         className='absolute bottom-4 right-4 p-2 rounded-md bg-black/40 text-white/40 opacity-0 group-hover:opacity-100 hover:bg-black/70 hover:text-white/90 transition-all duration-200'>
         {isFullscreen ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
       </button>
+
       <DebugPanel />
     </div>
   );

@@ -12,7 +12,7 @@ function App() {
     <Router basename='/'>
       <Routes>
         <Route path='/' element={<DmScreen />} />
-        <Route path='/players' element={<PlayerView />} />
+        <Route path='/players/:slug' element={<PlayerView />} />
         <Route path='/prep' element={<PrepScreen />} />
       </Routes>
       <Toaster theme='dark' position='bottom-right' />

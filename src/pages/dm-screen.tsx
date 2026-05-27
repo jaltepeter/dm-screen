@@ -1,9 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCampaignStore } from '../store/campaignStore';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,65 +9,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {
-  ClipboardList,
-  MonitorPlay,
-  MoreHorizontal,
-  Swords,
-  Upload,
-  Download,
-  X
-} from 'lucide-react';
+import { ClipboardList, MoreHorizontal, Swords, Upload, Download, X } from 'lucide-react';
 import Characters from '../components/characters/characters';
 import InitiativeTracker from '../components/characters/initiative/initiativeTracker';
 import Images from '../components/images/images';
-import CampaignSwitcher from '../components/campaigns/campaignSwitcher';
+import GoLiveButton from '../components/campaigns/goLiveButton';
 import { useUiStore } from '../store/uiStore';
 import { useCombatStore } from '../store/combatStore';
-import { connect, disconnect, onMessage, sendMessage } from '../lib/sync';
+import { sendMessage } from '../lib/sync';
 import { exportData, importData } from '../lib/exportImport';
 import DebugPanel from '@/components/ui/debug-panel';
 
 const DmScreen = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const campaigns = useCampaignStore((s) => s.campaigns);
-  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
+  const [activeTab, setActiveTab] = useState(
+    () => localStorage.getItem('dm-screen/active-tab') ?? 'home'
+  );
   const lastSentImage = useUiStore((s) => s.lastSentImage);
-  const initiativeActive = useUiStore((s) => s.initiativeActive);
   const setLastSentImage = useUiStore((s) => s.setLastSentImage);
-  const actors = useCombatStore((s) => s.actors);
-  const selectedIndex = useCombatStore((s) => s.selectedIndex);
-  const round = useCombatStore((s) => s.round);
-
-  const syncStateRef = useRef({ actors, selectedIndex, round, lastSentImage });
-  useEffect(() => {
-    syncStateRef.current = { actors, selectedIndex, round, lastSentImage };
-  });
+  const initiativeActive = useCombatStore((s) => s.actors.length > 0);
 
   useEffect(() => {
     document.title = 'DM Screen';
   }, []);
-
-  useEffect(() => {
-    const slug = campaigns.find((c) => c.id === activeCampaignId)?.slug;
-    if (slug) connect(slug, 'dm');
-    else disconnect();
-    return disconnect;
-  }, [activeCampaignId, campaigns]);
-
-  useEffect(() => {
-    return onMessage((msg) => {
-      if (msg.cmd === 'player_ready') {
-        const { actors, selectedIndex, round, lastSentImage } = syncStateRef.current;
-        sendMessage({
-          cmd: 'dm_sync',
-          payload: { actors, index: selectedIndex, round, image: lastSentImage }
-        });
-      }
-    });
-  }, []);
-
-  const handleOpenPlayerView = () => window.open('/players', '_blank');
 
   const handleClearImage = () => {
     setLastSentImage(null);
@@ -113,12 +75,7 @@ const DmScreen = () => {
           ) : null}
         </div>
 
-        <CampaignSwitcher />
-
-        <Button variant='outline' size='sm' onClick={handleOpenPlayerView} className='gap-1.5'>
-          <MonitorPlay className='h-4 w-4' />
-          Open Players
-        </Button>
+        <GoLiveButton />
 
         <DropdownMenu>
           <DropdownMenuTrigger className='inline-flex items-center justify-center size-8 rounded-lg hover:bg-muted hover:text-foreground transition-colors'>
@@ -161,7 +118,13 @@ const DmScreen = () => {
       </header>
 
       {/* Tabs */}
-      <Tabs defaultValue='home' className='flex flex-col flex-1 min-h-0'>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => {
+          setActiveTab(v);
+          localStorage.setItem('dm-screen/active-tab', v);
+        }}
+        className='flex flex-col flex-1 min-h-0'>
         <TabsList className='shrink-0 w-full mt-2 rounded-none px-3'>
           <TabsTrigger value='home'>Home</TabsTrigger>
           <TabsTrigger value='combat'>Combat</TabsTrigger>
