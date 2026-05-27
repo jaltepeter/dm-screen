@@ -93,6 +93,21 @@ const v0Images = {
   ]
 };
 
+const v1Images = {
+  folders: [
+    {
+      folderName: 'Goblins',
+      images: [
+        {
+          id: 'a1b2c3d4-0000-0000-0000-000000000001',
+          url: 'https://example.com/goblin.png',
+          title: 'Goblin'
+        }
+      ]
+    }
+  ]
+};
+
 const v0Notes = { notes: 'Session notes here.' };
 
 const v0Combat = { actors: [], selectedIndex: 0, round: 1 };
@@ -110,8 +125,17 @@ describe('characterStore migrations', () => {
 });
 
 describe('imageStore migrations', () => {
-  it('v0 state is preserved', () => {
-    expect(migrateImageStore(v0Images, 0), CONTRACT_BROKEN).toEqual(v0Images);
+  it('v1 state is preserved', () => {
+    expect(migrateImageStore(structuredClone(v1Images), 1), CONTRACT_BROKEN).toEqual(v1Images);
+  });
+
+  it('v0 → v1: images get a stable id', () => {
+    const result = migrateImageStore(structuredClone(v0Images), 0) as typeof v1Images;
+    const image = result.folders[0].images[0];
+    expect(typeof image.id, CONTRACT_BROKEN).toBe('string');
+    expect(image.id.length, CONTRACT_BROKEN).toBeGreaterThan(0);
+    expect(image.url, CONTRACT_BROKEN).toBe('https://example.com/goblin.png');
+    expect(image.title, CONTRACT_BROKEN).toBe('Goblin');
   });
 });
 
