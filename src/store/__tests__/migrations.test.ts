@@ -93,6 +93,21 @@ const v0Images = {
   ]
 };
 
+const v1Images = {
+  folders: [
+    {
+      folderName: 'Goblins',
+      images: [
+        {
+          id: 'a1b2c3d4-0000-0000-0000-000000000001',
+          url: 'https://example.com/goblin.png',
+          title: 'Goblin'
+        }
+      ]
+    }
+  ]
+};
+
 const v0Notes = { notes: 'Session notes here.' };
 
 const v0Combat = { actors: [], selectedIndex: 0, round: 1 };
@@ -103,15 +118,48 @@ describe('combatStore migrations', () => {
   });
 });
 
+const v1Characters = {
+  characters: [
+    {
+      id: '1',
+      name: 'Bruenor',
+      charClass: 'Fighter',
+      background: 'Soldier',
+      ac: 18,
+      pp: 10,
+      pi: 10,
+      init: 2,
+      sheetUrl: 'https://dndbeyond.com'
+    }
+  ]
+};
+
 describe('characterStore migrations', () => {
-  it('v0 state is preserved', () => {
-    expect(migrateCharacterStore(v0Characters, 0), CONTRACT_BROKEN).toEqual(v0Characters);
+  it('v1 state is preserved', () => {
+    expect(migrateCharacterStore(structuredClone(v1Characters), 1), CONTRACT_BROKEN).toEqual(
+      v1Characters
+    );
+  });
+
+  it('v0 → v1: numeric id converted to string', () => {
+    const result = migrateCharacterStore(structuredClone(v0Characters), 0) as typeof v1Characters;
+    expect(result.characters[0].id, CONTRACT_BROKEN).toBe('1');
+    expect(result.characters[0].name, CONTRACT_BROKEN).toBe('Bruenor');
   });
 });
 
 describe('imageStore migrations', () => {
-  it('v0 state is preserved', () => {
-    expect(migrateImageStore(v0Images, 0), CONTRACT_BROKEN).toEqual(v0Images);
+  it('v1 state is preserved', () => {
+    expect(migrateImageStore(structuredClone(v1Images), 1), CONTRACT_BROKEN).toEqual(v1Images);
+  });
+
+  it('v0 → v1: images get a stable id', () => {
+    const result = migrateImageStore(structuredClone(v0Images), 0) as typeof v1Images;
+    const image = result.folders[0].images[0];
+    expect(typeof image.id, CONTRACT_BROKEN).toBe('string');
+    expect(image.id.length, CONTRACT_BROKEN).toBeGreaterThan(0);
+    expect(image.url, CONTRACT_BROKEN).toBe('https://example.com/goblin.png');
+    expect(image.title, CONTRACT_BROKEN).toBe('Goblin');
   });
 });
 

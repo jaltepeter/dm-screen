@@ -13,7 +13,7 @@ export default function ImageGrid({ images, onSendImage }: ImageGridProps) {
     <div className='grid grid-cols-4 gap-2'>
       {images.map((image) => (
         <ImageThumbnail
-          key={image.url}
+          key={image.id}
           image={image}
           action={
             <Button

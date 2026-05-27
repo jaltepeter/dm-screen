@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { StatBlock } from '../../store/encounterStore';
+import { formatBonus } from '@/lib/utils';
 
 interface Open5eCreature {
   key: string;
@@ -66,10 +67,6 @@ const SAVE_ABBREVS: Record<string, string> = {
   charisma: 'CHA'
 };
 
-function fmtBonus(n: number): string {
-  return n >= 0 ? `+${n}` : `${n}`;
-}
-
 function buildSpeed(s: Open5eCreature['speed_all']): string | undefined {
   const u = s.unit === 'feet' ? 'ft.' : s.unit;
   const parts: string[] = [];
@@ -83,7 +80,7 @@ function buildSpeed(s: Open5eCreature['speed_all']): string | undefined {
 
 function buildSaves(saves: Record<string, number>): string | undefined {
   const parts = Object.entries(saves).map(
-    ([k, v]) => `${SAVE_ABBREVS[k] ?? k.toUpperCase()} ${fmtBonus(v)}`
+    ([k, v]) => `${SAVE_ABBREVS[k] ?? k.toUpperCase()} ${formatBonus(v)}`
   );
   return parts.length ? parts.join(', ') : undefined;
 }
@@ -94,7 +91,7 @@ function buildSkills(skills: Record<string, number>): string | undefined {
       .split('_')
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
-  const parts = Object.entries(skills).map(([k, v]) => `${capitalize(k)} ${fmtBonus(v)}`);
+  const parts = Object.entries(skills).map(([k, v]) => `${capitalize(k)} ${formatBonus(v)}`);
   return parts.length ? parts.join(', ') : undefined;
 }
 
@@ -138,7 +135,7 @@ function toStatBlock(m: Open5eCreature): Omit<StatBlock, 'id'> {
     name: m.name,
     size: m.size.name || undefined,
     creatureType: m.type.name || undefined,
-    proficiencyBonus: m.proficiency_bonus != null ? fmtBonus(m.proficiency_bonus) : undefined,
+    proficiencyBonus: m.proficiency_bonus != null ? formatBonus(m.proficiency_bonus) : undefined,
     ac: m.armor_class,
     acDesc: m.armor_detail || undefined,
     hp: m.hit_points,
