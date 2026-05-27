@@ -14,10 +14,10 @@ import { Trash2, Plus } from 'lucide-react';
 import { Actor } from '../../../lib/sync';
 import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
-import { Character } from '../../../store/characterStore';
+import { useCharacterStore } from '../../../store/characterStore';
 import { useEncounterStore } from '../../../store/encounterStore';
 
-function newPlayerActors(characters: Character[]): Actor[] {
+function newPlayerActors(characters: { name: string }[]): Actor[] {
   return characters.map((c) => ({
     id: crypto.randomUUID(),
     kind: 'player' as const,
@@ -30,18 +30,17 @@ function newPlayerActors(characters: Character[]): Actor[] {
 }
 
 interface InitiativeSetupDialogProps {
-  characters: Character[];
   isOpen: boolean;
   handleClose: () => void;
   onStartInitiative: (actors: Actor[]) => void;
 }
 
 export default function InitiativeSetupDialog({
-  characters,
   isOpen,
   onStartInitiative,
   handleClose
 }: InitiativeSetupDialogProps) {
+  const characters = useCharacterStore((s) => s.characters);
   const [actors, setActors] = useState<Actor[]>(() => newPlayerActors(characters));
   const [loadEncounterId, setLoadEncounterId] = useState('');
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Actor>();

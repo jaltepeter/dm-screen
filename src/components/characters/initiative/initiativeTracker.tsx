@@ -7,17 +7,12 @@ import HpCell from './hpCell';
 import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
 import { Actor, sendMessage } from '../../../lib/sync';
-import { Character } from '../../../store/characterStore';
 import { useCombatStore } from '../../../store/combatStore';
 import { useUiStore } from '../../../store/uiStore';
 import { useEncounterStore } from '../../../store/encounterStore';
 import StatBlockCard from '../../encounters/statBlockCard';
 
-interface InitiativeTrackerProps {
-  characters: Character[];
-}
-
-export default function InitiativeTracker({ characters }: InitiativeTrackerProps) {
+export default function InitiativeTracker() {
   const { actors, selectedIndex, round, setActors, setSelectedIndex, setRound, reset } =
     useCombatStore();
   const [setupOpen, setSetupOpen] = useState(false);
@@ -121,7 +116,6 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
   return (
     <div className='flex flex-col h-full'>
       <InitiativeSetupDialog
-        characters={characters}
         isOpen={setupOpen}
         handleClose={() => setSetupOpen(false)}
         onStartInitiative={startInitiative}

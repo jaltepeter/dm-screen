@@ -12,7 +12,6 @@ import ManageImagesDialog from '../components/images/manageImagesDialog';
 import DrawerContents from '../components/drawerContents';
 import ManageStatBlocksDialog from '../components/encounters/manageStatBlocksDialog';
 import ManageEncountersDialog from '../components/encounters/manageEncountersDialog';
-import { useCharacterStore } from '../store/characterStore';
 import { useUiStore } from '../store/uiStore';
 import { exportData, importData } from '../lib/exportImport';
 
@@ -24,7 +23,6 @@ const DmScreen = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const characters = useCharacterStore((s) => s.characters);
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const initiativeActive = useUiStore((s) => s.initiativeActive);
 
@@ -166,7 +164,7 @@ const DmScreen = () => {
         </TabsContent>
 
         <TabsContent value='combat' className='flex-1 overflow-hidden flex flex-col mt-0'>
-          <InitiativeTracker characters={characters} />
+          <InitiativeTracker />
         </TabsContent>
 
         <TabsContent value='images' className='flex-1 overflow-auto p-3 mt-0'>
