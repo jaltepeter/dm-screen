@@ -54,6 +54,19 @@ jobs:
           build-args: |
             VITE_APP_VERSION=${{ env.VITE_APP_VERSION }}
             VITE_GIT_SHA=${{ env.VITE_GIT_SHA }}
+            VITE_PARTYKIT_HOST=${{ secrets.VITE_PARTYKIT_HOST }}
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+  deploy-partykit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx partykit deploy
+        env:
+          PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}

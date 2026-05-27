@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useCampaignStore } from '../store/campaignStore';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -25,11 +26,14 @@ import Images from '../components/images/images';
 import CampaignSwitcher from '../components/campaigns/campaignSwitcher';
 import { useUiStore } from '../store/uiStore';
 import { useCombatStore } from '../store/combatStore';
-import { onMessage, sendMessage } from '../lib/sync';
+import { connect, disconnect, onMessage, sendMessage } from '../lib/sync';
 import { exportData, importData } from '../lib/exportImport';
+import DebugPanel from '@/components/ui/debug-panel';
 
 const DmScreen = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const campaigns = useCampaignStore((s) => s.campaigns);
+  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const initiativeActive = useUiStore((s) => s.initiativeActive);
   const setLastSentImage = useUiStore((s) => s.setLastSentImage);
@@ -45,6 +49,13 @@ const DmScreen = () => {
   useEffect(() => {
     document.title = 'DM Screen';
   }, []);
+
+  useEffect(() => {
+    const slug = campaigns.find((c) => c.id === activeCampaignId)?.slug;
+    if (slug) connect(slug, 'dm');
+    else disconnect();
+    return disconnect;
+  }, [activeCampaignId, campaigns]);
 
   useEffect(() => {
     return onMessage((msg) => {
@@ -169,6 +180,7 @@ const DmScreen = () => {
           <Images />
         </TabsContent>
       </Tabs>
+      <DebugPanel />
     </div>
   );
 };

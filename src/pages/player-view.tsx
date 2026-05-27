@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
-import { Actor, onMessage, sendMessage } from '../lib/sync';
+import { Actor, connect, disconnect, onMessage, sendMessage } from '../lib/sync';
+import DebugPanel from '@/components/ui/debug-panel';
 
 export default function PlayerView() {
   const [imageSource, setImageSource] = useState<{ url: string; title?: string } | null>(null);
@@ -10,6 +12,8 @@ export default function PlayerView() {
   const [round, setRound] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [waiting, setWaiting] = useState(true);
+  const [searchParams] = useSearchParams();
+  const room = searchParams.get('room');
 
   const showInit = actors.length > 0;
   const centeredMode = showInit && !imageSource;
@@ -54,6 +58,14 @@ export default function PlayerView() {
   useEffect(() => {
     document.title = 'Player View';
   }, []);
+
+  useEffect(() => {
+    if (room) {
+      const name = localStorage.getItem('dm-screen/player-name') ?? 'Player';
+      connect(room, 'player', name);
+    }
+    return disconnect;
+  }, [room]);
 
   useEffect(() => {
     const poll = { id: undefined as ReturnType<typeof setInterval> | undefined };
@@ -161,6 +173,7 @@ export default function PlayerView() {
         className='absolute bottom-4 right-4 p-2 rounded-md bg-black/40 text-white/40 opacity-0 group-hover:opacity-100 hover:bg-black/70 hover:text-white/90 transition-all duration-200'>
         {isFullscreen ? <Minimize2 className='h-4 w-4' /> : <Maximize2 className='h-4 w-4' />}
       </button>
+      <DebugPanel />
     </div>
   );
 }
