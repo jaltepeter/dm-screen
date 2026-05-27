@@ -39,29 +39,37 @@ Serves the app at `http://localhost:8080/`.
 
 ## Tech decisions
 
-| Concern           | Choice                                             | Why                                          |
-| ----------------- | -------------------------------------------------- | -------------------------------------------- |
-| Build             | Vite                                               | CRA is unmaintained                          |
-| Language          | TypeScript                                         | Type safety                                  |
-| UI                | shadcn/ui + Tailwind                               | Own the components, no runtime overhead      |
-| State             | Zustand + persist                                  | Replaces manual localStorage wiring          |
-| DM↔Player sync    | BroadcastChannel (abstracted)                      | Zero setup, works offline                    |
-| Cross-device sync | Not yet — abstraction layer makes it a future swap | Supabase / PartyKit / WebRTC are all options |
+| Concern           | Choice                        | Why                                     |
+| ----------------- | ----------------------------- | --------------------------------------- |
+| Build             | Vite                          | CRA is unmaintained                     |
+| Language          | TypeScript                    | Type safety                             |
+| UI                | shadcn/ui + Tailwind          | Own the components, no runtime overhead |
+| State             | Zustand + persist             | Replaces manual localStorage wiring     |
+| DM↔Player sync    | BroadcastChannel (abstracted) | Zero setup, works offline               |
+| Cross-device sync | Planned: PartyKit (free tier) | See below                               |
 
 ## Backlog
 
 - Keep main menu open in "manage mode" — option to keep the drawer open while managing characters/images/encounters
 - Stat block preview during edit — show the rendered StatBlockCard alongside the editor panel so the DM can see how the stat block will look while filling it in
 
-## Stretch: cross-device sync
+## Cross-device sync (planned)
 
-The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping in a network transport doesn't touch any component code. Candidates:
+The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping in a network transport won't touch any component code. The plan is **PartyKit** on its free tier.
 
-| Option                | Tradeoff                                                  |
-| --------------------- | --------------------------------------------------------- |
-| **Supabase Realtime** | Easiest, managed, requires internet                       |
-| **PartyKit**          | Designed for ephemeral real-time state, requires internet |
-| **WebRTC**            | Peer-to-peer, works on local network, more complex setup  |
+**Why PartyKit:**
+
+- Designed for exactly this: ephemeral real-time state broadcast to a room
+- Free tier supports unlimited concurrent rooms within a project — a DM session is one room
+- The 24-hour storage reset is irrelevant; state lives in the browser, not the server
+- 10-line server file, minimal setup
+
+**UX sketch:**
+
+- DM opens the app → a short session code is generated and shown in the header
+- Player opens `/players` on any device (phone, TV browser, laptop) → enters the code → connects and syncs immediately via the existing `player_ready` handshake
+
+This would make it practical to use a projector or TV in a different room, or let players follow along on their phones.
 
 ## Why not a VTT?
 
