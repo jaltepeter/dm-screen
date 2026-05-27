@@ -48,10 +48,6 @@ Serves the app at `http://localhost:8080/`.
 | DM↔Player sync    | BroadcastChannel (abstracted) | Zero setup, works offline               |
 | Cross-device sync | Planned: PartyKit (free tier) | See below                               |
 
-## Backlog
-
-- Player Characters table header styling — table headers are visually indistinct from data rows; needs stronger differentiation (weight, color, or border)
-
 ## Cross-device sync (planned)
 
 The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping in a network transport won't touch any component code. The plan is **PartyKit** on its free tier.

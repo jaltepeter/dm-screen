@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { ExternalLink, Shield, Eye, Brain, Gauge } from 'lucide-react';
+import { ExternalLink, Shield, Eye, Brain, Gauge, ScrollText } from 'lucide-react';
 import { Character } from '../../store/characterStore';
 
 interface PlayerDetailsProps {
@@ -34,7 +34,7 @@ export default function PlayerDetails({ characters }: PlayerDetailsProps) {
             <Gauge className='h-4 w-4 mx-auto' />
           </TableHead>
           <TableHead className='text-center' title='Character Sheet'>
-            <ExternalLink className='h-4 w-4 mx-auto' />
+            <ScrollText className='h-4 w-4 mx-auto' />
           </TableHead>
         </TableRow>
       </TableHeader>
