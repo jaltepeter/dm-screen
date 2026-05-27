@@ -66,6 +66,21 @@ The sync abstraction layer (`src/lib/sync.ts`) is built as a seam — swapping i
 
 This would make it practical to use a projector or TV in a different room, or let players follow along on their phones.
 
+## Deployment
+
+The app is served as a Docker container behind an nginx reverse proxy. PartyKit handles real-time sync via WebSocket — the proxy must explicitly allow `wss://` connections or the browser will block them due to CSP.
+
+In the nginx server block for `dm-screen.altepeter.com`:
+
+```nginx
+add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'; connect-src 'self' https: wss://dm-screen.jaltepeter.partykit.dev" always;
+```
+
+Two GitHub Actions secrets are required for the deploy workflow:
+
+- `VITE_PARTYKIT_HOST` — `dm-screen.jaltepeter.partykit.dev`
+- `PARTYKIT_TOKEN` — from `~/.partykit/config.json` (`access_token` field) after running `npx partykit login`
+
 ## Backlog
 
 _Nothing here yet._
