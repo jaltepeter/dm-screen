@@ -9,26 +9,25 @@ interface InitiativePlayerViewProps {
 
 export default function InitiativePlayerView({ actors, turnNumber }: InitiativePlayerViewProps) {
   return (
-    <ul className='space-y-0.5'>
+    <ul className='space-y-1'>
       {actors.map((actor, index) => {
         const isCurrent = index === turnNumber;
         return (
           <li
             key={actor.id}
-            className={`flex flex-col px-2 py-1 rounded text-sm ${
-              isCurrent ? 'bg-white/10 font-semibold' : 'text-white/70'
-            } ${!actor.active ? 'opacity-50' : ''}`}>
-            <div className={`flex items-center gap-1.5 ${!actor.active ? 'line-through' : ''}`}>
-              {isCurrent ? (
-                <ChevronRight className='h-3.5 w-3.5 shrink-0' />
-              ) : (
-                <span className='w-3.5' />
-              )}
-              <span className='flex-1'>{actor.visible ? actor.name : '? ? ? ? ? ?'}</span>
-              <span className='tabular-nums text-white/50'>{actor.init}</span>
+            className={`flex flex-col px-3 py-1.5 rounded border-l-2 transition-colors ${
+              isCurrent
+                ? 'bg-white/10 border-white/60 font-semibold'
+                : 'border-transparent text-white/60'
+            } ${!actor.active ? 'opacity-40' : ''}`}>
+            <div className={`flex items-center gap-2 ${!actor.active ? 'line-through' : ''}`}>
+              {isCurrent ? <ChevronRight className='h-4 w-4 shrink-0' /> : <span className='w-4' />}
+              <span className={isCurrent ? 'text-base' : 'text-sm'}>
+                {actor.visible ? actor.name : '? ? ? ? ? ?'}
+              </span>
             </div>
             {actor.conditions.length > 0 && (
-              <div className='flex flex-wrap gap-1 mt-0.5 pl-5'>
+              <div className='grid grid-cols-5 gap-1 mt-1 pl-6'>
                 {actor.conditions.map((c) => {
                   const cond = CONDITIONS[c];
                   return cond ? (
