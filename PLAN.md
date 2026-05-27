@@ -108,7 +108,7 @@ Player HP tracking not needed; HP tracking is NPC-only (covered in 3.3).
 - Show condition icons/chips on that actor's row
 - Conditions visible to DM only (not sent to player view)
 
-### 3.5 Encounter templates
+### ✅ 3.5 Encounter templates
 
 - DM can pre-build named encounter templates: a list of monsters/NPCs with names and HP values (no initiative rolls — those happen at the table)
 - Templates are stored in Zustand and persist across sessions

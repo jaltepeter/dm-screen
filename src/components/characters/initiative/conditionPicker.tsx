@@ -1,5 +1,4 @@
 import { ShieldAlert } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export const CONDITIONS: Record<string, { label: string; className: string }> = {
@@ -30,18 +29,16 @@ export default function ConditionPicker({ conditions, onToggle }: ConditionPicke
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant='ghost'
-          size='icon'
-          className={`h-6 w-6 relative ${activeCount > 0 ? 'text-primary' : 'text-muted-foreground'}`}>
-          <ShieldAlert className='h-3.5 w-3.5' />
-          {activeCount > 0 && (
-            <span className='absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary text-[8px] text-primary-foreground flex items-center justify-center font-bold leading-none'>
-              {activeCount}
-            </span>
-          )}
-        </Button>
+      <PopoverTrigger
+        className={`relative flex h-6 w-6 items-center justify-center rounded hover:bg-muted ${
+          activeCount > 0 ? 'text-primary' : 'text-muted-foreground'
+        }`}>
+        <ShieldAlert className='h-3.5 w-3.5' />
+        {activeCount > 0 && (
+          <span className='absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary text-[8px] text-primary-foreground flex items-center justify-center font-bold leading-none'>
+            {activeCount}
+          </span>
+        )}
       </PopoverTrigger>
       <PopoverContent className='w-48 p-2' align='end'>
         <div className='grid grid-cols-3 gap-1'>
