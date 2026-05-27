@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { SkipBack, SkipForward, Sword, Swords } from 'lucide-react';
+import ConditionPicker, { CONDITIONS } from './conditionPicker';
 import HpCell from './hpCell';
 import InitiativeEndDialog from './initiativeEndDialog';
 import InitiativeSetupDialog from './initiativeSetupDialog';
@@ -83,6 +84,20 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
   const toggleActive = (id: string) =>
     setActors(actors.map((a) => (a.id === id ? { ...a, active: !a.active } : a)));
 
+  const toggleCondition = (id: string, condition: string) =>
+    setActors(
+      actors.map((a) =>
+        a.id !== id
+          ? a
+          : {
+              ...a,
+              conditions: a.conditions.includes(condition)
+                ? a.conditions.filter((c) => c !== condition)
+                : [...a.conditions, condition]
+            }
+      )
+    );
+
   const updateHp = (id: string, rawHp: number) => {
     setActors(
       actors.map((a) => {
@@ -121,55 +136,81 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
           <>
             <div className='text-xs text-muted-foreground'>Round {round}</div>
             <div className='space-y-0.5'>
-              <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 px-1 text-xs text-muted-foreground'>
+              <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem_2rem] gap-1 px-1 text-xs text-muted-foreground'>
                 <span>Init</span>
                 <span>Name</span>
                 <span className='text-center'>HP</span>
                 <span className='text-center'>Vis</span>
                 <span className='text-center'>Alive</span>
+                <span />
               </div>
               {actors.map((actor, index) => (
-                <div
-                  key={actor.id}
-                  className={`grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
-                    selectedIndex === index ? 'bg-primary/10 border-primary' : 'border-transparent'
-                  }`}>
-                  <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
-                  <span
-                    className={`flex items-center gap-1.5 ${
-                      actor.active ? '' : 'line-through text-muted-foreground'
-                    } ${
-                      actor.kind === 'npc' && actor.statBlockId
-                        ? 'cursor-pointer hover:underline'
-                        : ''
-                    }`}
-                    onClick={() => handleNpcNameClick(actor)}>
-                    {selectedIndex === index && <Sword className='h-3 w-3 text-primary shrink-0' />}
-                    {actor.name}
-                  </span>
-                  <div className='flex items-center justify-center gap-0.5'>
-                    {actor.kind === 'npc' && actor.maxHp !== undefined && (
-                      <HpCell
-                        hp={actor.hp}
-                        maxHp={actor.maxHp}
-                        onCommit={(newHp) => updateHp(actor.id, newHp)}
+                <div key={actor.id}>
+                  <div
+                    className={`grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem_2rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
+                      selectedIndex === index
+                        ? 'bg-primary/10 border-primary'
+                        : 'border-transparent'
+                    }`}>
+                    <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
+                    <span
+                      className={`flex items-center gap-1.5 ${
+                        actor.active ? '' : 'line-through text-muted-foreground'
+                      } ${
+                        actor.kind === 'npc' && actor.statBlockId
+                          ? 'cursor-pointer hover:underline'
+                          : ''
+                      }`}
+                      onClick={() => handleNpcNameClick(actor)}>
+                      {selectedIndex === index && (
+                        <Sword className='h-3 w-3 text-primary shrink-0' />
+                      )}
+                      {actor.name}
+                    </span>
+                    <div className='flex items-center justify-center gap-0.5'>
+                      {actor.kind === 'npc' && actor.maxHp !== undefined && (
+                        <HpCell
+                          hp={actor.hp}
+                          maxHp={actor.maxHp}
+                          onCommit={(newHp) => updateHp(actor.id, newHp)}
+                        />
+                      )}
+                    </div>
+                    <div className='flex justify-center'>
+                      <Switch
+                        checked={actor.visible}
+                        onCheckedChange={() => toggleVisible(actor.id)}
+                        className='scale-75'
                       />
-                    )}
+                    </div>
+                    <div className='flex justify-center'>
+                      <Switch
+                        checked={actor.active}
+                        onCheckedChange={() => toggleActive(actor.id)}
+                        className='scale-75'
+                      />
+                    </div>
+                    <div className='flex justify-center'>
+                      <ConditionPicker
+                        conditions={actor.conditions}
+                        onToggle={(c) => toggleCondition(actor.id, c)}
+                      />
+                    </div>
                   </div>
-                  <div className='flex justify-center'>
-                    <Switch
-                      checked={actor.visible}
-                      onCheckedChange={() => toggleVisible(actor.id)}
-                      className='scale-75'
-                    />
-                  </div>
-                  <div className='flex justify-center'>
-                    <Switch
-                      checked={actor.active}
-                      onCheckedChange={() => toggleActive(actor.id)}
-                      className='scale-75'
-                    />
-                  </div>
+                  {actor.conditions.length > 0 && (
+                    <div className='flex flex-wrap gap-1 px-1 pb-0.5'>
+                      {actor.conditions.map((c) => {
+                        const cond = CONDITIONS[c];
+                        return cond ? (
+                          <span
+                            key={c}
+                            className={`w-10 text-center text-[10px] font-bold py-0.5 rounded ${cond.className}`}>
+                            {cond.label}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
