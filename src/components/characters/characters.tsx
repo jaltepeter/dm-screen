@@ -4,9 +4,14 @@ import { Textarea } from '@/components/ui/textarea';
 import SectionHeader from '@/components/ui/section-header';
 import { useCharacterStore } from '../../store/characterStore';
 import { useNotesStore } from '../../store/notesStore';
+import { useCampaignStore } from '../../store/campaignStore';
 
 export default function Characters() {
-  const characters = useCharacterStore((s) => s.characters);
+  const allCharacters = useCharacterStore((s) => s.characters);
+  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
+  const characters = activeCampaignId
+    ? allCharacters.filter((c) => c.campaignId === activeCampaignId)
+    : allCharacters;
   const notes = useNotesStore((s) => s.notes);
   const setNotes = useNotesStore((s) => s.setNotes);
 

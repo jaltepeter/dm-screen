@@ -16,6 +16,7 @@ import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import { useCharacterStore } from '../../../store/characterStore';
 import { useEncounterStore } from '../../../store/encounterStore';
+import { useCampaignStore } from '../../../store/campaignStore';
 import { randomNpcName } from '@/lib/utils';
 
 function newPlayerActors(characters: { name: string }[]): Actor[] {
@@ -41,7 +42,11 @@ export default function InitiativeSetupDialog({
   onStartInitiative,
   handleClose
 }: InitiativeSetupDialogProps) {
-  const characters = useCharacterStore((s) => s.characters);
+  const allCharacters = useCharacterStore((s) => s.characters);
+  const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);
+  const characters = activeCampaignId
+    ? allCharacters.filter((c) => c.campaignId === activeCampaignId)
+    : allCharacters;
   const [actors, setActors] = useState<Actor[]>(() => newPlayerActors(characters));
   const [loadEncounterId, setLoadEncounterId] = useState('');
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Actor>();

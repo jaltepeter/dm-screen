@@ -11,13 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus } from 'lucide-react';
 import { Character, useCharacterStore } from '../../store/characterStore';
+import { useCampaignStore } from '../../store/campaignStore';
 import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
+import NativeSelect from '@/components/ui/native-select';
 
 type EditingCell = { id: string; field: keyof Character } | null;
 
 export default function ManageCharactersDialog() {
   const { characters, addCharacter, editCharacter, deleteCharacter } = useCharacterStore();
+  const campaigns = useCampaignStore((s) => s.campaigns);
   const [editing, setEditing] = useState<EditingCell>(null);
   const [draft, setDraft] = useState('');
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Character>();
@@ -94,6 +97,7 @@ export default function ManageCharactersDialog() {
                 <TableHead className='text-center'>PI</TableHead>
                 <TableHead className='text-center'>Init</TableHead>
                 <TableHead>Sheet URL</TableHead>
+                <TableHead>Campaign</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -123,6 +127,21 @@ export default function ManageCharactersDialog() {
                   </TableCell>
                   <TableCell>
                     <EditableCell char={char} field='sheetUrl' className='text-xs' />
+                  </TableCell>
+                  <TableCell>
+                    <NativeSelect
+                      value={char.campaignId ?? ''}
+                      onChange={(e) =>
+                        editCharacter({ ...char, campaignId: e.target.value || undefined })
+                      }
+                      className='h-7 text-xs'>
+                      <option value=''>None</option>
+                      {campaigns.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </NativeSelect>
                   </TableCell>
                   <TableCell>
                     <Button
