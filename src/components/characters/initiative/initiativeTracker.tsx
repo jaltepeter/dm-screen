@@ -139,13 +139,12 @@ export default function InitiativeTracker() {
                 <span />
               </div>
               {actors.map((actor, index) => (
-                <div key={actor.id}>
-                  <div
-                    className={`grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem_2rem] gap-1 items-center px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
-                      selectedIndex === index
-                        ? 'bg-primary/10 border-primary'
-                        : 'border-transparent'
-                    }`}>
+                <div
+                  key={actor.id}
+                  className={`px-1 py-0.5 rounded text-sm border-l-2 transition-colors ${
+                    selectedIndex === index ? 'bg-primary/10 border-primary' : 'border-transparent'
+                  }`}>
+                  <div className='grid grid-cols-[2.5rem_1fr_7.5rem_4rem_4rem_2rem] gap-1 items-center'>
                     <span className='tabular-nums text-muted-foreground'>{actor.init}</span>
                     <span
                       className={`flex items-center gap-1.5 ${
