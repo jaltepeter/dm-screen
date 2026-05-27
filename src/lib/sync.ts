@@ -20,6 +20,7 @@ const channel = new BroadcastChannel('dm-screen');
 export function sendMessage(msg: SyncMessage): void {
   if (msg.cmd === 'init_update') {
     // hp and maxHp are DM-only; strip them before broadcasting to the player view
+    // conditions are public and intentionally included
     const actors = msg.payload.actors.map(({ hp: _hp, maxHp: _maxHp, ...rest }) => rest);
     channel.postMessage({ ...msg, payload: { ...msg.payload, actors } });
   } else {

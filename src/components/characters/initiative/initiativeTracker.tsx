@@ -88,13 +88,8 @@ export default function InitiativeTracker({ characters }: InitiativeTrackerProps
       actors.map((a) => {
         if (a.id !== id) return a;
         const hp = Math.max(0, rawHp);
-        const isBloodied = a.maxHp !== undefined && hp > 0 && hp <= a.maxHp / 2;
-        const conditions = [
-          ...(a.conditions ?? []).filter((c) => c !== 'bloodied'),
-          ...(isBloodied ? ['bloodied'] : [])
-        ];
         // Auto-mark inactive when HP reaches 0
-        return { ...a, hp, active: hp > 0 ? a.active : false, conditions };
+        return { ...a, hp, active: hp > 0 ? a.active : false };
       })
     );
   };
