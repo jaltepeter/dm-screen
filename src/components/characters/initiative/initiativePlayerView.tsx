@@ -18,7 +18,7 @@ export default function InitiativePlayerView({ actors, turnNumber }: InitiativeP
             className={`flex flex-col px-3 py-1.5 rounded border-l-2 transition-colors ${
               isCurrent
                 ? 'bg-white/10 border-white/60 font-semibold'
-                : 'border-transparent text-white/60'
+                : 'bg-white/5 border-transparent text-white/60'
             } ${!actor.active ? 'opacity-40' : ''}`}>
             <div className={`flex items-center gap-2 ${!actor.active ? 'line-through' : ''}`}>
               {isCurrent ? <ChevronRight className='h-4 w-4 shrink-0' /> : <span className='w-4' />}
