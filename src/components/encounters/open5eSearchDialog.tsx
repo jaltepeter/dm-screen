@@ -135,7 +135,7 @@ function toStatBlock(m: Open5eCreature): Omit<StatBlock, 'id'> {
     name: m.name,
     size: m.size.name || undefined,
     creatureType: m.type.name || undefined,
-    proficiencyBonus: m.proficiency_bonus != null ? formatBonus(m.proficiency_bonus) : undefined,
+    proficiencyBonus: m.proficiency_bonus ?? undefined,
     ac: m.armor_class,
     acDesc: m.armor_detail || undefined,
     hp: m.hit_points,

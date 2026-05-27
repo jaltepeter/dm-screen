@@ -6,13 +6,14 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [tailwindcss(), react()],
-  base: '/dm-screen',
+  base: '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
     }
   },
   test: {
-    environment: 'happy-dom'
+    environment: 'happy-dom',
+    setupFiles: ['./src/test-setup.ts']
   }
 });

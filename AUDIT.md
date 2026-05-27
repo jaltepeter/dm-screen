@@ -420,15 +420,16 @@ Three `TabsTrigger` elements in `dm-screen.tsx` use `data-active:bg-primary ...`
 
 ---
 
-### Phase G — Polish & test coverage
+### ~~Phase G — Polish & test coverage~~ ✅
 
 **Goal:** Close the remaining quality gaps. Every item is low-risk and isolated to 1–2 files.
 
-| #   | Task                                                                                  | Files to modify                               | Verify                                              |
-| --- | ------------------------------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------- |
-| G-1 | Fix or remove dead `data-active:` tab overrides (N-3)                                 | `dm-screen.tsx:148-160`                       | Active tab visually highlights with primary color   |
-| G-2 | Fix `StatBlock.proficiencyBonus` type (N-4)                                           | `encounterStore.ts`, `open5eSearchDialog.tsx` | `npm run lint` passes; stat block display unchanged |
-| G-3 | Add component tests for HpCell, imageStore.addImage, InitiativeSetupDialog sort (N-5) | New `__tests__/` files                        | `npm test -- --run` passes                          |
+| #          | Task                                                                                                                  | Files to modify                                                                                | Verify                                              |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| ~~G-1~~ ✅ | Fix or remove dead `data-active:` tab overrides (N-3)                                                                 | `dm-screen.tsx`                                                                                | Active tab visually highlights with primary color   |
+| ~~G-2~~ ✅ | Fix `StatBlock.proficiencyBonus` type `string?` → `number?` (N-4); bump encounterStore to v2                          | `encounterStore.ts`, `open5eSearchDialog.tsx`, `statBlockCard.tsx`, `statBlockEditorPanel.tsx` | `npm run lint` passes; stat block display unchanged |
+| ~~G-3~~ ✅ | Add component tests for HpCell, imageStore.addImage, InitiativeSetupDialog, exportImport (N-5); add vitest setup file | New `__tests__/` files, `src/test-setup.ts`, `vite.config.ts`                                  | `npm test -- --run` passes (33 tests)               |
+| ~~G-4~~ ✅ | Change app base path from `/dm-screen` to `/`                                                                         | `vite.config.ts`, `App.tsx`, `dm-screen.tsx`                                                   | App loads at `/`, player view at `/players`         |
 
 ---
 
@@ -441,5 +442,5 @@ C (consolidation)    → ✅ done
 D (data integrity)   → ✅ done
 E (toolchain)        → ✅ done
 F (feature + fixes)  → ✅ done
-G (polish + tests)   → dead code removal + type fix + component test coverage
+G (polish + tests)   → ✅ done
 ```

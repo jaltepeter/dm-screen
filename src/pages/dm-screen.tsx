@@ -30,7 +30,7 @@ const DmScreen = () => {
     document.title = 'DM Screen';
   }, []);
 
-  const handleOpenPlayerView = () => window.open('/dm-screen/players', '_blank');
+  const handleOpenPlayerView = () => window.open('/players', '_blank');
 
   const handleManageCharacters = () => {
     setIsSheetOpen(false);
@@ -142,21 +142,9 @@ const DmScreen = () => {
       {/* Tabs */}
       <Tabs defaultValue='home' className='flex flex-col flex-1 min-h-0'>
         <TabsList className='shrink-0 w-full mt-2 rounded-none px-3'>
-          <TabsTrigger
-            value='home'
-            className='data-active:bg-primary data-active:text-primary-foreground dark:data-active:bg-primary dark:data-active:text-primary-foreground'>
-            Home
-          </TabsTrigger>
-          <TabsTrigger
-            value='combat'
-            className='data-active:bg-primary data-active:text-primary-foreground dark:data-active:bg-primary dark:data-active:text-primary-foreground'>
-            Combat
-          </TabsTrigger>
-          <TabsTrigger
-            value='images'
-            className='data-active:bg-primary data-active:text-primary-foreground dark:data-active:bg-primary dark:data-active:text-primary-foreground'>
-            Images
-          </TabsTrigger>
+          <TabsTrigger value='home'>Home</TabsTrigger>
+          <TabsTrigger value='combat'>Combat</TabsTrigger>
+          <TabsTrigger value='images'>Images</TabsTrigger>
         </TabsList>
 
         <TabsContent value='home' className='flex-1 overflow-auto p-3 mt-0'>

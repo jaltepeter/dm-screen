@@ -141,8 +141,8 @@ export default function StatBlockEditorPanel({ statBlock: sb, onChange }: Props)
         <SectionHeader>Proficiencies &amp; Properties</SectionHeader>
         <Field
           label='Proficiency Bonus'
-          value={sb.proficiencyBonus}
-          onChange={(v) => setStr('proficiencyBonus', v)}
+          value={sb.proficiencyBonus?.toString()}
+          onChange={(v) => setNum('proficiencyBonus', v)}
           placeholder='+2'
         />
         <Field

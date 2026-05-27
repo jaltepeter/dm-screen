@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import { formatBonus } from '@/lib/utils';
 import { StatBlock } from '../../store/encounterStore';
 
 function mod(score: number): string {
@@ -42,7 +43,9 @@ export default function StatBlockCard({ statBlock: sb }: Props) {
       : null,
     sb.senses ? { label: 'Senses', value: sb.senses } : null,
     sb.languages ? { label: 'Languages', value: sb.languages } : null,
-    sb.proficiencyBonus ? { label: 'Proficiency Bonus', value: sb.proficiencyBonus } : null
+    sb.proficiencyBonus != null
+      ? { label: 'Proficiency Bonus', value: formatBonus(sb.proficiencyBonus) }
+      : null
   ].filter(Boolean) as { label: string; value: string }[];
 
   const hasBody = !!sb.body?.trim();

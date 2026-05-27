@@ -6,7 +6,7 @@ export interface StatBlock {
   name: string;
   size?: string;
   creatureType?: string;
-  proficiencyBonus?: string;
+  proficiencyBonus?: number;
   ac?: number;
   acDesc?: string;
   hp: number;
@@ -68,6 +68,16 @@ export function migrateEncounterStore(state: unknown, version: number): unknown 
       return migrated;
     });
   }
+  if (version < 2) {
+    const statBlocks = (s.statBlocks ?? []) as Record<string, unknown>[];
+    s.statBlocks = statBlocks.map((sb) => {
+      if (typeof sb.proficiencyBonus === 'string') {
+        const n = Number(sb.proficiencyBonus);
+        return { ...sb, proficiencyBonus: isNaN(n) ? undefined : n };
+      }
+      return sb;
+    });
+  }
   return s;
 }
 
@@ -107,7 +117,7 @@ export const useEncounterStore = create<EncounterStore>()(
     }),
     {
       name: STORE_KEY,
-      version: 1,
+      version: 2,
       migrate: migrateEncounterStore
     }
   )

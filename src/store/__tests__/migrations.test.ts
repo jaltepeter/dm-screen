@@ -193,11 +193,37 @@ const v1Encounters = {
   ]
 };
 
+// v1 with a string proficiencyBonus — the shape that existed before v2
+const v1EncountersWithProfBonus = {
+  statBlocks: [{ id: 'abc', name: 'Goblin', hp: 7, ac: 15, proficiencyBonus: '+2' }],
+  templates: []
+};
+
+// v2: proficiencyBonus is a number
+const v2Encounters = {
+  statBlocks: [{ id: 'abc', name: 'Goblin', hp: 7, ac: 15, proficiencyBonus: 2 }],
+  templates: []
+};
+
 describe('encounterStore migrations', () => {
-  it('v1 state is preserved', () => {
-    expect(migrateEncounterStore(structuredClone(v1Encounters), 1), CONTRACT_BROKEN).toEqual(
-      v1Encounters
+  it('v2 state is preserved', () => {
+    expect(migrateEncounterStore(structuredClone(v2Encounters), 2), CONTRACT_BROKEN).toEqual(
+      v2Encounters
     );
+  });
+
+  it('v1 → v2: proficiencyBonus string converted to number', () => {
+    const result = migrateEncounterStore(structuredClone(v1EncountersWithProfBonus), 1) as {
+      statBlocks: Record<string, unknown>[];
+    };
+    expect(result.statBlocks[0].proficiencyBonus, CONTRACT_BROKEN).toBe(2);
+  });
+
+  it('v1 → v2: missing proficiencyBonus stays undefined', () => {
+    const result = migrateEncounterStore(structuredClone(v1Encounters), 1) as {
+      statBlocks: Record<string, unknown>[];
+    };
+    expect(result.statBlocks[0].proficiencyBonus, CONTRACT_BROKEN).toBeUndefined();
   });
 
   it('v0 → v1: maxHp renamed to hp, notes dropped', () => {

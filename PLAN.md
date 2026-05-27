@@ -150,6 +150,27 @@ Because Phase 1 built the sync abstraction layer, this is a transport swap, not 
 
 ---
 
+## Phase G — Polish & test coverage
+
+### G-1 · Remove dead `data-active:` tab overrides
+
+### G-2 · Fix `StatBlock.proficiencyBonus` type (`string?` → `number?`)
+
+### G-3 · Add component tests (HpCell, imageStore, InitiativeSetupDialog, export/import)
+
+### G-4 · Change app base path from `/dm-screen` to `/`
+
+---
+
+## Phase H — Docker deployment
+
+- Write a `Dockerfile` — multi-stage: `node` build stage (`npm run build`), then serve `/dist` with a lightweight static server (e.g. `nginx:alpine` or `serve`)
+- Write `docker-compose.yml` for easy local testing of the image
+- Document the build + run commands in `README.md`
+- Confirm the app works at `http://localhost:<port>/` (no subpath) before shipping
+
+---
+
 ## Next features (backlog)
 
 - Player view auto-sync at launch — player view should request current state on open, not wait for the next DM action
@@ -157,6 +178,7 @@ Because Phase 1 built the sync abstraction layer, this is a transport swap, not 
 - Force resync — DM button to re-broadcast current initiative + image state to the player view
 - Center initiative when no image — player view currently anchors initiative to top-right; when no image is displayed, center it instead
 - Keep main menu open in "manage mode" — option to keep the drawer open while managing characters/images/encounters
+- Stat block preview during edit — show the rendered StatBlockCard alongside the editor panel in ManageStatBlocksDialog so the DM can see exactly how the stat block will look while filling it in
 
 ---
 

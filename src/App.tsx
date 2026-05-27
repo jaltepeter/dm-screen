@@ -7,7 +7,7 @@ import PlayerView from './pages/player-view';
 
 function App() {
   return (
-    <Router basename='/dm-screen'>
+    <Router basename='/'>
       <Routes>
         <Route path='/' element={<DmScreen />} />
         <Route path='/players' element={<PlayerView />} />
