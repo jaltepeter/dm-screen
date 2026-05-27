@@ -5,10 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm start        # dev server at http://localhost:3000/dm-screen
-npm run build    # production build
-npm test         # run tests (watch mode)
+npm start        # dev server at http://localhost:5173/
+npm run build    # type-check (tsconfig.app.json) then vite build
+npm test         # vitest watch mode
 npm run lint     # ESLint
+npm run lint:fix # ESLint --fix
 npm run format   # Prettier (run before staging — pre-commit hook doesn't re-stage)
 ```
 
@@ -16,48 +17,45 @@ npm run format   # Prettier (run before staging — pre-commit hook doesn't re-s
 
 A DM (Dungeon Master) screen for tabletop RPG play. Two browser windows/tabs run simultaneously:
 
-- **DM view** (`/`) — private screen on the DM's laptop: manage characters, initiative, images
-- **Player view** (`/players`) — shown on an external display: sees current initiative and images pushed by the DM
+- **DM view** (`/`) — private screen on the DM's laptop: manage characters, initiative, images, notes
+- **Player view** (`/players`) — shown on an external display: sees current initiative order, conditions, round count, and images pushed by the DM
 
-The two views communicate via the browser's `BroadcastChannel` API (`channel: 'dm-screen'`). No server, no account, works offline.
+The two views communicate via the browser's `BroadcastChannel` API. No server, no account, works offline.
 
 ## Architecture
 
-**Two-page app** with React Router (`basename='/dm-screen'`):
+**Two-page app** with React Router (`basename='/'`):
 
-- `src/pages/dm-screen.js` — DM view shell; owns drawer/dialog open state, delegates everything else
-- `src/pages/player-view.js` — Player view; listens on BroadcastChannel, renders what it receives
+- `src/pages/dm-screen.tsx` — DM view shell; owns drawer/dialog open state, delegates everything else
+- `src/pages/player-view.tsx` — Player view; subscribes via sync layer, renders what it receives
 
-**State lives in two feature components**, each self-contained with their own localStorage persistence:
+**State layer** (`src/store/`) — Zustand stores with `persist` middleware:
 
-- `src/components/characters/characters.jsx` — owns `characters[]` array, passes it down
-- `src/components/images/images.jsx` — owns `images[]` (folders + image URLs), passes it down
+| Store           | localStorage key         | Notes                                    |
+| --------------- | ------------------------ | ---------------------------------------- |
+| `characterStore` | `dm-screen/characters`  | Characters with UUID ids                 |
+| `imageStore`    | `dm-screen/images`       | Folders + image URLs; enforces unique URLs |
+| `notesStore`    | `dm-screen/notes`        |                                          |
+| `encounterStore` | `dm-screen/encounters`  | Stat blocks + named encounter templates  |
+| `combatStore`   | `dm-screen/combat`       | Active initiative state; survives refresh |
+| `uiStore`       | (memory only)            | `lastSentImage`, `initiativeActive`      |
 
-**localStorage** is managed via `src/data/localStorageManager.js`. Keys are in `src/enums/localStorage.js`.
+**Sync layer** (`src/lib/sync.ts`) — module-level BroadcastChannel singleton:
 
-**BroadcastChannel messages** sent from:
+- `sendMessage(msg)` — strips `hp`/`maxHp` before broadcast (DM-only data)
+- `onMessage(handler)` — returns unsubscribe fn
+- All components go through this; nothing touches BroadcastChannel directly
 
-- `images.jsx` → `{ cmd: 'image', payload: { url, title } }` — sends image to player view
-- `initiativeTracker.jsx` → `{ cmd: 'init_update', payload: { actors, index } }` — syncs initiative state
+**Other lib**:
 
-Both components currently create `new BroadcastChannel(...)` directly in the component body (a known bug — creates a new channel on every render).
+- `src/lib/exportImport.ts` — serializes/restores all stores as JSON
+- `src/lib/useConfirmDelete.ts` — shared hook for the pending-delete pattern
+- `src/lib/utils.ts` — `cn()` (clsx + tailwind-merge), `formatBonus()`
 
-**Initiative flow**: `InitiativeTracker` → open `InitiativeSetupDialog` (enter rolls + add monsters) → `startInitiative()` sorts by init, stores `actors[]` locally and broadcasts on every change.
+## Key Flows
 
-## Known Issues / Planned Work
+**Initiative**: `InitiativeTracker` → open `InitiativeSetupDialog` (add players from store + NPCs, enter rolls, optionally load an encounter template) → `startInitiative()` sorts by roll, persists to `combatStore`, broadcasts via sync layer on every change.
 
-This codebase is being modernized. Current state:
+**Images**: `ImageSender` (paste a URL, send ad-hoc) or `ImageGrid` (saved folder images) → `onSendImage` → `sendMessage({ cmd: 'image', payload })` → player view renders it.
 
-- Build tool: CRA (being replaced with Vite)
-- No TypeScript (being added)
-- `@mui/x-data-grid` v5 with deprecated APIs (`components=`, `experimentalFeatures`, `pageSize`)
-- Export/import data is implemented — exports `characters`/`images`/`notes` stores as JSON; import writes raw Zustand persist format back to localStorage and reloads (Zustand's own `migrate` pipeline handles schema upgrades on restart)
-- BroadcastChannel created in render body instead of a stable ref
-
-## Planned Stack (post-migration)
-
-- **Vite** replacing CRA
-- **TypeScript**
-- **Zustand** with `persist` middleware replacing manual localStorage management
-- **shadcn/ui + Tailwind** or upgraded MUI (TBD)
-- **Sync abstraction layer** (`lib/sync.ts`) wrapping BroadcastChannel so the transport can be swapped later (Supabase, PartyKit, WebRTC) without touching components
+**Export/Import**: Drawer → reads/writes raw localStorage keys for all stores; Zustand's `migrate` pipeline handles schema upgrades on reload.
