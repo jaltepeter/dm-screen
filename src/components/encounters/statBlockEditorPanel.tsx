@@ -50,18 +50,10 @@ td.addRule('ddb-section-headings', {
     (node as Element).classList?.contains('mon-stat-block__description-block-heading'),
   replacement: (content) => `\n\n## ${content.trim()}\n\n`
 });
-// Strip hyperlinks — DDB links glossary terms but we only want the text
-td.addRule('strip-links', {
-  filter: 'a',
-  replacement: (content) => content
-});
-
 function htmlToMarkdown(html: string): string {
   let md = td.turndown(html).trim();
-  // DDB often puts trait names in their own <p>: "**Name.**\n\nDesc" → "**Name.** Desc"
-  md = md.replace(/(\*\*[^*\n]+\.\*\*)\n\n([^#\n])/g, '$1 $2');
-  // DDB trait names are bold+italic (_**Name.**_) — strip to just bold
-  md = md.replace(/_(\*\*[^*\n]+\*\*)_/g, '$1');
+  // DDB often puts trait names in their own <p>: "***Name.***\n\nDesc" → "***Name.*** Desc"
+  md = md.replace(/(\*{2,3}[^*\n]+\*{2,3})\n\n([^#\n])/g, '$1 $2');
   return md;
 }
 

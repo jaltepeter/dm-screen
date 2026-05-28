@@ -135,7 +135,12 @@ export default function StatBlockCard({ statBlock: sb }: Props) {
                 </p>
               ),
               strong: ({ children }) => <strong className='font-bold'>{children}</strong>,
-              em: ({ children }) => <em>{children}</em>
+              em: ({ children }) => <em>{children}</em>,
+              a: ({ href, children }) => (
+                <a href={href} target='_blank' rel='noopener noreferrer' className='underline'>
+                  {children}
+                </a>
+              )
             }}>
             {sb.body}
           </ReactMarkdown>
