@@ -119,31 +119,42 @@ export default function StatBlockCard({ statBlock: sb }: Props) {
         </div>
       )}
 
-      {/* Body markdown — two-column flow */}
+      {/* Body markdown — two-column flow, one section per wrapper to avoid mid-section breaks */}
       {hasBody && (
         <div style={{ columns: '2', columnGap: '1.5rem' }}>
-          <ReactMarkdown
-            components={{
-              h2: ({ children }) => (
-                <h2 className='text-xl font-bold uppercase tracking-wide mt-3 first:mt-0 mb-1 border-b border-foreground/20 pb-0.5 break-after-avoid'>
-                  {children}
-                </h2>
-              ),
-              p: ({ children }) => (
-                <p className='text-sm font-light mb-1.5 leading-snug break-inside-avoid'>
-                  {children}
-                </p>
-              ),
-              strong: ({ children }) => <strong className='font-bold'>{children}</strong>,
-              em: ({ children }) => <em>{children}</em>,
-              a: ({ href, children }) => (
-                <a href={href} target='_blank' rel='noopener noreferrer' className='underline'>
-                  {children}
-                </a>
-              )
-            }}>
-            {sb.body}
-          </ReactMarkdown>
+          {sb
+            .body!.split(/(?=^## )/m)
+            .filter((s) => s.trim())
+            .map((section, i) => (
+              <div key={i} style={{ breakInside: 'avoid' }} className={i > 0 ? 'mt-3' : ''}>
+                <ReactMarkdown
+                  components={{
+                    h2: ({ children }) => (
+                      <h2 className='text-xl font-bold uppercase tracking-wide mb-1 border-b border-foreground/20 pb-0.5 break-after-avoid'>
+                        {children}
+                      </h2>
+                    ),
+                    p: ({ children }) => (
+                      <p className='text-sm font-light mb-1.5 leading-snug break-inside-avoid'>
+                        {children}
+                      </p>
+                    ),
+                    strong: ({ children }) => <strong className='font-bold'>{children}</strong>,
+                    em: ({ children }) => <em>{children}</em>,
+                    a: ({ href, children }) => (
+                      <a
+                        href={href}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='underline'>
+                        {children}
+                      </a>
+                    )
+                  }}>
+                  {section}
+                </ReactMarkdown>
+              </div>
+            ))}
         </div>
       )}
     </div>

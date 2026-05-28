@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import TurndownService from 'turndown';
 import { StatBlock } from '../../store/encounterStore';
+import { htmlToMarkdown } from '../../lib/ddbParser';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -37,24 +37,6 @@ function Field({
       />
     </div>
   );
-}
-
-const td = new TurndownService({ headingStyle: 'atx' });
-td.addRule('flatten-headings', {
-  filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-  replacement: (content) => `\n\n## ${content}\n\n`
-});
-td.addRule('ddb-section-headings', {
-  filter: (node) =>
-    node.nodeName === 'DIV' &&
-    (node as Element).classList?.contains('mon-stat-block__description-block-heading'),
-  replacement: (content) => `\n\n## ${content.trim()}\n\n`
-});
-function htmlToMarkdown(html: string): string {
-  let md = td.turndown(html).trim();
-  // DDB often puts trait names in their own <p>: "***Name.***\n\nDesc" → "***Name.*** Desc"
-  md = md.replace(/(\*{2,3}[^*\n]+\*{2,3})\n\n([^#\n])/g, '$1 $2');
-  return md;
 }
 
 export default function StatBlockEditorPanel({ statBlock: sb, onChange }: Props) {
