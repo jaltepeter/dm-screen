@@ -11,21 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Campaign, nameToSlug } from '../../store/campaignStore';
+import { Campaign, nameToSlug, toBaseSlug } from '../../store/campaignStore';
 
 interface CampaignEditDialogProps {
   open: boolean;
   campaign: Campaign | null;
   onClose: () => void;
   onSave: (patch: { name: string; slug: string; description?: string }) => void;
-}
-
-function toUrlSlug(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-');
 }
 
 function CampaignEditForm({ campaign, onClose, onSave }: Omit<CampaignEditDialogProps, 'open'>) {
@@ -46,7 +38,7 @@ function CampaignEditForm({ campaign, onClose, onSave }: Omit<CampaignEditDialog
 
   const handleSlugChange = (value: string) => {
     setSlugTouched(true);
-    setSlug(toUrlSlug(value));
+    setSlug(toBaseSlug(value));
   };
 
   const handleSave = () => {

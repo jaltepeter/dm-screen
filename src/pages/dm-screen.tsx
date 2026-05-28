@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import ImportButton, { ImportButtonHandle } from '../components/ui/import-button';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -17,11 +18,11 @@ import GoLiveButton from '../components/campaigns/goLiveButton';
 import { useUiStore } from '../store/uiStore';
 import { useCombatStore } from '../store/combatStore';
 import { sendMessage } from '../lib/sync';
-import { exportData, importData } from '../lib/exportImport';
+import { exportData } from '../lib/exportImport';
 import DebugPanel from '@/components/ui/debug-panel';
 
 const DmScreen = () => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const importButtonRef = useRef<ImportButtonHandle>(null);
   const [activeTab, setActiveTab] = useState(
     () => localStorage.getItem('dm-screen/active-tab') ?? 'home'
   );
@@ -96,7 +97,7 @@ const DmScreen = () => {
             <DropdownMenuItem
               onSelect={(e) => {
                 e.preventDefault();
-                fileInputRef.current?.click();
+                importButtonRef.current?.openFileDialog();
               }}>
               <Download className='h-4 w-4 mr-2' />
               Import Data
@@ -104,17 +105,7 @@ const DmScreen = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <input
-          ref={fileInputRef}
-          type='file'
-          accept='.json'
-          className='hidden'
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) importData(file);
-            e.target.value = '';
-          }}
-        />
+        <ImportButton ref={importButtonRef} className='hidden' />
       </header>
 
       {/* Tabs */}

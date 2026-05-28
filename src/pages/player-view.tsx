@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useScaleToFit } from '../lib/useScaleToFit';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,41 +47,13 @@ export default function PlayerView() {
   const centeredMode = showInit && !imageSource;
 
   const centeredContentRef = useRef<HTMLDivElement>(null);
-  const [centeredScale, setCenteredScale] = useState(1);
   const cornerContentRef = useRef<HTMLDivElement>(null);
-  const [cornerScale, setCornerScale] = useState(1);
 
   // Scale initiative down to fit viewport when there are many actors.
   // transform: scale() doesn't affect layout metrics, so offsetHeight always
   // returns the natural height regardless of the current scale — no feedback loop.
-  useEffect(() => {
-    const el = centeredContentRef.current;
-    if (!el) return;
-    const update = () =>
-      setCenteredScale(Math.min(1, (window.innerHeight * 0.9) / el.offsetHeight));
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    window.addEventListener('resize', update);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', update);
-    };
-  }, [imageSource]);
-
-  useEffect(() => {
-    const el = cornerContentRef.current;
-    if (!el) return;
-    const update = () => setCornerScale(Math.min(1, (window.innerHeight * 0.9) / el.offsetHeight));
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    window.addEventListener('resize', update);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', update);
-    };
-  }, [imageSource]);
+  const centeredScale = useScaleToFit(centeredContentRef, imageSource);
+  const cornerScale = useScaleToFit(cornerContentRef, imageSource);
 
   useEffect(() => {
     document.title = 'Player View';

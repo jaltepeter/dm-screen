@@ -53,43 +53,50 @@ export default function ManageCampaignsPanel() {
             </p>
           )}
           <div className='grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3'>
-            {campaigns.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setEditing(c)}
-                className={`group relative text-left rounded-lg border p-4 transition-colors hover:bg-muted/50 ${
-                  activeCampaignId === c.id
-                    ? 'border-amber-500/60 bg-amber-500/5'
-                    : 'border-border bg-card'
-                }`}>
-                {activeCampaignId === c.id && (
-                  <span className='absolute top-3 right-3 text-[10px] font-semibold uppercase tracking-wider text-amber-400'>
-                    Active
-                  </span>
-                )}
-                <p className='font-semibold text-sm truncate pr-12'>{c.name}</p>
-                <p className='text-xs font-mono text-muted-foreground mt-0.5 truncate'>{c.slug}</p>
-                {c.description && (
-                  <p className='text-xs text-muted-foreground mt-2 line-clamp-2'>{c.description}</p>
-                )}
-                <div className='flex items-center justify-between mt-3'>
-                  <span className='flex items-center gap-1 text-xs text-muted-foreground'>
-                    <Users className='h-3 w-3' />
-                    {pcCount(c.id)} PC{pcCount(c.id) !== 1 ? 's' : ''}
-                  </span>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      requestDelete(c);
-                    }}>
-                    <Trash2 className='h-3.5 w-3.5' />
-                  </Button>
-                </div>
-              </button>
-            ))}
+            {campaigns.map((c) => {
+              const count = pcCount(c.id);
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => setEditing(c)}
+                  className={`group relative text-left rounded-lg border p-4 transition-colors hover:bg-muted/50 ${
+                    activeCampaignId === c.id
+                      ? 'border-amber-500/60 bg-amber-500/5'
+                      : 'border-border bg-card'
+                  }`}>
+                  {activeCampaignId === c.id && (
+                    <span className='absolute top-3 right-3 text-[10px] font-semibold uppercase tracking-wider text-amber-400'>
+                      Active
+                    </span>
+                  )}
+                  <p className='font-semibold text-sm truncate pr-12'>{c.name}</p>
+                  <p className='text-xs font-mono text-muted-foreground mt-0.5 truncate'>
+                    {c.slug}
+                  </p>
+                  {c.description && (
+                    <p className='text-xs text-muted-foreground mt-2 line-clamp-2'>
+                      {c.description}
+                    </p>
+                  )}
+                  <div className='flex items-center justify-between mt-3'>
+                    <span className='flex items-center gap-1 text-xs text-muted-foreground'>
+                      <Users className='h-3 w-3' />
+                      {count} PC{count !== 1 ? 's' : ''}
+                    </span>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='h-6 w-6 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        requestDelete(c);
+                      }}>
+                      <Trash2 className='h-3.5 w-3.5' />
+                    </Button>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 

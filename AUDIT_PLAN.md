@@ -498,10 +498,10 @@ Use `vi.spyOn(global, 'fetch')` and `vi.useFakeTimers()` for the debounce. Check
 
 - [x] Phase 1A — InitiativeSetupDialog stale list bug
 - [x] Phase 1B — Open5e race condition / abort
-- [ ] Phase 2A — `useScaleToFit` hook
-- [ ] Phase 2B — `<ImportButton />` component
-- [ ] Phase 2C — `pcCount` double-call
-- [ ] Phase 2D — `toBaseSlug` / `nameToSlug` consolidation
+- [x] Phase 2A — `useScaleToFit` hook
+- [x] Phase 2B — `<ImportButton />` component
+- [x] Phase 2C — `pcCount` double-call
+- [x] Phase 2D — `toBaseSlug` / `nameToSlug` consolidation
 - [ ] Phase 3A — `STORE_KEY` exports + exportImport comment
 - [ ] Phase 3B — DM Screen tab → URL search params
 - [ ] Phase 3C — Rename "Dialog" → "Panel" components

@@ -1,21 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Upload, Download } from 'lucide-react';
+import { ArrowLeft, Upload } from 'lucide-react';
 import ManageCampaignsPanel from '../components/campaigns/manageCampaignsPanel';
 import CampaignSwitcher from '../components/campaigns/campaignSwitcher';
 import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
 import ManageImagesDialog from '../components/images/manageImagesDialog';
 import ManageStatBlocksDialog from '../components/encounters/manageStatBlocksDialog';
 import ManageEncountersDialog from '../components/encounters/manageEncountersDialog';
-import { exportData, importData } from '../lib/exportImport';
+import { exportData } from '../lib/exportImport';
+import ImportButton from '../components/ui/import-button';
 
 const VALID_TABS = ['campaigns', 'characters', 'statblocks', 'encounters', 'images'] as const;
 type PrepTab = (typeof VALID_TABS)[number];
 
 const PrepScreen = () => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const tab: PrepTab = (VALID_TABS as readonly string[]).includes(searchParams.get('tab') ?? '')
     ? (searchParams.get('tab') as PrepTab)
@@ -45,25 +45,7 @@ const PrepScreen = () => {
           <Upload className='h-4 w-4' />
           Export
         </Button>
-        <Button
-          variant='outline'
-          size='sm'
-          className='gap-1.5'
-          onClick={() => fileInputRef.current?.click()}>
-          <Download className='h-4 w-4' />
-          Import
-        </Button>
-        <input
-          ref={fileInputRef}
-          type='file'
-          accept='.json'
-          className='hidden'
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) importData(file);
-            e.target.value = '';
-          }}
-        />
+        <ImportButton className='gap-1.5' />
       </header>
 
       <Tabs

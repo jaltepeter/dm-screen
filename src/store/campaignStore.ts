@@ -21,15 +21,18 @@ interface CampaignStore {
   setActiveCampaign: (id: string | null) => void;
 }
 
-export function nameToSlug(name: string, id: string): string {
-  const base = name
+export function toBaseSlug(name: string): string {
+  return name
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-');
+}
+
+export function nameToSlug(name: string, id: string): string {
   // Append 4-char suffix from UUID to prevent cross-DM room collisions
   const suffix = id.replace(/-/g, '').slice(0, 4);
-  return `${base}-${suffix}`;
+  return `${toBaseSlug(name)}-${suffix}`;
 }
 
 export const STORE_KEY = 'dm-screen/campaigns';
