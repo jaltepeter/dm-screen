@@ -9,6 +9,8 @@ on:
       - main
   workflow_dispatch: # Run manually from Actions tab; choose any branch
 
+permissions: {}
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -64,6 +66,8 @@ jobs:
 
   deploy-partykit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
