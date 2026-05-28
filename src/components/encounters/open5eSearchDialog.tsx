@@ -192,7 +192,7 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
       setError(null);
       try {
         const res = await fetch(
-          `https://api.open5e.com/v2/creatures/?name__icontains=${encodeURIComponent(
+          `https://api.open5e.com/v2/creatures/?document__key__iexact=srd-2014&name__icontains=${encodeURIComponent(
             query.trim()
           )}&limit=20`,
           { signal: controller.signal }
