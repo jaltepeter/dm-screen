@@ -123,7 +123,7 @@ const DmScreen = () => {
           <TabsTrigger value='images'>Images</TabsTrigger>
         </TabsList>
 
-        <TabsContent value='home' className='flex-1 overflow-auto p-3 mt-0'>
+        <TabsContent value='home' className='flex-1 overflow-hidden flex flex-col p-3 mt-0'>
           <Characters />
         </TabsContent>
 

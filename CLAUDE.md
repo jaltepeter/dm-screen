@@ -71,3 +71,5 @@ Each store that participates in export/import exports `STORE_KEY` and a `migrate
 **Export/Import**: Header dropdown → `exportData()` writes the 5 backed-up stores to a dated JSON file; `importData(file)` restores them to localStorage and reloads the page so Zustand's `migrate` pipeline runs on the new data.
 
 **Campaigns**: Each campaign has a `slug` (URL-safe name + 4-char UUID suffix) that becomes the PartyKit room name. `GoLiveButton` connects as `'dm'` role; players connect via `/players/:slug`. Changing a campaign's slug changes the room — share the new URL with players.
+
+**Notes**: `characters.tsx` renders notes in two modes. Read mode renders the raw string via `react-markdown`; double-click (or Esc/blur from edit mode) transitions between them. Save is explicit — Save button, blur, or Esc — no debounce autosave. The store still holds a plain string; markdown is display-only.
