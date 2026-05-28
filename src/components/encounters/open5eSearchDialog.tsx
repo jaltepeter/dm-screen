@@ -182,7 +182,11 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.trim().length < 2) return;
+    if (query.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    const controller = new AbortController();
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       setError(null);
@@ -190,12 +194,14 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
         const res = await fetch(
           `https://api.open5e.com/v2/creatures/?name__icontains=${encodeURIComponent(
             query.trim()
-          )}&limit=20`
+          )}&limit=20`,
+          { signal: controller.signal }
         );
         if (!res.ok) throw new Error('Request failed');
         const data = await res.json();
         setResults(data.results ?? []);
-      } catch {
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
         setError('Could not reach Open5e. Check your connection.');
         setResults([]);
       } finally {
@@ -204,6 +210,7 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
     }, 350);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      controller.abort();
     };
   }, [query]);
 

@@ -496,8 +496,8 @@ Use `vi.spyOn(global, 'fetch')` and `vi.useFakeTimers()` for the debounce. Check
 
 ## Completion Checklist
 
-- [ ] Phase 1A — InitiativeSetupDialog stale list bug
-- [ ] Phase 1B — Open5e race condition / abort
+- [x] Phase 1A — InitiativeSetupDialog stale list bug
+- [x] Phase 1B — Open5e race condition / abort
 - [ ] Phase 2A — `useScaleToFit` hook
 - [ ] Phase 2B — `<ImportButton />` component
 - [ ] Phase 2C — `pcCount` double-call

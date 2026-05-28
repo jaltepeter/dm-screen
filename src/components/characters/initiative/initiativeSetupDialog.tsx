@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,10 @@ export default function InitiativeSetupDialog({
     : allCharacters;
   const [actors, setActors] = useState<Actor[]>(() => newPlayerActors(characters));
   const [loadEncounterId, setLoadEncounterId] = useState('');
+
+  useEffect(() => {
+    if (isOpen) setActors(newPlayerActors(characters));
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Actor>();
 
   const encounterTemplates = useEncounterStore((s) => s.templates);
