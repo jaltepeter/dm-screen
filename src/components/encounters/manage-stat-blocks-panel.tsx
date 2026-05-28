@@ -6,6 +6,7 @@ import Open5eSearchDialog from './open5eSearchDialog';
 import DdbImportDialog from './ddbImportDialog';
 import StatBlockEditorPanel from './statBlockEditorPanel';
 import StatBlockCard from './statBlockCard';
+import ConfirmDialog from '@/components/ui/confirmDialog';
 import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import { randomNpcName } from '@/lib/utils';
@@ -50,6 +51,7 @@ export default function ManageStatBlocksPanel() {
   const [isDdbOpen, setIsDdbOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState<StatBlock | null>(null);
+  const [pendingSelectId, setPendingSelectId] = useState<string | null>(null);
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<StatBlock>();
 
   const sortedStatBlocks = [...statBlocks].sort((a, b) =>
@@ -60,22 +62,33 @@ export default function ManageStatBlocksPanel() {
   const handleImport = (partial: Omit<StatBlock, 'id'>) => {
     setEditMode(false);
     setDraft(null);
-    setSelectedId(addStatBlock(partial));
+    setSelectedId(addStatBlock(partial).id);
   };
 
   const handleAddManual = () => {
-    const id = addStatBlock({ name: randomNpcName() });
-    const newBlock = useEncounterStore.getState().statBlocks.find((s) => s.id === id)!;
-    setSelectedId(id);
+    const newBlock = addStatBlock({ name: randomNpcName() });
+    setSelectedId(newBlock.id);
     setDraft({ ...newBlock });
     setEditMode(true);
   };
 
   const handleSelectId = (id: string) => {
+    if (editMode) {
+      setPendingSelectId(id);
+      return;
+    }
     setSelectedId(id);
-    setEditMode(false);
     setDraft(null);
   };
+
+  const handleConfirmDiscard = () => {
+    setSelectedId(pendingSelectId);
+    setEditMode(false);
+    setDraft(null);
+    setPendingSelectId(null);
+  };
+
+  const handleCancelDiscard = () => setPendingSelectId(null);
 
   const handleDelete = (id: string) => {
     deleteStatBlock(id);
@@ -116,6 +129,14 @@ export default function ManageStatBlocksPanel() {
 
   return (
     <>
+      <ConfirmDialog
+        open={pendingSelectId !== null}
+        title='Discard unsaved changes?'
+        description='Your edits will be lost.'
+        confirmLabel='Discard'
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
+      />
       <DeleteConfirmDialog
         target={deleteTarget}
         title='Delete stat block?'
