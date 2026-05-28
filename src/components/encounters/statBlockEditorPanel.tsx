@@ -1,7 +1,10 @@
+import { useState } from 'react';
+import TurndownService from 'turndown';
 import { StatBlock } from '../../store/encounterStore';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import SectionHeader from '@/components/ui/section-header';
 
 interface Props {
@@ -36,7 +39,21 @@ function Field({
   );
 }
 
+const td = new TurndownService({ headingStyle: 'atx' });
+td.addRule('flatten-headings', {
+  filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+  replacement: (content) => `\n\n## ${content}\n\n`
+});
+
+function htmlToMarkdown(html: string): string {
+  let md = td.turndown(html).trim();
+  // DDB often puts trait names in their own <p>: "**Name.**\n\nDesc" → "**Name.** Desc"
+  md = md.replace(/(\*\*[^*\n]+\.\*\*)\n\n([^#\n])/g, '$1 $2');
+  return md;
+}
+
 export default function StatBlockEditorPanel({ statBlock: sb, onChange }: Props) {
+  const [ddbPaste, setDdbPaste] = useState(false);
   const set = (patch: Partial<StatBlock>) => onChange({ ...sb, ...patch });
   const setNum = (field: keyof StatBlock, raw: string) => {
     const n = raw === '' ? undefined : Number(raw);
@@ -204,10 +221,25 @@ export default function StatBlockEditorPanel({ statBlock: sb, onChange }: Props)
 
       {/* Body */}
       <section className='space-y-2 flex-1'>
-        <SectionHeader>Traits, Actions &amp; Abilities (Markdown)</SectionHeader>
+        <div className='flex items-center justify-between'>
+          <SectionHeader>Traits, Actions &amp; Abilities (Markdown)</SectionHeader>
+          <label className='flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none'>
+            <Switch checked={ddbPaste} onCheckedChange={setDdbPaste} className='scale-75' />
+            DDB paste
+          </label>
+        </div>
         <Textarea
           value={sb.body ?? ''}
           onChange={(e) => set({ body: e.target.value || undefined })}
+          onPaste={(e) => {
+            if (!ddbPaste || !e.clipboardData.types.includes('text/html')) return;
+            e.preventDefault();
+            const markdown = htmlToMarkdown(e.clipboardData.getData('text/html'));
+            const ta = e.currentTarget;
+            const before = (sb.body ?? '').slice(0, ta.selectionStart);
+            const after = (sb.body ?? '').slice(ta.selectionEnd);
+            set({ body: before + markdown + after || undefined });
+          }}
           placeholder={
             '## Traits\n**Nimble Escape.** The goblin can...\n\n## Actions\n**Shortsword.** Melee Weapon Attack: +4 to hit...'
           }
