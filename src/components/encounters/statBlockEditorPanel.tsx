@@ -44,6 +44,12 @@ td.addRule('flatten-headings', {
   filter: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
   replacement: (content) => `\n\n## ${content}\n\n`
 });
+td.addRule('ddb-section-headings', {
+  filter: (node) =>
+    node.nodeName === 'DIV' &&
+    (node as Element).classList?.contains('mon-stat-block__description-block-heading'),
+  replacement: (content) => `\n\n## ${content.trim()}\n\n`
+});
 
 function htmlToMarkdown(html: string): string {
   let md = td.turndown(html).trim();
