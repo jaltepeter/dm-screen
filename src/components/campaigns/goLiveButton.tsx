@@ -14,7 +14,14 @@ import { useCampaignStore } from '../../store/campaignStore';
 import { useDmSessionStore } from '../../store/dmSessionStore';
 import { useCombatStore } from '../../store/combatStore';
 import { useUiStore } from '../../store/uiStore';
-import { connect, disconnect, onConnectionChange, onMessage, sendMessage } from '../../lib/sync';
+import {
+  connect,
+  disconnect,
+  onConnectionChange,
+  onConnectionError,
+  onMessage,
+  sendMessage
+} from '../../lib/sync';
 
 export default function GoLiveButton() {
   const navigate = useNavigate();
@@ -59,6 +66,13 @@ export default function GoLiveButton() {
       if (msg.cmd === 'players_update') setPlayers(msg.payload);
     });
   }, []);
+
+  useEffect(() => {
+    return onConnectionError(() => {
+      toast.error("Can't reach PartyKit — is it running?");
+      setWantLive(false);
+    });
+  }, [setWantLive]);
 
   useEffect(() => {
     if (wantLive && activeCampaign?.slug) connect(activeCampaign.slug, 'dm');

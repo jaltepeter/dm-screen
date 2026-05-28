@@ -45,6 +45,7 @@ let socket: PartySocket | null = null;
 const handlers: Array<(msg: SyncMessage) => void> = [];
 const debugHandlers: Array<(event: DebugEvent) => void> = [];
 const connectionHandlers: Array<(connected: boolean) => void> = [];
+const errorHandlers: Array<() => void> = [];
 
 function emitDebug(event: DebugEvent) {
   debugHandlers.forEach((h) => h(event));
@@ -66,6 +67,14 @@ export function onConnectionChange(handler: (connected: boolean) => void): () =>
   };
 }
 
+export function onConnectionError(handler: () => void): () => void {
+  errorHandlers.push(handler);
+  return () => {
+    const i = errorHandlers.indexOf(handler);
+    if (i !== -1) errorHandlers.splice(i, 1);
+  };
+}
+
 export function connect(slug: string, role: 'dm' | 'player', name?: string): void {
   socket?.close();
   const ws = new PartySocket({
@@ -81,6 +90,10 @@ export function connect(slug: string, role: 'dm' | 'player', name?: string): voi
   ws.addEventListener('close', () => {
     if (socket !== ws) return;
     connectionHandlers.forEach((h) => h(false));
+  });
+  ws.addEventListener('error', () => {
+    if (socket !== ws) return;
+    errorHandlers.forEach((h) => h());
   });
   ws.addEventListener('message', (e: MessageEvent<string>) => {
     const msg = JSON.parse(e.data) as SyncMessage;
