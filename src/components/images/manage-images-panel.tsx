@@ -135,7 +135,7 @@ export default function ManageImagesPanel() {
                           <ImageThumbnail
                             key={image.id}
                             image={image}
-                            imgClassName='w-full h-20 object-cover'
+                            imgClassName='w-full h-40 object-cover'
                             action={
                               <Button
                                 variant='ghost'
@@ -167,11 +167,23 @@ export default function ManageImagesPanel() {
           )}
         </div>
 
-        <div className='px-4 py-3 border-t shrink-0'>
+        <div className='px-4 py-3 border-t shrink-0 flex items-center justify-between'>
           <Button variant='outline' size='sm' onClick={() => openSub('newFolder')}>
             <FolderPlus className='h-4 w-4 mr-1' />
             New Folder
           </Button>
+          {folders.length > 0 && (
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() =>
+                setOpenFolders(
+                  openFolders.length === folders.length ? [] : folders.map((f) => f.folderName)
+                )
+              }>
+              {openFolders.length === folders.length ? 'Collapse All' : 'Expand All'}
+            </Button>
+          )}
         </div>
       </div>
     </>
