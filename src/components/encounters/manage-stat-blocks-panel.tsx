@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, Plus, Search, GripVertical } from 'lucide-react';
+import { Trash2, Plus, Search, GripVertical, Clipboard } from 'lucide-react';
 import { StatBlock, useEncounterStore } from '../../store/encounterStore';
 import Open5eSearchDialog from './open5eSearchDialog';
+import DdbImportDialog from './ddbImportDialog';
 import StatBlockEditorPanel from './statBlockEditorPanel';
 import StatBlockCard from './statBlockCard';
 import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
@@ -46,6 +47,7 @@ export default function ManageStatBlocksPanel() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isDdbOpen, setIsDdbOpen] = useState(false);
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<StatBlock>();
 
   const selected = statBlocks.find((s) => s.id === selectedId) ?? null;
@@ -75,6 +77,11 @@ export default function ManageStatBlocksPanel() {
       <Open5eSearchDialog
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+        onSelect={handleImport}
+      />
+      <DdbImportDialog
+        isOpen={isDdbOpen}
+        onClose={() => setIsDdbOpen(false)}
         onSelect={handleImport}
       />
       <div className='flex flex-1 min-h-0'>
@@ -122,6 +129,14 @@ export default function ManageStatBlocksPanel() {
               onClick={() => setIsSearchOpen(true)}>
               <Search className='h-4 w-4 mr-1' />
               Add from Open5e
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              className='w-full'
+              onClick={() => setIsDdbOpen(true)}>
+              <Clipboard className='h-4 w-4 mr-1' />
+              Add from DDB
             </Button>
             <Button variant='outline' size='sm' className='w-full' onClick={handleAddManual}>
               <Plus className='h-4 w-4 mr-1' />

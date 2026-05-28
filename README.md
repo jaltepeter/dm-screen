@@ -89,6 +89,10 @@ Two GitHub Actions secrets are required for the deploy workflow:
 
 - ~~**Import confirmation** — Before `importData()` runs, warn the user that all current data will be overwritten.~~ ✅
 
+## Known Limitations
+
+- **DDB import — compound speed** (`src/lib/ddbParser.ts`): the parser reads speed from a single `.mon-stat-block__attribute-data-value` span. DDB currently puts the full string (e.g. `40 ft., Fly 80 ft., Swim 40 ft.`) in one span, so this works. If DDB ever splits compound speeds across multiple spans, only the first value would be captured.
+
 ## Why not a VTT?
 
 This is for physical tabletop play. The table is the VTT. This tool exists to give the DM a second screen without the complexity of Roll20, Foundry, or Owlbear Rodeo — which are all built around digital maps and tokens.
