@@ -21,7 +21,7 @@ function BeholderScreen({
     <div className={`flex flex-col items-center justify-center gap-6 ${className}`}>
       <img src='/beholder.svg' alt='' className='w-[88vmin] h-[88vmin] opacity-10' />
       {message && (
-        <span className={`text-2xl text-white/40 ${pulse ? 'animate-pulse' : ''}`}>{message}</span>
+        <span className={`text-6xl text-white/40 ${pulse ? 'animate-pulse' : ''}`}>{message}</span>
       )}
     </div>
   );
