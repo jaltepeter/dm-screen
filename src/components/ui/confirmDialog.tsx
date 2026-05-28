@@ -12,11 +12,19 @@ interface Props {
   open: boolean;
   title: string;
   description?: string;
+  confirmLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export default function ConfirmDialog({ open, title, description, onConfirm, onCancel }: Props) {
+export default function ConfirmDialog({
+  open,
+  title,
+  description,
+  confirmLabel = 'Delete',
+  onConfirm,
+  onCancel
+}: Props) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onCancel()}>
       <DialogContent className='max-w-sm'>
@@ -29,7 +37,7 @@ export default function ConfirmDialog({ open, title, description, onConfirm, onC
             Cancel
           </Button>
           <Button variant='destructive' onClick={onConfirm}>
-            Delete
+            {confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>
