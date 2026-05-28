@@ -87,7 +87,7 @@ Two GitHub Actions secrets are required for the deploy workflow:
 
 ## Backlog
 
-_Nothing here yet._
+- **Import confirmation** — Before `importData()` runs, warn the user that all current data will be overwritten. The right place is `ImportButton`'s `onChange` handler (`src/components/ui/import-button.tsx`). Use the existing `<DeleteConfirmDialog>` pattern or a simple `window.confirm` as a starting point.
 
 ## Why not a VTT?
 
