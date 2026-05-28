@@ -1,4 +1,7 @@
 name: Build and Deploy
+concurrency:
+  group: 'build-and-deploy'
+  cancel-in-progress: true
 
 on:
   push:
