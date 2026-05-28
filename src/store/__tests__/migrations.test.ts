@@ -130,9 +130,18 @@ const v0Notes = { notes: 'Session notes here.' };
 
 const v0Combat = { actors: [], selectedIndex: 0, round: 1 };
 
+const v1Combat = Object.freeze({ actors: [], selectedIndex: 0, round: 1, started: false });
+
 describe('combatStore migrations', () => {
-  it('v0 state is preserved', () => {
-    expect(migrateCombatStore(v0Combat, 0), CONTRACT_BROKEN).toEqual(v0Combat);
+  it('v1 state is preserved', () => {
+    expect(migrateCombatStore(structuredClone(v1Combat), 1), CONTRACT_BROKEN).toEqual(v1Combat);
+  });
+
+  it('v0 → v1: started added as false', () => {
+    const result = migrateCombatStore(structuredClone(v0Combat), 0) as typeof v1Combat;
+    expect(result.started, CONTRACT_BROKEN).toBe(false);
+    expect(result.actors, CONTRACT_BROKEN).toEqual([]);
+    expect(result.round, CONTRACT_BROKEN).toBe(1);
   });
 });
 

@@ -32,7 +32,7 @@ const DmScreen = () => {
     : 'home';
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const setLastSentImage = useUiStore((s) => s.setLastSentImage);
-  const initiativeActive = useCombatStore((s) => s.actors.length > 0);
+  const initiativeActive = useCombatStore((s) => s.started);
 
   useEffect(() => {
     document.title = 'DM Screen';

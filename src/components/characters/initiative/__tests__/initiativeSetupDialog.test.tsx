@@ -55,7 +55,7 @@ describe('InitiativeSetupDialog', () => {
     fireEvent.change(initInputs[0], { target: { value: '10' } }); // Gandalf
     fireEvent.change(initInputs[1], { target: { value: '15' } }); // Bilbo
 
-    fireEvent.click(screen.getByText('Start!'));
+    fireEvent.click(screen.getByText('Load'));
 
     expect(onStart).toHaveBeenCalledOnce();
     const sorted = onStart.mock.calls[0][0] as Actor[];
@@ -69,7 +69,7 @@ describe('InitiativeSetupDialog', () => {
     // Select the encounter template
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 't1' } });
-    fireEvent.click(screen.getByRole('button', { name: /load/i }));
+    fireEvent.click(screen.getByRole('button', { name: /apply/i }));
 
     // Template NPCs should now appear as editable name inputs
     expect(screen.getByDisplayValue('Goblin 1')).toBeInTheDocument();
@@ -82,10 +82,10 @@ describe('InitiativeSetupDialog', () => {
     // Load once
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 't1' } });
-    fireEvent.click(screen.getByRole('button', { name: /load/i }));
+    fireEvent.click(screen.getByRole('button', { name: /apply/i }));
 
     // Load again — should not double-up NPCs
-    fireEvent.click(screen.getByRole('button', { name: /load/i }));
+    fireEvent.click(screen.getByRole('button', { name: /apply/i }));
     expect(screen.getAllByDisplayValue('Goblin 1')).toHaveLength(1);
 
     // Players still present (rendered as text spans, not inputs)
