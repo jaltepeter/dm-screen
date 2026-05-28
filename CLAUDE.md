@@ -15,47 +15,59 @@ npm run format   # Prettier (run before staging — pre-commit hook doesn't re-s
 
 ## What This Is
 
-A DM (Dungeon Master) screen for tabletop RPG play. Two browser windows/tabs run simultaneously:
+A DM (Dungeon Master) screen for tabletop RPG play. Three pages run across two windows/tabs:
 
 - **DM view** (`/`) — private screen on the DM's laptop: manage characters, initiative, images, notes
-- **Player view** (`/players`) — shown on an external display: sees current initiative order, conditions, round count, and images pushed by the DM
+- **Player view** (`/players/:slug`) — shown on an external display: current initiative order, conditions, round count, and images pushed by the DM
+- **Prep mode** (`/prep`) — full-screen data management for campaigns, characters, stat blocks, encounters, and images
 
-The two views communicate via the browser's `BroadcastChannel` API. No server, no account, works offline.
+The DM and player views communicate via **PartyKit WebSockets** (`src/lib/sync.ts`). A PartyKit server must be running/deployed for live mode; the DM view works fully offline without one.
 
 ## Architecture
 
-**Two-page app** with React Router (`basename='/'`):
+**Three-page app** with React Router (`basename='/'`):
 
-- `src/pages/dm-screen.tsx` — DM view shell; owns drawer/dialog open state, delegates everything else
-- `src/pages/player-view.tsx` — Player view; subscribes via sync layer, renders what it receives
+- `src/pages/dm-screen.tsx` — DM view shell; owns tab state and the header image/initiative indicators
+- `src/pages/player-view.tsx` — Player view; connects to PartyKit as `'player'` role, renders what it receives
+- `src/pages/prep-screen.tsx` — Prep mode; URL-param-driven tabs (`?tab=...`), no live sync
 
 **State layer** (`src/store/`) — Zustand stores with `persist` middleware:
 
-| Store            | localStorage key       | Notes                                      |
-| ---------------- | ---------------------- | ------------------------------------------ |
-| `characterStore` | `dm-screen/characters` | Characters with UUID ids                   |
-| `imageStore`     | `dm-screen/images`     | Folders + image URLs; enforces unique URLs |
-| `notesStore`     | `dm-screen/notes`      |                                            |
-| `encounterStore` | `dm-screen/encounters` | Stat blocks + named encounter templates    |
-| `combatStore`    | `dm-screen/combat`     | Active initiative state; survives refresh  |
-| `uiStore`        | (memory only)          | `lastSentImage`, `initiativeActive`        |
+| Store            | localStorage key       | Backed up by export? | Notes                                                                         |
+| ---------------- | ---------------------- | -------------------- | ----------------------------------------------------------------------------- |
+| `campaignStore`  | `dm-screen/campaigns`  | ✅                   | Campaigns with UUID ids + active campaign pointer                             |
+| `characterStore` | `dm-screen/characters` | ✅                   | Player characters with UUID ids; `campaignId` for filtering                   |
+| `imageStore`     | `dm-screen/images`     | ✅                   | Folders + image URLs; enforces unique URLs per folder                         |
+| `notesStore`     | `dm-screen/notes`      | ✅                   | Single freeform notes string                                                  |
+| `encounterStore` | `dm-screen/encounters` | ✅                   | Stat blocks + named encounter templates                                       |
+| `combatStore`    | `dm-screen/combat`     | ❌ ephemeral         | Active initiative state; survives page refresh, not export                    |
+| `dmSessionStore` | `dm-screen/dm-session` | ❌ ephemeral         | `wantLive` flag (persist intent to reconnect after refresh)                   |
+| `playerStore`    | `dm-screen/player`     | ❌ per-browser       | Player's display name; set once on the player view                            |
+| `uiStore`        | `dm-screen/ui`         | ❌ ephemeral         | `lastSentImage` persisted via `partialize`; `initiativeActive` is memory-only |
 
-**Sync layer** (`src/lib/sync.ts`) — module-level BroadcastChannel singleton:
+Each store that participates in export/import exports `STORE_KEY` and a `migrateXxxStore` function. The migration functions are tested in `src/store/__tests__/migrations.test.ts` — when you add a store version bump, add a frozen snapshot and a test there too.
 
-- `sendMessage(msg)` — strips `hp`/`maxHp` before broadcast (DM-only data)
+**Sync layer** (`src/lib/sync.ts`) — module-level PartySocket singleton:
+
+- `connect(slug, role, name?)` — opens a WebSocket to the PartyKit room for the given campaign slug
+- `disconnect()` — closes the socket
+- `sendMessage(msg)` — sends a typed `SyncMessage`; note: `hp`/`maxHp` are intentionally NOT stripped here (the server-side handles visibility)
 - `onMessage(handler)` — returns unsubscribe fn
-- All components go through this; nothing touches BroadcastChannel directly
+- `onConnectionChange(handler)` — fires `true`/`false` on connect/disconnect
+- All components go through these functions; nothing imports PartySocket directly
 
 **Other lib**:
 
-- `src/lib/exportImport.ts` — serializes/restores all stores as JSON
-- `src/lib/useConfirmDelete.ts` — shared hook for the pending-delete pattern
-- `src/lib/utils.ts` — `cn()` (clsx + tailwind-merge), `formatBonus()`
+- `src/lib/exportImport.ts` — serializes/restores the 5 backed-up stores as JSON; deliberately excludes the 4 ephemeral stores (see table above)
+- `src/lib/useConfirmDelete.ts` — shared hook for the pending-delete pattern used across all Manage\* panels
+- `src/lib/utils.ts` — `cn()` (clsx + tailwind-merge), `formatBonus()`, `randomNpcName()`
 
 ## Key Flows
 
-**Initiative**: `InitiativeTracker` → open `InitiativeSetupDialog` (add players from store + NPCs, enter rolls, optionally load an encounter template) → `startInitiative()` sorts by roll, persists to `combatStore`, broadcasts via sync layer on every change.
+**Initiative**: `InitiativeTracker` → open `InitiativeSetupDialog` (seeds players from the active campaign's characters + lets DM add NPCs, enter rolls, optionally load an encounter template) → `startInitiative()` sorts by roll, persists to `combatStore`, broadcasts via sync layer on every change.
 
-**Images**: `ImageSender` (paste a URL, send ad-hoc) or `ImageGrid` (saved folder images) → `onSendImage` → `sendMessage({ cmd: 'image', payload })` → player view renders it.
+**Images**: `ImageSender` (paste a URL, send ad-hoc) or `ImageGrid` (saved folder images) → `onSendImage` → `sendMessage({ cmd: 'image', payload })` → player view renders it full-screen.
 
-**Export/Import**: Drawer → reads/writes raw localStorage keys for all stores; Zustand's `migrate` pipeline handles schema upgrades on reload.
+**Export/Import**: Header dropdown → `exportData()` writes the 5 backed-up stores to a dated JSON file; `importData(file)` restores them to localStorage and reloads the page so Zustand's `migrate` pipeline runs on the new data.
+
+**Campaigns**: Each campaign has a `slug` (URL-safe name + 4-char UUID suffix) that becomes the PartyKit room name. `GoLiveButton` connects as `'dm'` role; players connect via `/players/:slug`. Changing a campaign's slug changes the room — share the new URL with players.
