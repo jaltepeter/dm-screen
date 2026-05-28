@@ -8,6 +8,25 @@ import { Actor, checkRoom, connect, disconnect, onMessage, sendMessage } from '.
 import DebugPanel from '@/components/ui/debug-panel';
 import { usePlayerStore } from '../store/playerStore';
 
+function BeholderScreen({
+  message,
+  pulse,
+  className = '',
+}: {
+  message?: string;
+  pulse?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={`flex flex-col items-center justify-center gap-6 ${className}`}>
+      <img src='/beholder.svg' alt='' className='w-[88vmin] h-[88vmin] opacity-10' />
+      {message && (
+        <span className={`text-2xl text-white/40 ${pulse ? 'animate-pulse' : ''}`}>{message}</span>
+      )}
+    </div>
+  );
+}
+
 export default function PlayerView() {
   const { slug } = useParams<{ slug: string }>();
   const { playerName: storedName, setPlayerName: persistName } = usePlayerStore();
@@ -139,20 +158,12 @@ export default function PlayerView() {
   };
 
   if (roomStatus === 'checking') {
-    return (
-      <div className='w-screen h-screen bg-black flex items-center justify-center'>
-        <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
-        <span className='relative animate-pulse text-white/30 text-xl'>Connecting…</span>
-      </div>
-    );
+    return <BeholderScreen message='Connecting…' pulse className='w-screen h-screen bg-black' />;
   }
 
   if (roomStatus === 'inactive') {
     return (
-      <div className='w-screen h-screen bg-black flex items-center justify-center'>
-        <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
-        <span className='relative text-white/30 text-2xl'>No active session here.</span>
-      </div>
+      <BeholderScreen message='No active session here.' className='w-screen h-screen bg-black' />
     );
   }
 
@@ -191,14 +202,11 @@ export default function PlayerView() {
           className='w-full h-full object-contain'
         />
       ) : !centeredMode ? (
-        <div className='flex items-center justify-center w-full h-full select-none'>
-          <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
-          {dmStatus === 'waiting' && (
-            <span className='relative animate-pulse animation-duration-[5s] text-3xl text-white/40'>
-              Waiting for DM…
-            </span>
-          )}
-        </div>
+        <BeholderScreen
+          message={dmStatus === 'waiting' ? 'Waiting for DM…' : undefined}
+          pulse={dmStatus === 'waiting'}
+          className='w-full h-full select-none'
+        />
       ) : null}
 
       {/* Initiative overlay — corner when image is showing, centered+large when not */}
@@ -233,18 +241,19 @@ export default function PlayerView() {
 
       {/* DM offline overlay */}
       {dmStatus === 'offline' && (
-        <div className='absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none'>
-          <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
-          <span className='relative animate-pulse text-white/60 text-xl'>DM Disconnected</span>
-        </div>
+        <BeholderScreen
+          message='DM Disconnected'
+          pulse
+          className='absolute inset-0 bg-black z-10'
+        />
       )}
 
       {/* Session ended — full black wipe */}
       {dmStatus === 'ended' && (
-        <div className='absolute inset-0 bg-black flex items-center justify-center z-20'>
-          <img src='/beholder.svg' alt='' className='absolute w-[80vmin] h-[80vmin] opacity-10' />
-          <span className='relative text-white/30 text-2xl'>The session has ended.</span>
-        </div>
+        <BeholderScreen
+          message='The session has ended.'
+          className='absolute inset-0 bg-black z-20'
+        />
       )}
 
       {/* Fullscreen toggle */}
