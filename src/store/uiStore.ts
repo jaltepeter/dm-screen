@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export const STORE_KEY = 'dm-screen/ui';
+
 interface UiState {
   lastSentImage: { url: string; title?: string } | null;
   initiativeActive: boolean;
@@ -17,7 +19,7 @@ export const useUiStore = create<UiState>()(
       setInitiativeActive: (active) => set({ initiativeActive: active })
     }),
     {
-      name: 'dm-screen/ui',
+      name: STORE_KEY,
       partialize: (state) => ({ lastSentImage: state.lastSentImage })
     }
   )

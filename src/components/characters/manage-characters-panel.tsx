@@ -18,7 +18,7 @@ import NativeSelect from '@/components/ui/native-select';
 
 type EditingCell = { id: string; field: keyof Character } | null;
 
-export default function ManageCharactersDialog() {
+export default function ManageCharactersPanel() {
   const { characters, addCharacter, editCharacter, deleteCharacter } = useCharacterStore();
   const campaigns = useCampaignStore((s) => s.campaigns);
   const activeCampaignId = useCampaignStore((s) => s.activeCampaignId);

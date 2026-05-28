@@ -9,7 +9,7 @@ import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import { randomNpcName } from '@/lib/utils';
 
-export default function ManageStatBlocksDialog() {
+export default function ManageStatBlocksPanel() {
   const [previewWidth, setPreviewWidth] = useState(380);
   const [containerWidth, setContainerWidth] = useState(0);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);

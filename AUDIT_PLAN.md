@@ -502,9 +502,9 @@ Use `vi.spyOn(global, 'fetch')` and `vi.useFakeTimers()` for the debounce. Check
 - [x] Phase 2B — `<ImportButton />` component
 - [x] Phase 2C — `pcCount` double-call
 - [x] Phase 2D — `toBaseSlug` / `nameToSlug` consolidation
-- [ ] Phase 3A — `STORE_KEY` exports + exportImport comment
-- [ ] Phase 3B — DM Screen tab → URL search params
-- [ ] Phase 3C — Rename "Dialog" → "Panel" components
-- [ ] Phase 3D — Fix CLAUDE.md uiStore entry
+- [x] Phase 3A — `STORE_KEY` exports + exportImport comment
+- [x] Phase 3B — DM Screen tab → URL search params
+- [x] Phase 3C — Rename "Dialog" → "Panel" components
+- [x] Phase 3D — Fix CLAUDE.md uiStore entry
 - [ ] Phase 4A — InitiativeSetupDialog reopen test
 - [ ] Phase 4B — Open5e abort tests

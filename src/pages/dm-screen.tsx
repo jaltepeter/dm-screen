@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import ImportButton, { ImportButtonHandle } from '../components/ui/import-button';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,11 +21,15 @@ import { sendMessage } from '../lib/sync';
 import { exportData } from '../lib/exportImport';
 import DebugPanel from '@/components/ui/debug-panel';
 
+const VALID_TABS = ['home', 'combat', 'images'] as const;
+type DmTab = (typeof VALID_TABS)[number];
+
 const DmScreen = () => {
   const importButtonRef = useRef<ImportButtonHandle>(null);
-  const [activeTab, setActiveTab] = useState(
-    () => localStorage.getItem('dm-screen/active-tab') ?? 'home'
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab: DmTab = (VALID_TABS as readonly string[]).includes(searchParams.get('tab') ?? '')
+    ? (searchParams.get('tab') as DmTab)
+    : 'home';
   const lastSentImage = useUiStore((s) => s.lastSentImage);
   const setLastSentImage = useUiStore((s) => s.setLastSentImage);
   const initiativeActive = useCombatStore((s) => s.actors.length > 0);
@@ -111,10 +115,7 @@ const DmScreen = () => {
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        onValueChange={(v) => {
-          setActiveTab(v);
-          localStorage.setItem('dm-screen/active-tab', v);
-        }}
+        onValueChange={(v) => setSearchParams({ tab: v })}
         className='flex flex-col flex-1 min-h-0'>
         <TabsList className='shrink-0 w-full mt-2 rounded-none px-3'>
           <TabsTrigger value='home'>Home</TabsTrigger>

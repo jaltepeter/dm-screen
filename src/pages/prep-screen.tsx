@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Upload } from 'lucide-react';
 import ManageCampaignsPanel from '../components/campaigns/manageCampaignsPanel';
 import CampaignSwitcher from '../components/campaigns/campaignSwitcher';
-import ManageCharactersDialog from '../components/characters/manageCharactersDialog';
-import ManageImagesDialog from '../components/images/manageImagesDialog';
-import ManageStatBlocksDialog from '../components/encounters/manageStatBlocksDialog';
-import ManageEncountersDialog from '../components/encounters/manageEncountersDialog';
+import ManageCharactersPanel from '../components/characters/manage-characters-panel';
+import ManageImagesPanel from '../components/images/manage-images-panel';
+import ManageStatBlocksPanel from '../components/encounters/manage-stat-blocks-panel';
+import ManageEncountersPanel from '../components/encounters/manage-encounters-panel';
 import { exportData } from '../lib/exportImport';
 import ImportButton from '../components/ui/import-button';
 
@@ -64,16 +64,16 @@ const PrepScreen = () => {
           <ManageCampaignsPanel />
         </TabsContent>
         <TabsContent value='characters' className='flex-1 flex flex-col min-h-0 mt-0'>
-          <ManageCharactersDialog />
+          <ManageCharactersPanel />
         </TabsContent>
         <TabsContent value='statblocks' className='flex-1 flex flex-col min-h-0 mt-0'>
-          <ManageStatBlocksDialog />
+          <ManageStatBlocksPanel />
         </TabsContent>
         <TabsContent value='encounters' className='flex-1 flex flex-col min-h-0 mt-0'>
-          <ManageEncountersDialog />
+          <ManageEncountersPanel />
         </TabsContent>
         <TabsContent value='images' className='flex-1 flex flex-col min-h-0 mt-0'>
-          <ManageImagesDialog />
+          <ManageImagesPanel />
         </TabsContent>
       </Tabs>
     </div>

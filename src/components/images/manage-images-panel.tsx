@@ -17,7 +17,7 @@ import NewFolderDialog from './new-folder-dialog';
 
 type SubDialog = 'addImage' | 'rename' | 'newFolder' | null;
 
-export default function ManageImagesDialog() {
+export default function ManageImagesPanel() {
   const folders = useImageStore((s) => s.folders);
   const createFolder = useImageStore((s) => s.createFolder);
   const renameFolder = useImageStore((s) => s.renameFolder);

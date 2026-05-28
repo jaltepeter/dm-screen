@@ -12,6 +12,8 @@ interface CombatStore {
   reset: () => void;
 }
 
+export const STORE_KEY = 'dm-screen/combat';
+
 export function migrateCombatStore(state: unknown, _version: number): unknown {
   return state;
 }
@@ -28,7 +30,7 @@ export const useCombatStore = create<CombatStore>()(
       reset: () => set({ actors: [], selectedIndex: 0, round: 1 })
     }),
     {
-      name: 'dm-screen/combat',
+      name: STORE_KEY,
       version: 0,
       migrate: migrateCombatStore
     }

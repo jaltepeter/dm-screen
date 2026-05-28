@@ -12,7 +12,7 @@ function nextInstanceName(entries: EncounterEntry[], baseName: string): string {
   return `${baseName} ${count + 1}`;
 }
 
-export default function ManageEncountersDialog() {
+export default function ManageEncountersPanel() {
   const statBlocks = useEncounterStore((s) => s.statBlocks);
   const templates = useEncounterStore((s) => s.templates);
   const addTemplate = useEncounterStore((s) => s.addTemplate);
