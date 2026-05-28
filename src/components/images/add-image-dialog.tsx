@@ -8,16 +8,19 @@ interface AddImageDialogProps {
   onClose: () => void;
   targetFolder: string;
   onSave: (url: string, title: string) => boolean;
+  initialValues?: { url: string; title: string };
 }
 
 export default function AddImageDialog({
   open,
   onClose,
   targetFolder,
-  onSave
+  onSave,
+  initialValues
 }: AddImageDialogProps) {
-  const [url, setUrl] = useState('');
-  const [imageTitle, setImageTitle] = useState('');
+  const isEdit = !!initialValues;
+  const [url, setUrl] = useState(initialValues?.url ?? '');
+  const [imageTitle, setImageTitle] = useState(initialValues?.title ?? '');
   const [dupeError, setDupeError] = useState(false);
 
   const handleClose = () => {
@@ -41,8 +44,10 @@ export default function AddImageDialog({
     <SimpleDialog
       open={open}
       onClose={handleClose}
-      title='Add Image'
-      description={`Save an image URL to "${targetFolder}".`}
+      title={isEdit ? 'Edit Image' : 'Add Image'}
+      description={
+        isEdit ? `Edit image in "${targetFolder}".` : `Save an image URL to "${targetFolder}".`
+      }
       onSubmit={handleSave}
       submitDisabled={!url.trim()}>
       <div className='space-y-3'>
@@ -52,6 +57,7 @@ export default function AddImageDialog({
             id='add-img-title'
             value={imageTitle}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setImageTitle(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
             placeholder='Dragon cave map'
           />
         </div>

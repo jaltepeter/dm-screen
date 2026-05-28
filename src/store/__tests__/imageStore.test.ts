@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { useImageStore } from '../imageStore';
 
 beforeEach(() => {
-  useImageStore.setState({ folders: [{ folderName: 'Test', images: [] }] });
+  useImageStore.setState({ folders: [{ folderName: 'Test', images: [], displayOrder: 0 }] });
 });
 
 describe('imageStore.addImage', () => {

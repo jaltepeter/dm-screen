@@ -25,7 +25,7 @@ export default function ImageSender({ onSendImage }: ImageSenderProps) {
     setError(null);
     const img = new window.Image();
     img.onload = () => {
-      onSendImage({ id: crypto.randomUUID(), url });
+      onSendImage({ id: crypto.randomUUID(), url, displayOrder: 0 });
       setImageUrl('');
       setLoading(false);
     };

@@ -109,6 +109,23 @@ const v1Images = {
   ]
 };
 
+const v2Images = Object.freeze({
+  folders: [
+    {
+      folderName: 'Goblins',
+      displayOrder: 0,
+      images: [
+        {
+          id: 'a1b2c3d4-0000-0000-0000-000000000001',
+          url: 'https://example.com/goblin.png',
+          title: 'Goblin',
+          displayOrder: 0
+        }
+      ]
+    }
+  ]
+});
+
 const v0Notes = { notes: 'Session notes here.' };
 
 const v0Combat = { actors: [], selectedIndex: 0, round: 1 };
@@ -199,8 +216,14 @@ describe('campaignStore migrations', () => {
 });
 
 describe('imageStore migrations', () => {
-  it('v1 state is preserved', () => {
-    expect(migrateImageStore(structuredClone(v1Images), 1), CONTRACT_BROKEN).toEqual(v1Images);
+  it('v2 state is preserved', () => {
+    expect(migrateImageStore(structuredClone(v2Images), 2), CONTRACT_BROKEN).toEqual(v2Images);
+  });
+
+  it('v1 → v2: displayOrder stamped from array index', () => {
+    const result = migrateImageStore(structuredClone(v1Images), 1) as typeof v2Images;
+    expect(result.folders[0].displayOrder, CONTRACT_BROKEN).toBe(0);
+    expect(result.folders[0].images[0].displayOrder, CONTRACT_BROKEN).toBe(0);
   });
 
   it('v0 → v1: images get a stable id', () => {
