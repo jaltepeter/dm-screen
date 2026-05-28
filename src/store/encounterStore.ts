@@ -46,7 +46,7 @@ interface EncounterStore {
   statBlocks: StatBlock[];
   templates: EncounterTemplate[];
 
-  addStatBlock: (initial?: Partial<Omit<StatBlock, 'id'>>) => string;
+  addStatBlock: (initial?: Partial<Omit<StatBlock, 'id'>>) => StatBlock;
   editStatBlock: (statBlock: StatBlock) => void;
   deleteStatBlock: (id: string) => void;
 
@@ -110,8 +110,9 @@ export const useEncounterStore = create<EncounterStore>()(
           languages: 'Common, Goblin',
           body: `## Traits\n\n***Nimble Escape.*** The goblin can take the Disengage or Hide action as a bonus action on each of its turns.\n\n## Actions\n\n***Scimitar.*** *Melee Weapon Attack:* +4 to hit, reach 5 ft., one target. *Hit:* 5 (1d6 + 2) slashing damage.\n\n***Shortbow.*** *Ranged Weapon Attack:* +4 to hit, range 80/320 ft., one target. *Hit:* 5 (1d6 + 2) piercing damage.`
         };
-        set({ statBlocks: [...get().statBlocks, { ...defaults, ...initial, id }] });
-        return id;
+        const block: StatBlock = { ...defaults, ...initial, id };
+        set({ statBlocks: [...get().statBlocks, block] });
+        return block;
       },
       editStatBlock: (statBlock) => {
         set({ statBlocks: get().statBlocks.map((s) => (s.id === statBlock.id ? statBlock : s)) });

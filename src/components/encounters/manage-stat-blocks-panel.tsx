@@ -6,6 +6,7 @@ import Open5eSearchDialog from './open5eSearchDialog';
 import DdbImportDialog from './ddbImportDialog';
 import StatBlockEditorPanel from './statBlockEditorPanel';
 import StatBlockCard from './statBlockCard';
+import ConfirmDialog from '@/components/ui/confirmDialog';
 import DeleteConfirmDialog from '@/components/ui/delete-confirm-dialog';
 import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import { randomNpcName } from '@/lib/utils';
@@ -48,25 +49,94 @@ export default function ManageStatBlocksPanel() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDdbOpen, setIsDdbOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [draft, setDraft] = useState<StatBlock | null>(null);
+  const [pendingSelectId, setPendingSelectId] = useState<string | null>(null);
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<StatBlock>();
 
+  const sortedStatBlocks = [...statBlocks].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+  );
   const selected = statBlocks.find((s) => s.id === selectedId) ?? null;
 
   const handleImport = (partial: Omit<StatBlock, 'id'>) => {
-    setSelectedId(addStatBlock(partial));
+    setEditMode(false);
+    setDraft(null);
+    setSelectedId(addStatBlock(partial).id);
   };
 
   const handleAddManual = () => {
-    setSelectedId(addStatBlock({ name: randomNpcName() }));
+    const newBlock = addStatBlock({ name: randomNpcName() });
+    setSelectedId(newBlock.id);
+    setDraft({ ...newBlock });
+    setEditMode(true);
   };
+
+  const handleSelectId = (id: string) => {
+    if (editMode) {
+      setPendingSelectId(id);
+      return;
+    }
+    setSelectedId(id);
+    setDraft(null);
+  };
+
+  const handleConfirmDiscard = () => {
+    setSelectedId(pendingSelectId);
+    setEditMode(false);
+    setDraft(null);
+    setPendingSelectId(null);
+  };
+
+  const handleCancelDiscard = () => setPendingSelectId(null);
 
   const handleDelete = (id: string) => {
     deleteStatBlock(id);
-    if (selectedId === id) setSelectedId(null);
+    if (selectedId === id) {
+      setSelectedId(null);
+      setEditMode(false);
+      setDraft(null);
+    }
   };
+
+  const handleEnterEdit = () => {
+    if (!selected) return;
+    setDraft({ ...selected });
+    setEditMode(true);
+  };
+
+  const handleSave = () => {
+    if (draft) editStatBlock(draft);
+    setEditMode(false);
+    setDraft(null);
+  };
+
+  const handleCancel = () => {
+    setEditMode(false);
+    setDraft(null);
+  };
+
+  const saveCancelStrip = (
+    <div className='flex gap-2 p-2 border-b shrink-0'>
+      <Button size='sm' onClick={handleSave}>
+        Save
+      </Button>
+      <Button variant='outline' size='sm' onClick={handleCancel}>
+        Cancel
+      </Button>
+    </div>
+  );
 
   return (
     <>
+      <ConfirmDialog
+        open={pendingSelectId !== null}
+        title='Discard unsaved changes?'
+        description='Your edits will be lost.'
+        confirmLabel='Discard'
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
+      />
       <DeleteConfirmDialog
         target={deleteTarget}
         title='Delete stat block?'
@@ -87,19 +157,19 @@ export default function ManageStatBlocksPanel() {
       <div className='flex flex-1 min-h-0'>
         {/* List panel */}
         <div className='w-56 border-r flex flex-col shrink-0'>
-          <div className='flex-1 overflow-y-auto p-2 space-y-0.5'>
-            {statBlocks.length === 0 && (
+          <div className='flex-1 overflow-y-scroll p-2 space-y-0.5'>
+            {sortedStatBlocks.length === 0 && (
               <p className='text-xs text-muted-foreground px-2 py-4 text-center'>
                 No stat blocks yet.
               </p>
             )}
-            {statBlocks.map((sb) => (
+            {sortedStatBlocks.map((sb) => (
               <div
                 key={sb.id}
                 className={`flex items-center gap-1 rounded px-2 py-1.5 cursor-pointer group ${
                   selectedId === sb.id ? 'bg-accent text-accent-foreground' : 'hover:bg-muted'
                 }`}
-                onClick={() => setSelectedId(sb.id)}>
+                onClick={() => handleSelectId(sb.id)}>
                 <span className='flex-1 min-w-0'>
                   <span className='block text-sm truncate'>{sb.name}</span>
                   {sb.creatureType && (
@@ -145,45 +215,62 @@ export default function ManageStatBlocksPanel() {
           </div>
         </div>
 
-        {/* Editor + preview */}
+        {/* Right panel */}
         <div
           ref={containerRef}
-          className={`flex-1 min-h-0 overflow-hidden flex ${stacked ? 'flex-col' : ''}`}>
+          className={`flex-1 min-h-0 overflow-hidden flex ${stacked && editMode ? 'flex-col' : ''}`}>
           {!selected ? (
             <div className='flex flex-1 items-center justify-center'>
               <p className='text-sm text-muted-foreground'>Select a stat block or add a new one.</p>
             </div>
-          ) : stacked ? (
-            <>
-              <div className='flex-2 min-h-0 overflow-y-auto p-4 border-b'>
-                <StatBlockCard statBlock={selected} />
-              </div>
-              <div className='flex-3 min-h-0 overflow-hidden'>
-                <StatBlockEditorPanel
-                  statBlock={selected}
-                  onChange={(updated) => editStatBlock(updated)}
-                />
-              </div>
-            </>
+          ) : editMode ? (
+            stacked ? (
+              <>
+                {saveCancelStrip}
+                <div className='flex-2 min-h-0 overflow-y-auto p-4 border-b'>
+                  <StatBlockCard statBlock={draft!} />
+                </div>
+                <div className='flex-3 min-h-0 overflow-hidden'>
+                  <StatBlockEditorPanel
+                    statBlock={draft!}
+                    onChange={(updated) => setDraft(updated)}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className='flex-1 min-w-0 overflow-hidden flex flex-col'>
+                  {saveCancelStrip}
+                  <div className='flex-1 min-h-0 overflow-hidden'>
+                    <StatBlockEditorPanel
+                      statBlock={draft!}
+                      onChange={(updated) => setDraft(updated)}
+                    />
+                  </div>
+                </div>
+                <div
+                  className='w-4 shrink-0 cursor-col-resize flex items-center justify-center border-x border-border hover:bg-muted active:bg-muted transition-colors group'
+                  onPointerDown={handleDragPointerDown}
+                  onPointerMove={handleDragPointerMove}
+                  onPointerUp={handleDragPointerUp}>
+                  <GripVertical className='h-4 w-4 text-border group-hover:text-foreground transition-colors' />
+                </div>
+                <div className='shrink-0 overflow-y-auto p-4' style={{ width: previewWidth }}>
+                  <StatBlockCard statBlock={draft!} />
+                </div>
+              </>
+            )
           ) : (
-            <>
-              <div className='flex-1 min-w-0 overflow-hidden'>
-                <StatBlockEditorPanel
-                  statBlock={selected}
-                  onChange={(updated) => editStatBlock(updated)}
-                />
+            <div className='flex-1 flex flex-col min-h-0'>
+              <div className='flex justify-end p-2 shrink-0'>
+                <Button variant='outline' size='sm' onClick={handleEnterEdit}>
+                  Edit
+                </Button>
               </div>
-              <div
-                className='w-4 shrink-0 cursor-col-resize flex items-center justify-center border-x border-border hover:bg-muted active:bg-muted transition-colors group'
-                onPointerDown={handleDragPointerDown}
-                onPointerMove={handleDragPointerMove}
-                onPointerUp={handleDragPointerUp}>
-                <GripVertical className='h-4 w-4 text-border group-hover:text-foreground transition-colors' />
-              </div>
-              <div className='shrink-0 overflow-y-auto p-4' style={{ width: previewWidth }}>
+              <div className='flex-1 overflow-y-auto px-4 pb-4'>
                 <StatBlockCard statBlock={selected} />
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
