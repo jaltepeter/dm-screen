@@ -92,4 +92,59 @@ describe('InitiativeSetupDialog', () => {
     expect(screen.getByText('Gandalf')).toBeInTheDocument();
     expect(screen.getByText('Bilbo')).toBeInTheDocument();
   });
+
+  it('refreshes player list when dialog is closed and reopened', () => {
+    const { rerender } = render(
+      <InitiativeSetupDialog isOpen onStartInitiative={vi.fn()} handleClose={vi.fn()} />
+    );
+
+    expect(screen.getByText('Gandalf')).toBeInTheDocument();
+    expect(screen.getByText('Bilbo')).toBeInTheDocument();
+
+    rerender(
+      <InitiativeSetupDialog isOpen={false} onStartInitiative={vi.fn()} handleClose={vi.fn()} />
+    );
+
+    // Add Meepo while the dialog is closed
+    useCharacterStore.setState({
+      characters: [
+        {
+          id: '1',
+          name: 'Gandalf',
+          charClass: 'Wizard',
+          background: '',
+          ac: 12,
+          pp: 14,
+          pi: 14,
+          init: 0
+        },
+        {
+          id: '2',
+          name: 'Bilbo',
+          charClass: 'Rogue',
+          background: '',
+          ac: 13,
+          pp: 13,
+          pi: 11,
+          init: 0
+        },
+        {
+          id: '3',
+          name: 'Meepo',
+          charClass: 'Sorcerer',
+          background: '',
+          ac: 10,
+          pp: 10,
+          pi: 8,
+          init: 0
+        }
+      ]
+    });
+
+    rerender(<InitiativeSetupDialog isOpen onStartInitiative={vi.fn()} handleClose={vi.fn()} />);
+
+    expect(screen.getByText('Gandalf')).toBeInTheDocument();
+    expect(screen.getByText('Bilbo')).toBeInTheDocument();
+    expect(screen.getByText('Meepo')).toBeInTheDocument();
+  });
 });
