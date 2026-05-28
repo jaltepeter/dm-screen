@@ -1,11 +1,35 @@
-import { useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import PlayerDetails from './playerDetails';
 import SectionHeader from '@/components/ui/section-header';
 import { Button } from '@/components/ui/button';
 import { useCharacterStore } from '../../store/characterStore';
 import { useNotesStore } from '../../store/notesStore';
 import { useCampaignStore } from '../../store/campaignStore';
+
+const MD_COMPONENTS: Components = {
+  h1: ({ children }) => <h1 className='text-lg font-bold mb-2 mt-3 first:mt-0'>{children}</h1>,
+  h2: ({ children }) => <h2 className='text-base font-bold mb-1.5 mt-3 first:mt-0'>{children}</h2>,
+  h3: ({ children }) => <h3 className='text-sm font-semibold mb-1 mt-2 first:mt-0'>{children}</h3>,
+  p: ({ children }) => <p className='mb-2 last:mb-0 leading-relaxed'>{children}</p>,
+  ul: ({ children }) => <ul className='list-disc pl-4 mb-2 space-y-0.5'>{children}</ul>,
+  ol: ({ children }) => <ol className='list-decimal pl-4 mb-2 space-y-0.5'>{children}</ol>,
+  li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
+  strong: ({ children }) => <strong className='font-semibold'>{children}</strong>,
+  em: ({ children }) => <em className='italic'>{children}</em>,
+  pre: ({ children }) => (
+    <pre className='bg-muted rounded p-2 overflow-x-auto text-xs font-mono my-2'>{children}</pre>
+  ),
+  code: ({ children }) => (
+    <code className='bg-muted px-1 py-0.5 rounded text-xs font-mono'>{children}</code>
+  ),
+  hr: () => <hr className='border-border my-3' />,
+  blockquote: ({ children }) => (
+    <blockquote className='border-l-2 border-muted-foreground/40 pl-3 italic text-muted-foreground my-2'>
+      {children}
+    </blockquote>
+  )
+};
 
 export default function Characters() {
   const allCharacters = useCharacterStore((s) => s.characters);
@@ -19,7 +43,17 @@ export default function Characters() {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [savedVisible, setSavedVisible] = useState(false);
+  const [undoValue, setUndoValue] = useState<string | null>(null);
   const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (fadeTimer.current) clearTimeout(fadeTimer.current);
+      if (undoTimer.current) clearTimeout(undoTimer.current);
+    },
+    []
+  );
 
   const showSaved = () => {
     setSavedVisible(true);
@@ -28,9 +62,19 @@ export default function Characters() {
   };
 
   const handleSave = () => {
+    setUndoValue(notes);
     setNotes(editValue);
     setIsEditing(false);
     showSaved();
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setUndoValue(null), 60000);
+  };
+
+  const handleUndo = () => {
+    if (undoValue === null) return;
+    setNotes(undoValue);
+    setUndoValue(null);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
   };
 
   const handleEnterEdit = () => {
@@ -53,6 +97,13 @@ export default function Characters() {
               <Button size='sm' onMouseDown={(e) => e.preventDefault()} onClick={handleSave}>
                 Save
               </Button>
+            )}
+            {!isEditing && undoValue !== null && (
+              <button
+                onClick={handleUndo}
+                className='text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground'>
+                Undo
+              </button>
             )}
             <span
               className={`text-xs text-muted-foreground transition-opacity duration-500 ${
@@ -77,41 +128,7 @@ export default function Characters() {
             onDoubleClick={handleEnterEdit}
             className='flex-1 min-h-0 overflow-y-auto rounded-md border border-input bg-background px-3 py-2 text-sm cursor-text'>
             {notes ? (
-              <ReactMarkdown
-                components={{
-                  h1: ({ children }) => (
-                    <h1 className='text-lg font-bold mb-2 mt-3 first:mt-0'>{children}</h1>
-                  ),
-                  h2: ({ children }) => (
-                    <h2 className='text-base font-bold mb-1.5 mt-3 first:mt-0'>{children}</h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 className='text-sm font-semibold mb-1 mt-2 first:mt-0'>{children}</h3>
-                  ),
-                  p: ({ children }) => <p className='mb-2 last:mb-0 leading-relaxed'>{children}</p>,
-                  ul: ({ children }) => (
-                    <ul className='list-disc pl-4 mb-2 space-y-0.5'>{children}</ul>
-                  ),
-                  ol: ({ children }) => (
-                    <ol className='list-decimal pl-4 mb-2 space-y-0.5'>{children}</ol>
-                  ),
-                  li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
-                  strong: ({ children }) => <strong className='font-semibold'>{children}</strong>,
-                  em: ({ children }) => <em className='italic'>{children}</em>,
-                  code: ({ children }) => (
-                    <code className='bg-muted px-1 py-0.5 rounded text-xs font-mono'>
-                      {children}
-                    </code>
-                  ),
-                  hr: () => <hr className='border-border my-3' />,
-                  blockquote: ({ children }) => (
-                    <blockquote className='border-l-2 border-muted-foreground/40 pl-3 italic text-muted-foreground my-2'>
-                      {children}
-                    </blockquote>
-                  )
-                }}>
-                {notes}
-              </ReactMarkdown>
+              <ReactMarkdown components={MD_COMPONENTS}>{notes}</ReactMarkdown>
             ) : (
               <span className='text-muted-foreground'>Session notes…</span>
             )}
