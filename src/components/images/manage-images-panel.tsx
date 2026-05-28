@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import {
   DndContext,
   DragEndEvent,
-  DragOverEvent,
   DragStartEvent,
   PointerSensor,
   useSensor,
@@ -63,7 +62,6 @@ interface SortableFolderProps {
 
 function SortableFolder({
   folder,
-  isDragActive,
   activeDragType,
   activeImageId,
   search,
@@ -154,7 +152,6 @@ function SortableFolder({
                     key={image.id}
                     image={image}
                     folderName={folder.folderName}
-                    isDragActive={isDragActive}
                     isBeingDragged={activeImageId === image.id}
                     onRequestEdit={() => onRequestEditImage(image)}
                     onRequestDelete={() => onRequestDeleteImage(image)}
@@ -182,7 +179,6 @@ function SortableFolder({
 interface SortableImageProps {
   image: Image;
   folderName: string;
-  isDragActive: boolean;
   isBeingDragged: boolean;
   onRequestEdit: () => void;
   onRequestDelete: () => void;
@@ -357,10 +353,6 @@ export default function ManageImagesPanel() {
     }
   };
 
-  const handleDragOver = (_event: DragOverEvent) => {
-    // Nothing needed — drop targets handle their own highlight via useDroppable isOver
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
     document.body.style.cursor = '';
     const { active, over } = event;
@@ -502,7 +494,6 @@ export default function ManageImagesPanel() {
               sensors={sensors}
               collisionDetection={collisionDetection}
               onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
               onDragEnd={handleDragEnd}>
               <SortableContext
                 items={sortedFolders.map((f) => `folder:${f.folderName}`)}
