@@ -16,7 +16,7 @@ export interface Character {
 
 interface CharacterStore {
   characters: Character[];
-  addCharacter: (campaignId?: string) => void;
+  addCharacter: (campaignId?: string, initial?: Partial<Omit<Character, 'id'>>) => void;
   editCharacter: (character: Character) => void;
   deleteCharacter: (id: string) => void;
 }
@@ -78,7 +78,7 @@ export const useCharacterStore = create<CharacterStore>()(
     (set, get) => ({
       characters: DEFAULT_CHARACTERS,
 
-      addCharacter: (campaignId?: string) => {
+      addCharacter: (campaignId?: string, initial?: Partial<Omit<Character, 'id'>>) => {
         const { characters } = get();
         set({
           characters: [
@@ -92,7 +92,8 @@ export const useCharacterStore = create<CharacterStore>()(
               pp: 10,
               pi: 10,
               init: 10,
-              campaignId
+              campaignId,
+              ...initial
             }
           ]
         });
