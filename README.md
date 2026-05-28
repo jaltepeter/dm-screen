@@ -39,13 +39,13 @@ Serves the app at `http://localhost:8080/`.
 
 ## Tech decisions
 
-| Concern           | Choice                        | Why                                     |
-| ----------------- | ----------------------------- | --------------------------------------- |
-| Build             | Vite                          | CRA is unmaintained                     |
-| Language          | TypeScript                    | Type safety                             |
-| UI                | shadcn/ui + Tailwind          | Own the components, no runtime overhead |
-| State             | Zustand + persist             | Replaces manual localStorage wiring     |
-| DM↔Player sync    | PartyKit WebSockets           | Ephemeral rooms, free tier, 10-line server |
+| Concern        | Choice               | Why                                        |
+| -------------- | -------------------- | ------------------------------------------ |
+| Build          | Vite                 | CRA is unmaintained                        |
+| Language       | TypeScript           | Type safety                                |
+| UI             | shadcn/ui + Tailwind | Own the components, no runtime overhead    |
+| State          | Zustand + persist    | Replaces manual localStorage wiring        |
+| DM↔Player sync | PartyKit WebSockets  | Ephemeral rooms, free tier, 10-line server |
 
 ## Cross-device sync
 

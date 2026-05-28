@@ -11,7 +11,7 @@ import { usePlayerStore } from '../store/playerStore';
 function BeholderScreen({
   message,
   pulse,
-  className = '',
+  className = ''
 }: {
   message?: string;
   pulse?: boolean;
