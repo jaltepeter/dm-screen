@@ -12,8 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { ChevronsUpDown, Check } from 'lucide-react';
 import { Actor } from '../../../lib/sync';
 import { useEncounterStore } from '../../../store/encounterStore';
-import { randomNpcName, rollInitiative, dexModifier } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { cn, randomNpcName, rollInitiative, dexModifier } from '@/lib/utils';
 
 interface Props {
   isOpen: boolean;
@@ -71,13 +70,14 @@ export default function AddCombatantDialog({ isOpen, onClose, onAdd }: Props) {
         ...(draft.statBlockId ? { statBlockId: draft.statBlockId } : {})
       }
     ]);
-    setDraft(freshDraft());
+    setDraft(freshDraft);
     onClose();
   };
 
   const handleClose = () => {
-    setDraft(freshDraft());
+    setDraft(freshDraft);
     setSearch('');
+    setPickerOpen(false);
     onClose();
   };
 
@@ -104,49 +104,54 @@ export default function AddCombatantDialog({ isOpen, onClose, onAdd }: Props) {
                   <ChevronsUpDown className='h-3.5 w-3.5 shrink-0 opacity-50 ml-1' />
                 </Button>
                 {pickerOpen && (
-                  <div className='absolute z-10 mt-1 w-full rounded-md border bg-popover shadow-md'>
-                    <div className='p-2 border-b'>
-                      <Input
-                        placeholder='Search…'
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className='h-7 text-sm'
-                        autoFocus
-                      />
-                    </div>
-                    <div className='max-h-48 overflow-y-auto'>
-                      {filtered.length === 0 ? (
-                        <p className='py-3 text-center text-xs text-muted-foreground'>No results</p>
-                      ) : (
-                        filtered.map((sb) => (
-                          <button
-                            key={sb.id}
-                            className={cn(
-                              'flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-accent cursor-pointer text-left',
-                              draft.statBlockId === sb.id && 'bg-accent'
-                            )}
-                            onClick={() => pickStatBlock(sb.id)}>
-                            <Check
+                  <>
+                    <div className='fixed inset-0 z-9' onClick={() => setPickerOpen(false)} />
+                    <div className='absolute z-10 mt-1 w-full rounded-md border bg-popover shadow-md'>
+                      <div className='p-2 border-b'>
+                        <Input
+                          placeholder='Search…'
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          className='h-7 text-sm'
+                          autoFocus
+                        />
+                      </div>
+                      <div className='max-h-48 overflow-y-auto'>
+                        {filtered.length === 0 ? (
+                          <p className='py-3 text-center text-xs text-muted-foreground'>
+                            No results
+                          </p>
+                        ) : (
+                          filtered.map((sb) => (
+                            <button
+                              key={sb.id}
                               className={cn(
-                                'h-3.5 w-3.5 shrink-0',
-                                draft.statBlockId === sb.id ? 'opacity-100' : 'opacity-0'
+                                'flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-accent cursor-pointer text-left',
+                                draft.statBlockId === sb.id && 'bg-accent'
                               )}
-                            />
-                            {sb.name}
+                              onClick={() => pickStatBlock(sb.id)}>
+                              <Check
+                                className={cn(
+                                  'h-3.5 w-3.5 shrink-0',
+                                  draft.statBlockId === sb.id ? 'opacity-100' : 'opacity-0'
+                                )}
+                              />
+                              {sb.name}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                      {selectedBlock && (
+                        <div className='border-t p-2'>
+                          <button
+                            className='w-full text-xs text-muted-foreground hover:text-foreground text-left px-1'
+                            onClick={clearStatBlock}>
+                            Clear selection
                           </button>
-                        ))
+                        </div>
                       )}
                     </div>
-                    {selectedBlock && (
-                      <div className='border-t p-2'>
-                        <button
-                          className='w-full text-xs text-muted-foreground hover:text-foreground text-left px-1'
-                          onClick={clearStatBlock}>
-                          Clear selection
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  </>
                 )}
               </div>
             </div>
