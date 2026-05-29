@@ -59,6 +59,14 @@ const NPC_NOUNS = [
   'Warden'
 ];
 
+export function rollInitiative(dexMod = 0): number {
+  return Math.floor(Math.random() * 20) + 1 + dexMod;
+}
+
+export function dexModifier(dex: number): number {
+  return Math.floor((dex - 10) / 2);
+}
+
 export function randomNpcName(): string {
   const adj = NPC_ADJECTIVES[Math.floor(Math.random() * NPC_ADJECTIVES.length)];
   const noun = NPC_NOUNS[Math.floor(Math.random() * NPC_NOUNS.length)];

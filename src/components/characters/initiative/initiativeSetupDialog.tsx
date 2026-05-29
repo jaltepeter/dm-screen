@@ -17,7 +17,7 @@ import { useConfirmDelete } from '@/lib/useConfirmDelete';
 import { useCharacterStore } from '../../../store/characterStore';
 import { useEncounterStore } from '../../../store/encounterStore';
 import { useCampaignStore } from '../../../store/campaignStore';
-import { randomNpcName } from '@/lib/utils';
+import { randomNpcName, rollInitiative, dexModifier } from '@/lib/utils';
 
 function newPlayerActors(characters: { name: string }[]): Actor[] {
   return characters.map((c) => ({
@@ -76,7 +76,7 @@ export default function InitiativeSetupDialog({
         id: crypto.randomUUID(),
         kind: 'npc',
         name: randomNpcName(),
-        init: 0,
+        init: rollInitiative(),
         maxHp: 10,
         hp: 10,
         visible: true,
@@ -97,7 +97,7 @@ export default function InitiativeSetupDialog({
         id: crypto.randomUUID(),
         kind: 'npc' as const,
         name: entry.instanceName,
-        init: 0,
+        init: rollInitiative(sb?.dex !== undefined ? dexModifier(sb.dex) : 0),
         maxHp,
         hp: maxHp,
         statBlockId: entry.statBlockId,
@@ -144,6 +144,7 @@ export default function InitiativeSetupDialog({
                     type='number'
                     value={actor.init}
                     onChange={(e) => updateActor(actor.id, { init: Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className='h-8 text-sm px-2'
                   />
                   <span className='text-sm px-2 py-1'>{actor.name}</span>
@@ -180,7 +181,7 @@ export default function InitiativeSetupDialog({
                     size='sm'
                     onClick={loadEncounter}
                     disabled={!loadEncounterId}>
-                    Load
+                    Apply
                   </Button>
                 </div>
               )}
@@ -201,6 +202,7 @@ export default function InitiativeSetupDialog({
                     type='number'
                     value={actor.init}
                     onChange={(e) => updateActor(actor.id, { init: Number(e.target.value) })}
+                    onFocus={(e) => e.target.select()}
                     className='h-8 text-sm px-2'
                   />
                   <Input
@@ -215,6 +217,7 @@ export default function InitiativeSetupDialog({
                       const maxHp = Math.max(1, Number(e.target.value));
                       updateActor(actor.id, { maxHp, hp: maxHp });
                     }}
+                    onFocus={(e) => e.target.select()}
                     className='h-8 text-sm px-2'
                   />
                   <div className='flex justify-center'>
@@ -243,7 +246,7 @@ export default function InitiativeSetupDialog({
             <Button variant='outline' onClick={handleReset}>
               Reset
             </Button>
-            <Button onClick={handleStartInit}>Start!</Button>
+            <Button onClick={handleStartInit}>Load</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
