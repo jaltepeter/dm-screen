@@ -33,17 +33,17 @@ The DM and player views communicate via **PartyKit WebSockets** (`src/lib/sync.t
 
 **State layer** (`src/store/`) — Zustand stores with `persist` middleware:
 
-| Store            | localStorage key                    | Backed up by export? | Notes                                                                         |
-| ---------------- | ----------------------------------- | -------------------- | ----------------------------------------------------------------------------- |
-| `campaignStore`  | `dm-screen/campaigns`               | ✅                   | Campaigns with UUID ids + active campaign pointer                             |
-| `characterStore` | `dm-screen/characters`              | ✅                   | Player characters with UUID ids; `campaignId` for filtering                   |
-| `imageStore`     | `dm-screen/images`                  | ✅                   | Folders + image URLs; enforces unique URLs per folder                         |
-| `notesStore`     | `dm-screen/notes`                   | ✅                   | Single freeform notes string                                                  |
-| `encounterStore` | `dm-screen/encounters`              | ✅                   | Stat blocks + named encounter templates                                       |
+| Store            | localStorage key                    | Backed up by export? | Notes                                                                                                  |
+| ---------------- | ----------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------ |
+| `campaignStore`  | `dm-screen/campaigns`               | ✅                   | Campaigns with UUID ids + active campaign pointer                                                      |
+| `characterStore` | `dm-screen/characters`              | ✅                   | Player characters with UUID ids; `campaignId` for filtering                                            |
+| `imageStore`     | `dm-screen/images`                  | ✅                   | Folders + image URLs; enforces unique URLs per folder                                                  |
+| `notesStore`     | `dm-screen/notes`                   | ✅                   | Single freeform notes string                                                                           |
+| `encounterStore` | `dm-screen/encounters`              | ✅                   | Stat blocks + named encounter templates                                                                |
 | `combatStore`    | `dm-screen/combat`                  | ❌ ephemeral         | Active initiative state; `started` flag separates loaded vs running; survives page refresh, not export |
-| `dmSessionStore` | `dm-screen/dm-session`              | ❌ ephemeral         | `wantLive` flag (persist intent to reconnect after refresh)                   |
-| `playerStore`    | `dm-screen/player`                  | ❌ per-browser       | Player's display name; set once on the player view                            |
-| `uiStore`        | `dm-screen/ui` (lastSentImage only) | ❌ ephemeral         | `lastSentImage` persisted via `partialize`; `initiativeActive` is memory-only |
+| `dmSessionStore` | `dm-screen/dm-session`              | ❌ ephemeral         | `wantLive` flag (persist intent to reconnect after refresh)                                            |
+| `playerStore`    | `dm-screen/player`                  | ❌ per-browser       | Player's display name; set once on the player view                                                     |
+| `uiStore`        | `dm-screen/ui` (lastSentImage only) | ❌ ephemeral         | `lastSentImage` persisted via `partialize`; `initiativeActive` is memory-only                          |
 
 Each store that participates in export/import exports `STORE_KEY` and a `migrateXxxStore` function. The migration functions are tested in `src/store/__tests__/migrations.test.ts` — when you add a store version bump, add a frozen snapshot and a test there too.
 
