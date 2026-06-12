@@ -182,10 +182,8 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
+    // Stale results stay in state but are gated out of render by `showResults`.
+    if (query.trim().length < 2) return;
     const controller = new AbortController();
     debounceRef.current = setTimeout(async () => {
       setLoading(true);

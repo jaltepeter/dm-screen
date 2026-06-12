@@ -5,9 +5,10 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion';
-import { Check, Images, Plus } from 'lucide-react';
+import { Check, EyeOff, Images, Plus } from 'lucide-react';
 import ImageGrid from './imageGrid';
 import ImageThumbnail from './image-thumbnail';
+import NameToggle from './name-toggle';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Image, ImageFolder } from '../../store/imageStore';
@@ -17,10 +18,19 @@ interface FolderListProps {
   folders: ImageFolder[];
   search: string;
   stagedIds: Set<string>;
+  nameShownIds: Set<string>;
   onToggleImage: (image: Image) => void;
+  onToggleName: (image: Image) => void;
 }
 
-export default function FolderList({ folders, search, stagedIds, onToggleImage }: FolderListProps) {
+export default function FolderList({
+  folders,
+  search,
+  stagedIds,
+  nameShownIds,
+  onToggleImage,
+  onToggleName
+}: FolderListProps) {
   const [openFolder, setOpenFolder] = useState<string>(folders[0]?.folderName ?? '');
 
   if (folders.length === 0) {
@@ -54,51 +64,62 @@ export default function FolderList({ folders, search, stagedIds, onToggleImage }
         {matches.map(({ img, folderName }) => {
           const staged = stagedIds.has(img.id);
           return (
-            <HoverCard key={img.id} openDelay={300}>
-              <HoverCardTrigger asChild>
-                <button
-                  type='button'
-                  onClick={() => onToggleImage(img)}
-                  className={cn(
-                    'block text-left rounded ring-2 ring-offset-1 ring-offset-background transition-shadow',
-                    staged ? 'ring-primary' : 'ring-transparent'
-                  )}>
-                  <ImageThumbnail
-                    image={img}
-                    imgClassName='w-full h-24 object-cover'
-                    action={
-                      <>
-                        <span className='text-xs text-white/50 truncate flex-1 mr-1'>
-                          {folderName}
-                        </span>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-6 w-6 shrink-0 pointer-events-none'
-                          tabIndex={-1}>
-                          {staged ? (
-                            <Check className='h-3.5 w-3.5 text-primary' />
-                          ) : (
-                            <Plus className='h-3.5 w-3.5' />
+            <div key={img.id} className='relative'>
+              <HoverCard openDelay={300}>
+                <HoverCardTrigger asChild>
+                  <button
+                    type='button'
+                    onClick={() => onToggleImage(img)}
+                    className={cn(
+                      'block w-full text-left rounded ring-2 ring-offset-1 ring-offset-background transition-shadow',
+                      staged ? 'ring-primary' : 'ring-transparent'
+                    )}>
+                    <ImageThumbnail
+                      image={img}
+                      imgClassName='w-full h-24 object-cover'
+                      action={
+                        <>
+                          <span className='text-xs text-white/50 truncate flex-1 mr-1'>
+                            {folderName}
+                          </span>
+                          {img.hideName && img.title && (
+                            <EyeOff
+                              className='h-3.5 w-3.5 shrink-0 text-amber-400'
+                              aria-label='Name hidden from players by default'
+                            />
                           )}
-                        </Button>
-                      </>
-                    }
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-6 w-6 shrink-0 pointer-events-none'
+                            tabIndex={-1}>
+                            {staged ? (
+                              <Check className='h-3.5 w-3.5 text-primary' />
+                            ) : (
+                              <Plus className='h-3.5 w-3.5' />
+                            )}
+                          </Button>
+                        </>
+                      }
+                    />
+                  </button>
+                </HoverCardTrigger>
+                <HoverCardContent side='right' sideOffset={8} className='w-[min(480px,55vw)] p-2'>
+                  <img
+                    src={img.url}
+                    alt={img.title}
+                    className='w-full rounded object-contain max-h-[70vh]'
                   />
-                </button>
-              </HoverCardTrigger>
-              <HoverCardContent side='right' sideOffset={8} className='w-[min(480px,55vw)] p-2'>
-                <img
-                  src={img.url}
-                  alt={img.title}
-                  className='w-full rounded object-contain max-h-[70vh]'
-                />
-                {img.title && (
-                  <p className='text-xs text-muted-foreground mt-1 truncate'>{img.title}</p>
-                )}
-                <p className='text-xs text-muted-foreground/60 mt-0.5 truncate'>{folderName}</p>
-              </HoverCardContent>
-            </HoverCard>
+                  {img.title && (
+                    <p className='text-xs text-muted-foreground mt-1 truncate'>{img.title}</p>
+                  )}
+                  <p className='text-xs text-muted-foreground/60 mt-0.5 truncate'>{folderName}</p>
+                </HoverCardContent>
+              </HoverCard>
+              {staged && img.title && (
+                <NameToggle shown={nameShownIds.has(img.id)} onClick={() => onToggleName(img)} />
+              )}
+            </div>
           );
         })}
       </div>
@@ -132,7 +153,9 @@ export default function FolderList({ folders, search, stagedIds, onToggleImage }
                 <ImageGrid
                   images={sortedImages}
                   stagedIds={stagedIds}
+                  nameShownIds={nameShownIds}
                   onToggleImage={onToggleImage}
+                  onToggleName={onToggleName}
                 />
               ) : (
                 <p className='text-sm text-muted-foreground py-2'>No images yet.</p>

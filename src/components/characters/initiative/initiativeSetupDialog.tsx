@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -50,9 +50,13 @@ export default function InitiativeSetupDialog({
   const [actors, setActors] = useState<Actor[]>(() => newPlayerActors(characters));
   const [loadEncounterId, setLoadEncounterId] = useState('');
 
-  useEffect(() => {
+  // Re-seed players each time the dialog opens, without an effect (see
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes).
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
     if (isOpen) setActors(newPlayerActors(characters));
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
   const { target: deleteTarget, requestDelete, clearDelete } = useConfirmDelete<Actor>();
 
   const encounterTemplates = useEncounterStore((s) => s.templates);

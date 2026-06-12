@@ -26,6 +26,8 @@ export default function Images() {
   const [search, setSearch] = useState('');
 
   const stagedIds = new Set(stage.map((i) => i.id));
+  // Staged images whose name is currently sent to players (title present).
+  const nameShownIds = new Set(stage.filter((i) => i.title).map((i) => i.id));
 
   const pushStage = (next: StageImage[]) => {
     setStage(next);
@@ -36,6 +38,16 @@ export default function Images() {
     const next = stagedIds.has(item.id)
       ? stage.filter((i) => i.id !== item.id)
       : [...stage, toStageImage(item)];
+    pushStage(next);
+  };
+
+  // Flip a staged image's name visibility for players without touching its saved
+  // hideName setting — just adds/removes the title on the live stage entry.
+  const toggleName = (item: Image) => {
+    if (!item.title) return;
+    const next = stage.map((i) =>
+      i.id === item.id ? { ...i, title: i.title ? undefined : item.title } : i
+    );
     pushStage(next);
   };
 
@@ -83,7 +95,9 @@ export default function Images() {
           folders={folders}
           search={search}
           stagedIds={stagedIds}
+          nameShownIds={nameShownIds}
           onToggleImage={toggleImage}
+          onToggleName={toggleName}
         />
       </section>
     </div>
