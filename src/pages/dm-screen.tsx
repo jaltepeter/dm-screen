@@ -33,6 +33,7 @@ const DmScreen = () => {
   const stage = useUiStore((s) => s.stage);
   const setStage = useUiStore((s) => s.setStage);
   const initiativeActive = useCombatStore((s) => s.started);
+  const round = useCombatStore((s) => s.round);
 
   useEffect(() => {
     document.title = 'DM Screen';
@@ -51,43 +52,45 @@ const DmScreen = () => {
 
         <div className='flex-1' />
 
+        {/* Active-combat indicator — prominent, jumps to the Combat tab */}
+        {initiativeActive && (
+          <button
+            onClick={() => setSearchParams({ tab: 'combat' })}
+            title='Go to Combat'
+            className='flex items-center gap-1.5 rounded-md border border-amber-500/60 bg-amber-500/15 px-2.5 py-1 text-sm font-semibold text-amber-400 shadow-[0_0_0_1px_rgba(245,158,11,0.15)] animate-pulse hover:bg-amber-500/25 transition-colors'>
+            <Swords className='h-4 w-4' />
+            <span>Combat</span>
+            <span className='font-normal text-amber-300/80'>· Round {round}</span>
+          </button>
+        )}
+
         {/* Player view indicator — thumbnails of what's on the player stage */}
-        <div className='flex items-center gap-1.5'>
-          {stage.length > 0 ? (
-            <div className='relative group/img'>
-              <div className='flex items-center'>
-                {stage.slice(0, 3).map((img, i) => (
-                  <img
-                    key={img.id}
-                    src={img.url}
-                    alt={img.title}
-                    className='h-8 w-8 rounded object-cover border border-border bg-card'
-                    style={{ marginLeft: i === 0 ? 0 : -10, zIndex: stage.length - i }}
-                    title={img.title ?? img.url}
-                  />
-                ))}
-                {stage.length > 3 && (
-                  <span className='ml-1 text-xs text-muted-foreground'>+{stage.length - 3}</span>
-                )}
-              </div>
-              {initiativeActive && (
-                <span className='absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-amber-500'>
-                  <Swords className='h-2 w-2 text-black' />
-                </span>
+        {stage.length > 0 && (
+          <div className='flex items-center gap-1.5'>
+            <div className='flex items-center'>
+              {stage.slice(0, 3).map((img, i) => (
+                <img
+                  key={img.id}
+                  src={img.url}
+                  alt={img.title}
+                  className='h-8 w-8 rounded object-cover border border-border bg-card'
+                  style={{ marginLeft: i === 0 ? 0 : -10, zIndex: stage.length - i }}
+                  title={img.title ?? img.url}
+                />
+              ))}
+              {stage.length > 3 && (
+                <span className='ml-1 text-xs text-muted-foreground'>+{stage.length - 3}</span>
               )}
-              <button
-                onClick={handleClearStage}
-                title='Clear player stage'
-                className='absolute inset-0 flex items-center justify-center rounded bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity'>
-                <X className='h-4 w-4 text-white' />
-              </button>
             </div>
-          ) : initiativeActive ? (
-            <span className='flex h-6 w-6 items-center justify-center rounded bg-amber-500/20 text-amber-400'>
-              <Swords className='h-3.5 w-3.5' />
-            </span>
-          ) : null}
-        </div>
+            <button
+              onClick={handleClearStage}
+              title='Clear player stage'
+              className='inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors'>
+              <X className='h-3.5 w-3.5' />
+              Clear stage
+            </button>
+          </div>
+        )}
 
         <GoLiveButton />
 
