@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter
@@ -198,6 +199,11 @@ export default function CharacterEditDialog({
       <DialogContent className='max-w-md'>
         <DialogHeader>
           <DialogTitle>{character === null ? 'New Character' : 'Edit Character'}</DialogTitle>
+          <DialogDescription>
+            {character === null
+              ? 'Add a player character to the active campaign.'
+              : 'Update this character’s details.'}
+          </DialogDescription>
         </DialogHeader>
         {open && (
           <CharacterEditForm

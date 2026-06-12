@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter
@@ -129,6 +130,9 @@ export default function InitiativeSetupDialog({
         <DialogContent className='max-w-2xl'>
           <DialogHeader>
             <DialogTitle>Set Up Initiative</DialogTitle>
+            <DialogDescription>
+              Add combatants and roll initiative, then load them into the tracker.
+            </DialogDescription>
           </DialogHeader>
 
           <div className='space-y-4 max-h-[60vh] overflow-y-auto'>

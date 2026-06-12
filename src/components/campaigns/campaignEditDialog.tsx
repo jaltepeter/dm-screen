@@ -3,6 +3,7 @@ import { AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter
@@ -112,6 +113,11 @@ export default function CampaignEditDialog({
       <DialogContent className='max-w-md'>
         <DialogHeader>
           <DialogTitle>{campaign === null ? 'New Campaign' : 'Edit Campaign'}</DialogTitle>
+          <DialogDescription>
+            {campaign === null
+              ? 'Create a campaign to organize characters, encounters, and the player view.'
+              : 'Update this campaign’s details.'}
+          </DialogDescription>
         </DialogHeader>
         {open && <CampaignEditForm campaign={campaign} onClose={onClose} onSave={onSave} />}
       </DialogContent>

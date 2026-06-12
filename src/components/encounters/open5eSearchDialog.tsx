@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -224,6 +230,9 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
       <DialogContent className='max-w-3xl sm:max-w-3xl'>
         <DialogHeader>
           <DialogTitle>Search Open5e</DialogTitle>
+          <DialogDescription>
+            Search the Open5e database and import a monster as a stat block.
+          </DialogDescription>
         </DialogHeader>
         <div className='space-y-3'>
           <Input

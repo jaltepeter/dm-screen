@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { StatBlock } from '../../store/encounterStore';
 import { parseDdbStatBlock } from '../../lib/ddbParser';
@@ -23,12 +29,12 @@ export default function DdbImportDialog({ isOpen, onClose, onSelect }: Props) {
       <DialogContent className='max-w-md'>
         <DialogHeader>
           <DialogTitle>Import from D&amp;D Beyond</DialogTitle>
-        </DialogHeader>
-        <div className='space-y-3'>
-          <p className='text-sm text-muted-foreground'>
+          <DialogDescription>
             Go to a monster page on D&amp;D Beyond, select all stat block content, copy it, then
             paste below.
-          </p>
+          </DialogDescription>
+        </DialogHeader>
+        <div className='space-y-3'>
           <Textarea
             autoFocus
             placeholder='Paste here…'

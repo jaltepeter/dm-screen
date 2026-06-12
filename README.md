@@ -92,7 +92,7 @@ Two GitHub Actions secrets are required for the deploy workflow:
 - **More prominent combat indicator** — make the active-combat indicator in the DM header more noticeable.
 - **Show hidden-name status on DM tiles** — surface a "name hidden from players" marker on image thumbnails in the manage/grid views.
 - **Reveal/hide names mid-session** — toggle an image's name visibility live from the stage without editing the image (if low effort).
-- **Player stage: reduce NPC/location obstruction** — tune portrait scale/layout so staged NPC portraits don't cover the location backdrop.
+- ~~**Player stage: reduce NPC/location obstruction** — tune portrait scale/layout so staged NPC portraits don't cover the location backdrop.~~
 
 ## Known Limitations
 
