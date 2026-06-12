@@ -1,32 +1,69 @@
 import { useState } from 'react';
 import FolderList from './folder-list';
 import ImageSender from './imageSender';
-import { sendMessage } from '../../lib/sync';
+import { sendMessage, StageImage } from '../../lib/sync';
 import { useImageStore, Image } from '../../store/imageStore';
 import { useUiStore } from '../../store/uiStore';
 import SectionHeader from '@/components/ui/section-header';
 import { Input } from '@/components/ui/input';
-import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Layers, X } from 'lucide-react';
+
+function toStageImage(item: Image): StageImage {
+  return {
+    id: item.id,
+    url: item.url,
+    // Hidden-name images stay nameless to players (the DM still sees the title locally).
+    title: item.hideName ? undefined : item.title,
+    aspectRatio: item.aspectRatio
+  };
+}
 
 export default function Images() {
   const folders = useImageStore((s) => s.folders);
-  const setLastSentImage = useUiStore((s) => s.setLastSentImage);
+  const stage = useUiStore((s) => s.stage);
+  const setStage = useUiStore((s) => s.setStage);
   const [search, setSearch] = useState('');
 
-  const sendImageToPlayerView = (item: Image) => {
-    sendMessage({ cmd: 'image', payload: item });
-    setLastSentImage(item);
+  const stagedIds = new Set(stage.map((i) => i.id));
+
+  const pushStage = (next: StageImage[]) => {
+    setStage(next);
+    sendMessage({ cmd: 'stage_update', payload: { images: next } });
   };
+
+  const toggleImage = (item: Image) => {
+    const next = stagedIds.has(item.id)
+      ? stage.filter((i) => i.id !== item.id)
+      : [...stage, toStageImage(item)];
+    pushStage(next);
+  };
+
+  const clearStage = () => pushStage([]);
 
   return (
     <div className='space-y-4'>
       <section>
         <SectionHeader className='mb-2'>Quick Send</SectionHeader>
-        <ImageSender onSendImage={sendImageToPlayerView} />
+        <ImageSender onSendImage={toggleImage} />
       </section>
 
       <section>
-        <SectionHeader className='mb-2'>Saved Images</SectionHeader>
+        <div className='flex items-center justify-between mb-2'>
+          <SectionHeader className='mb-0'>Saved Images</SectionHeader>
+          {stage.length > 0 && (
+            <div className='flex items-center gap-2 text-xs text-muted-foreground'>
+              <span className='flex items-center gap-1'>
+                <Layers className='h-3.5 w-3.5' />
+                On stage ({stage.length})
+              </span>
+              <Button variant='outline' size='sm' className='h-6 px-2' onClick={clearStage}>
+                <X className='h-3 w-3 mr-1' />
+                Clear
+              </Button>
+            </div>
+          )}
+        </div>
         <div className='relative mb-3'>
           <Input
             placeholder='Search images…'
@@ -42,7 +79,12 @@ export default function Images() {
             </button>
           )}
         </div>
-        <FolderList folders={folders} search={search} onSendImage={sendImageToPlayerView} />
+        <FolderList
+          folders={folders}
+          search={search}
+          stagedIds={stagedIds}
+          onToggleImage={toggleImage}
+        />
       </section>
     </div>
   );

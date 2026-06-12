@@ -430,7 +430,7 @@ export default function ManageImagesPanel() {
         open={subDialog === 'addImage'}
         onClose={closeSub}
         targetFolder={targetFolder}
-        onSave={(url, title) => addImage(targetFolder, url, title || undefined)}
+        onSave={(url, title, hideName) => addImage(targetFolder, url, title || undefined, hideName)}
       />
 
       <AddImageDialog
@@ -439,14 +439,20 @@ export default function ManageImagesPanel() {
         onClose={closeSub}
         targetFolder={targetFolder}
         initialValues={
-          editTarget ? { url: editTarget.url, title: editTarget.title ?? '' } : undefined
+          editTarget
+            ? {
+                url: editTarget.url,
+                title: editTarget.title ?? '',
+                hideName: !!editTarget.hideName
+              }
+            : undefined
         }
-        onSave={(url, title) => {
+        onSave={(url, title, hideName) => {
           if (!editTarget) return false;
           const folder = folders.find((f) => f.folderName === targetFolder);
           const isDupe = folder?.images.some((img) => img.url === url && img.id !== editTarget.id);
           if (isDupe) return false;
-          updateImage(targetFolder, editTarget.id, { url, title: title || undefined });
+          updateImage(targetFolder, editTarget.id, { url, title: title || undefined, hideName });
           return true;
         }}
       />

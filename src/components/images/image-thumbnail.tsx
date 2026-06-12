@@ -1,4 +1,4 @@
-import { Image } from '../../store/imageStore';
+import { Image, useImageStore } from '../../store/imageStore';
 
 interface ImageThumbnailProps {
   image: Image;
@@ -7,11 +7,24 @@ interface ImageThumbnailProps {
 }
 
 export default function ImageThumbnail({ image, action, imgClassName }: ImageThumbnailProps) {
+  const setImageAspectRatio = useImageStore((s) => s.setImageAspectRatio);
+
+  // Backfill aspect ratio the first time an image loads, so the player view
+  // can lay it out by role (wide location vs square portrait) without measuring.
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (image.aspectRatio != null) return;
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    if (naturalWidth && naturalHeight) {
+      setImageAspectRatio(image.id, naturalWidth / naturalHeight);
+    }
+  };
+
   return (
     <div className='relative bg-card rounded overflow-hidden group'>
       <img
         src={image.url}
         alt={image.title}
+        onLoad={handleLoad}
         className={
           imgClassName ??
           'w-full h-48 object-cover transition-transform duration-200 group-hover:scale-105'

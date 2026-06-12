@@ -30,17 +30,17 @@ const DmScreen = () => {
   const activeTab: DmTab = (VALID_TABS as readonly string[]).includes(searchParams.get('tab') ?? '')
     ? (searchParams.get('tab') as DmTab)
     : 'home';
-  const lastSentImage = useUiStore((s) => s.lastSentImage);
-  const setLastSentImage = useUiStore((s) => s.setLastSentImage);
+  const stage = useUiStore((s) => s.stage);
+  const setStage = useUiStore((s) => s.setStage);
   const initiativeActive = useCombatStore((s) => s.started);
 
   useEffect(() => {
     document.title = 'DM Screen';
   }, []);
 
-  const handleClearImage = () => {
-    setLastSentImage(null);
-    sendMessage({ cmd: 'clear_image' });
+  const handleClearStage = () => {
+    setStage([]);
+    sendMessage({ cmd: 'stage_update', payload: { images: [] } });
   };
 
   return (
@@ -51,24 +51,33 @@ const DmScreen = () => {
 
         <div className='flex-1' />
 
-        {/* Player view indicator */}
+        {/* Player view indicator — thumbnails of what's on the player stage */}
         <div className='flex items-center gap-1.5'>
-          {lastSentImage ? (
+          {stage.length > 0 ? (
             <div className='relative group/img'>
-              <img
-                src={lastSentImage.url}
-                alt={lastSentImage.title}
-                className='h-8 w-8 rounded object-cover border border-border'
-                title={lastSentImage.title ?? lastSentImage.url}
-              />
+              <div className='flex items-center'>
+                {stage.slice(0, 3).map((img, i) => (
+                  <img
+                    key={img.id}
+                    src={img.url}
+                    alt={img.title}
+                    className='h-8 w-8 rounded object-cover border border-border bg-card'
+                    style={{ marginLeft: i === 0 ? 0 : -10, zIndex: stage.length - i }}
+                    title={img.title ?? img.url}
+                  />
+                ))}
+                {stage.length > 3 && (
+                  <span className='ml-1 text-xs text-muted-foreground'>+{stage.length - 3}</span>
+                )}
+              </div>
               {initiativeActive && (
                 <span className='absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-amber-500'>
                   <Swords className='h-2 w-2 text-black' />
                 </span>
               )}
               <button
-                onClick={handleClearImage}
-                title='Clear player image'
+                onClick={handleClearStage}
+                title='Clear player stage'
                 className='absolute inset-0 flex items-center justify-center rounded bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity'>
                 <X className='h-4 w-4 text-white' />
               </button>

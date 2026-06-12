@@ -9,14 +9,14 @@ A lightweight DM screen for true tabletop play. Open the DM view on your laptop,
 - Track player characters (AC, Passive Perception, Passive Insight, initiative bonus, sheet link, background)
 - Run initiative: add monsters/NPCs with HP, enter rolls, advance turns, apply conditions, toggle visible/alive
 - Manage encounter templates — pre-build enemy rosters, load them at the table
-- Manage saved images in folders, push any image to the player screen
+- Manage saved images in folders; toggle one or several onto the player screen at once
 - Freeform markdown notes panel
 
 **Player view** — shown on your second monitor:
 
 - Sees the current initiative order (with hidden enemies shown as `? ? ? ? ? ?`)
 - Conditions and round count displayed per actor
-- Displays whatever image the DM sends
+- Displays the images the DM stages — auto-arranged by aspect ratio (wide locations as backdrops, square/tall NPC portraits over them); initiative moves to a side rail when images share the screen
 
 The two views sync via **PartyKit** WebSockets — the DM and players can be on completely different devices and networks. Open the DM view on your laptop, share the player link with anyone at the table, and push images and combat state in real time.
 
@@ -56,7 +56,7 @@ The sync layer (`src/lib/sync.ts`) is a module-level singleton wrapping `partyso
 1. DM creates a campaign in Prep Mode and assigns it a slug (e.g. `my-campaign`)
 2. DM clicks **Go Live** — connects to a PartyKit room keyed on the slug
 3. Players navigate to `/players/my-campaign` on any device, enter their name, and connect
-4. DM sees a live player count with join times; players see initiative and whatever image the DM sends
+4. DM sees a live player count with join times; players see initiative and whatever images the DM has staged
 
 **DM presence:**
 
@@ -64,7 +64,7 @@ The server tracks `dmConnected` and `everHadDm` in room state. Players use this 
 
 **State on reconnect:**
 
-When the DM reconnects, `onConnectionChange` fires and immediately pushes current local combat state and the last-sent image to the server. Players get a `dm_sync` and are up to date without any action from the DM. `lastSentImage` is persisted in `uiStore` so it survives a DM browser refresh.
+When the DM reconnects, `onConnectionChange` fires and immediately pushes current local combat state and the staged images to the server. Players get a `dm_sync` and are up to date without any action from the DM. The `stage` array is persisted in `uiStore` so it survives a DM browser refresh.
 
 **HP privacy:**
 
@@ -88,6 +88,11 @@ Two GitHub Actions secrets are required for the deploy workflow:
 ## Backlog
 
 - ~~**Import confirmation** — Before `importData()` runs, warn the user that all current data will be overwritten.~~ ✅
+- **Clear stage from the navbar** — add a clear-stage control to the top DM navbar (not just the Images tab).
+- **More prominent combat indicator** — make the active-combat indicator in the DM header more noticeable.
+- **Show hidden-name status on DM tiles** — surface a "name hidden from players" marker on image thumbnails in the manage/grid views.
+- **Reveal/hide names mid-session** — toggle an image's name visibility live from the stage without editing the image (if low effort).
+- **Player stage: reduce NPC/location obstruction** — tune portrait scale/layout so staged NPC portraits don't cover the location backdrop.
 
 ## Known Limitations
 

@@ -33,17 +33,17 @@ The DM and player views communicate via **PartyKit WebSockets** (`src/lib/sync.t
 
 **State layer** (`src/store/`) — Zustand stores with `persist` middleware:
 
-| Store            | localStorage key                    | Backed up by export? | Notes                                                                                                  |
-| ---------------- | ----------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------ |
-| `campaignStore`  | `dm-screen/campaigns`               | ✅                   | Campaigns with UUID ids + active campaign pointer                                                      |
-| `characterStore` | `dm-screen/characters`              | ✅                   | Player characters with UUID ids; `campaignId` for filtering                                            |
-| `imageStore`     | `dm-screen/images`                  | ✅                   | Folders + image URLs; enforces unique URLs per folder                                                  |
-| `notesStore`     | `dm-screen/notes`                   | ✅                   | Single freeform notes string                                                                           |
-| `encounterStore` | `dm-screen/encounters`              | ✅                   | Stat blocks + named encounter templates                                                                |
-| `combatStore`    | `dm-screen/combat`                  | ❌ ephemeral         | Active initiative state; `started` flag separates loaded vs running; survives page refresh, not export |
-| `dmSessionStore` | `dm-screen/dm-session`              | ❌ ephemeral         | `wantLive` flag (persist intent to reconnect after refresh)                                            |
-| `playerStore`    | `dm-screen/player`                  | ❌ per-browser       | Player's display name; set once on the player view                                                     |
-| `uiStore`        | `dm-screen/ui` (lastSentImage only) | ❌ ephemeral         | `lastSentImage` persisted via `partialize`; `initiativeActive` is memory-only                          |
+| Store            | localStorage key            | Backed up by export? | Notes                                                                                                   |
+| ---------------- | --------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------- |
+| `campaignStore`  | `dm-screen/campaigns`       | ✅                   | Campaigns with UUID ids + active campaign pointer                                                       |
+| `characterStore` | `dm-screen/characters`      | ✅                   | Player characters with UUID ids; `campaignId` for filtering                                             |
+| `imageStore`     | `dm-screen/images`          | ✅                   | Folders + image URLs; enforces unique URLs per folder                                                   |
+| `notesStore`     | `dm-screen/notes`           | ✅                   | Single freeform notes string                                                                            |
+| `encounterStore` | `dm-screen/encounters`      | ✅                   | Stat blocks + named encounter templates                                                                 |
+| `combatStore`    | `dm-screen/combat`          | ❌ ephemeral         | Active initiative state; `started` flag separates loaded vs running; survives page refresh, not export  |
+| `dmSessionStore` | `dm-screen/dm-session`      | ❌ ephemeral         | `wantLive` flag (persist intent to reconnect after refresh)                                             |
+| `playerStore`    | `dm-screen/player`          | ❌ per-browser       | Player's display name; set once on the player view                                                      |
+| `uiStore`        | `dm-screen/ui` (stage only) | ❌ ephemeral         | `stage` (images shown on the player view) persisted via `partialize`; `initiativeActive` is memory-only |
 
 Each store that participates in export/import exports `STORE_KEY` and a `migrateXxxStore` function. The migration functions are tested in `src/store/__tests__/migrations.test.ts` — when you add a store version bump, add a frozen snapshot and a test there too.
 
@@ -66,7 +66,7 @@ Each store that participates in export/import exports `STORE_KEY` and a `migrate
 
 **Initiative**: Three-phase flow — **Load** → **Start** → **End**. `InitiativeTracker` → open `InitiativeSetupDialog` (seeds players from active campaign, lets DM add NPCs with auto-rolled initiative, optionally apply an encounter template) → "Load" sorts actors into `combatStore` with `started: false`. In loaded state the DM can edit initiatives inline, add/delete actors, and wait for PC rolls (zero-init cells are amber). "Start" re-sorts and sets `started: true`, which begins turn tracking and starts syncing to players. Mid-combat, "+" opens `AddCombatantDialog` (searchable stat-block picker, auto-rolled init); new combatants drop to the end of the order. NPC HP → 0 marks them inactive; HP > 0 re-activates.
 
-**Images**: `ImageSender` (paste a URL, send ad-hoc) or `ImageGrid` (saved folder images) → `onSendImage` → `sendMessage({ cmd: 'image', payload })` → player view renders it full-screen.
+**Images**: The player view mirrors a **stage** — an array of images (`uiStore.stage`), not a single image. `ImageSender` (paste a URL) and `ImageGrid` (saved folder images) **toggle** images on/off the stage via `onToggleImage`; each toggle re-sends the full array with `sendMessage({ cmd: 'stage_update', payload: { images } })` (idempotent — empty array clears). Each image carries an `aspectRatio` (measured on load, backfilled into `imageStore`). The player view's `StageLayout` (`src/components/player/stageLayout.tsx`) lays them out by role inferred from ratio: wide (≥1.4) reads as a location/backdrop, square/tall as an NPC portrait — e.g. one wide backdrop + portraits along the bottom. When initiative is also running, it moves from a floating overlay into a dedicated right-hand rail so it never overlaps the images.
 
 **Export/Import**: Header dropdown → `exportData()` writes the 5 backed-up stores to a dated JSON file; `importData(file)` restores them to localStorage and reloads the page so Zustand's `migrate` pipeline runs on the new data.
 

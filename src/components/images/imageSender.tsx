@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { Image } from '../../store/imageStore';
 
 interface ImageSenderProps {
@@ -25,7 +25,9 @@ export default function ImageSender({ onSendImage }: ImageSenderProps) {
     setError(null);
     const img = new window.Image();
     img.onload = () => {
-      onSendImage({ id: crypto.randomUUID(), url, displayOrder: 0 });
+      const aspectRatio =
+        img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : undefined;
+      onSendImage({ id: crypto.randomUUID(), url, displayOrder: 0, aspectRatio });
       setImageUrl('');
       setLoading(false);
     };
@@ -51,7 +53,7 @@ export default function ImageSender({ onSendImage }: ImageSenderProps) {
           className='flex-1'
         />
         <Button onClick={handleSend} disabled={!imageUrl.trim() || loading} size='sm'>
-          {loading ? <Loader2 className='h-4 w-4 animate-spin' /> : <Send className='h-4 w-4' />}
+          {loading ? <Loader2 className='h-4 w-4 animate-spin' /> : <Plus className='h-4 w-4' />}
         </Button>
       </div>
       {error && <p className='text-xs text-destructive'>{error}</p>}

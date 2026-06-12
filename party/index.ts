@@ -13,11 +13,18 @@ interface Actor {
   statBlockId?: string;
 }
 
+interface StageImage {
+  id: string;
+  url: string;
+  title?: string;
+  aspectRatio?: number;
+}
+
 interface RoomState {
   actors: Omit<Actor, 'hp' | 'maxHp'>[];
   index: number;
   round: number;
-  image: { url: string; title?: string } | null;
+  stage: StageImage[];
   players: { id: string; name: string; connectedAt: number }[];
   dmConnected: boolean;
   everHadDm: boolean;
@@ -32,7 +39,7 @@ export default class DmScreenServer implements Party.Server {
     actors: [],
     index: 0,
     round: 1,
-    image: null,
+    stage: [],
     players: [],
     dmConnected: false,
     everHadDm: false
@@ -69,7 +76,7 @@ export default class DmScreenServer implements Party.Server {
             actors: this.state.actors,
             index: this.state.index,
             round: this.state.round,
-            image: this.state.image
+            images: this.state.stage
           }
         })
       );
@@ -97,19 +104,15 @@ export default class DmScreenServer implements Party.Server {
           this.broadcastToPlayers({ ...msg, payload: { ...msg.payload, actors } });
           break;
         }
-        case 'image':
-          this.state.image = msg.payload;
-          this.broadcastToPlayers(msg);
-          break;
-        case 'clear_image':
-          this.state.image = null;
+        case 'stage_update':
+          this.state.stage = msg.payload.images;
           this.broadcastToPlayers(msg);
           break;
         case 'session_ended':
           this.state.actors = [];
           this.state.index = 0;
           this.state.round = 1;
-          this.state.image = null;
+          this.state.stage = [];
           this.broadcastToPlayers(msg);
           break;
       }
@@ -123,7 +126,7 @@ export default class DmScreenServer implements Party.Server {
             actors: this.state.actors,
             index: this.state.index,
             round: this.state.round,
-            image: this.state.image
+            images: this.state.stage
           }
         })
       );
