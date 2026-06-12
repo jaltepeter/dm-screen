@@ -17,7 +17,7 @@ export default function ImageGrid({ images, stagedIds, onToggleImage }: ImageGri
       {images.map((image) => {
         const staged = stagedIds.has(image.id);
         return (
-          <HoverCard key={image.id} openDelay={300}>
+          <HoverCard key={image.id} openDelay={300} closeDelay={0}>
             <HoverCardTrigger asChild>
               <button
                 type='button'
@@ -45,7 +45,10 @@ export default function ImageGrid({ images, stagedIds, onToggleImage }: ImageGri
                 />
               </button>
             </HoverCardTrigger>
-            <HoverCardContent side='right' sideOffset={8} className='w-[min(480px,55vw)] p-2'>
+            <HoverCardContent
+              side='right'
+              sideOffset={8}
+              className='pointer-events-none w-[min(480px,55vw)] p-2'>
               <img
                 src={image.url}
                 alt={image.title}
