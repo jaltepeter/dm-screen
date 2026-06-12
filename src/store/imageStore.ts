@@ -6,6 +6,10 @@ export interface Image {
   url: string;
   title?: string;
   displayOrder: number;
+  /** width / height; measured lazily when the thumbnail first loads. */
+  aspectRatio?: number;
+  /** When true the title is the DM's reference only — never shown to players. */
+  hideName?: boolean;
 }
 
 export interface ImageFolder {
@@ -19,9 +23,14 @@ interface ImageStore {
   createFolder: (name?: string) => void;
   renameFolder: (oldName: string, newName: string) => void;
   deleteFolder: (folderName: string) => void;
-  addImage: (folderName: string, url: string, title?: string) => boolean;
+  addImage: (folderName: string, url: string, title?: string, hideName?: boolean) => boolean;
   deleteImage: (folderName: string, image: Image) => void;
-  updateImage: (folderName: string, imageId: string, updates: Pick<Image, 'url' | 'title'>) => void;
+  updateImage: (
+    folderName: string,
+    imageId: string,
+    updates: Pick<Image, 'url' | 'title' | 'hideName'>
+  ) => void;
+  setImageAspectRatio: (imageId: string, aspectRatio: number) => void;
   moveImage: (fromFolder: string, toFolder: string, imageId: string) => void;
   reorderImages: (folderName: string, fromIndex: number, toIndex: number) => void;
   reorderFolders: (fromIndex: number, toIndex: number) => void;
@@ -116,7 +125,7 @@ export const useImageStore = create<ImageStore>()(
         set({ folders: remaining.map((f, i) => ({ ...f, displayOrder: i })) });
       },
 
-      addImage: (folderName, url, title) => {
+      addImage: (folderName, url, title, hideName) => {
         if (!url) return false;
         const folder = get().folders.find((f) => f.folderName === folderName);
         if (folder?.images.some((i) => i.url === url)) return false;
@@ -127,7 +136,7 @@ export const useImageStore = create<ImageStore>()(
                   ...f,
                   images: [
                     ...f.images,
-                    { id: crypto.randomUUID(), url, title, displayOrder: f.images.length }
+                    { id: crypto.randomUUID(), url, title, hideName, displayOrder: f.images.length }
                   ]
                 }
               : f
@@ -156,6 +165,19 @@ export const useImageStore = create<ImageStore>()(
                   images: f.images.map((img) => (img.id === imageId ? { ...img, ...updates } : img))
                 }
           )
+        });
+      },
+
+      setImageAspectRatio: (imageId, aspectRatio) => {
+        if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) return;
+        set({
+          folders: get().folders.map((f) => {
+            if (!f.images.some((i) => i.id === imageId && i.aspectRatio == null)) return f;
+            return {
+              ...f,
+              images: f.images.map((img) => (img.id === imageId ? { ...img, aspectRatio } : img))
+            };
+          })
         });
       },
 

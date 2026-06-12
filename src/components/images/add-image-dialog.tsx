@@ -1,14 +1,15 @@
 import { ChangeEvent, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import SimpleDialog from '@/components/ui/simple-dialog';
 
 interface AddImageDialogProps {
   open: boolean;
   onClose: () => void;
   targetFolder: string;
-  onSave: (url: string, title: string) => boolean;
-  initialValues?: { url: string; title: string };
+  onSave: (url: string, title: string, hideName: boolean) => boolean;
+  initialValues?: { url: string; title: string; hideName: boolean };
 }
 
 export default function AddImageDialog({
@@ -21,18 +22,20 @@ export default function AddImageDialog({
   const isEdit = !!initialValues;
   const [url, setUrl] = useState(initialValues?.url ?? '');
   const [imageTitle, setImageTitle] = useState(initialValues?.title ?? '');
+  const [hideName, setHideName] = useState(initialValues?.hideName ?? false);
   const [dupeError, setDupeError] = useState(false);
 
   const handleClose = () => {
     setUrl('');
     setImageTitle('');
+    setHideName(false);
     setDupeError(false);
     onClose();
   };
 
   const handleSave = () => {
     if (!url.trim()) return;
-    const added = onSave(url.trim(), imageTitle.trim());
+    const added = onSave(url.trim(), imageTitle.trim(), hideName);
     if (!added) {
       setDupeError(true);
       return;
@@ -61,6 +64,15 @@ export default function AddImageDialog({
             placeholder='Dragon cave map'
           />
         </div>
+        <label className='flex items-center justify-between gap-3 rounded-md border px-3 py-2'>
+          <span className='text-sm'>
+            Hide name from players
+            <span className='block text-xs text-muted-foreground'>
+              You still see the title; players see no caption.
+            </span>
+          </span>
+          <Switch checked={hideName} onCheckedChange={setHideName} />
+        </label>
         <div className='space-y-1'>
           <Label htmlFor='add-img-url'>Image URL</Label>
           <Input

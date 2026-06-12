@@ -13,9 +13,16 @@ export interface Actor {
   statBlockId?: string;
 }
 
+export interface StageImage {
+  id: string;
+  url: string;
+  title?: string;
+  /** width / height; used by the player view to lay images out by role. */
+  aspectRatio?: number;
+}
+
 export type SyncMessage =
-  | { cmd: 'image'; payload: { url: string; title?: string } }
-  | { cmd: 'clear_image' }
+  | { cmd: 'stage_update'; payload: { images: StageImage[] } }
   | { cmd: 'init_update'; payload: { actors: Actor[]; index: number; round: number } }
   | { cmd: 'player_ready' }
   | {
@@ -24,7 +31,7 @@ export type SyncMessage =
         actors: Actor[];
         index: number;
         round: number;
-        image: { url: string; title?: string } | null;
+        images: StageImage[];
       };
     }
   | { cmd: 'players_update'; payload: { name: string; connectedAt: number }[] }

@@ -1,26 +1,28 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { StageImage } from '../lib/sync';
 
 export const STORE_KEY = 'dm-screen/ui';
 
 interface UiState {
-  lastSentImage: { url: string; title?: string } | null;
+  /** Images currently shown on the player view. */
+  stage: StageImage[];
   initiativeActive: boolean;
-  setLastSentImage: (img: { url: string; title?: string } | null) => void;
+  setStage: (stage: StageImage[]) => void;
   setInitiativeActive: (active: boolean) => void;
 }
 
 export const useUiStore = create<UiState>()(
   persist(
     (set) => ({
-      lastSentImage: null,
+      stage: [],
       initiativeActive: false,
-      setLastSentImage: (img) => set({ lastSentImage: img }),
+      setStage: (stage) => set({ stage }),
       setInitiativeActive: (active) => set({ initiativeActive: active })
     }),
     {
       name: STORE_KEY,
-      partialize: (state) => ({ lastSentImage: state.lastSentImage })
+      partialize: (state) => ({ stage: state.stage })
     }
   )
 );

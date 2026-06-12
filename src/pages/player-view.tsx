@@ -5,7 +5,16 @@ import { Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import InitiativePlayerView from '../components/characters/initiative/initiativePlayerView';
-import { Actor, checkRoom, connect, disconnect, onMessage, sendMessage } from '../lib/sync';
+import StageLayout from '../components/player/stageLayout';
+import {
+  Actor,
+  StageImage,
+  checkRoom,
+  connect,
+  disconnect,
+  onMessage,
+  sendMessage
+} from '../lib/sync';
 import DebugPanel from '@/components/ui/debug-panel';
 import { usePlayerStore } from '../store/playerStore';
 
@@ -36,7 +45,7 @@ export default function PlayerView() {
   const [roomStatus, setRoomStatus] = useState<'checking' | 'active' | 'inactive'>(() =>
     slug ? 'checking' : 'inactive'
   );
-  const [imageSource, setImageSource] = useState<{ url: string; title?: string } | null>(null);
+  const [stage, setStage] = useState<StageImage[]>([]);
   const [actors, setActors] = useState<Actor[]>([]);
   const [index, setIndex] = useState(0);
   const [round, setRound] = useState(1);
@@ -44,16 +53,18 @@ export default function PlayerView() {
   const [dmStatus, setDmStatus] = useState<'waiting' | 'online' | 'offline' | 'ended'>('waiting');
 
   const showInit = actors.length > 0;
-  const centeredMode = showInit && !imageSource;
+  const showImages = stage.length > 0;
+  const centeredMode = showInit && !showImages;
+  const showRail = showInit && showImages;
 
   const centeredContentRef = useRef<HTMLDivElement>(null);
-  const cornerContentRef = useRef<HTMLDivElement>(null);
+  const railContentRef = useRef<HTMLDivElement>(null);
 
   // Scale initiative down to fit viewport when there are many actors.
   // transform: scale() doesn't affect layout metrics, so offsetHeight always
   // returns the natural height regardless of the current scale — no feedback loop.
-  const centeredScale = useScaleToFit(centeredContentRef, imageSource);
-  const cornerScale = useScaleToFit(cornerContentRef, imageSource);
+  const centeredScale = useScaleToFit(centeredContentRef, stage);
+  const railScale = useScaleToFit(railContentRef, stage);
 
   useEffect(() => {
     document.title = 'Player View';
@@ -74,11 +85,8 @@ export default function PlayerView() {
   useEffect(() => {
     const unsub = onMessage((msg) => {
       switch (msg.cmd) {
-        case 'image':
-          setImageSource(msg.payload);
-          break;
-        case 'clear_image':
-          setImageSource(null);
+        case 'stage_update':
+          setStage(msg.payload.images);
           break;
         case 'init_update':
           setActors(msg.payload.actors);
@@ -86,7 +94,7 @@ export default function PlayerView() {
           setRound(msg.payload.round);
           break;
         case 'dm_sync':
-          setImageSource(msg.payload.image);
+          setStage(msg.payload.images);
           setActors(msg.payload.actors);
           setIndex(msg.payload.index);
           setRound(msg.payload.round);
@@ -98,7 +106,7 @@ export default function PlayerView() {
           setDmStatus((prev) => (prev === 'ended' ? 'ended' : 'offline'));
           break;
         case 'session_ended':
-          setImageSource(null);
+          setStage([]);
           setActors([]);
           setIndex(0);
           setRound(1);
@@ -167,38 +175,20 @@ export default function PlayerView() {
   }
 
   return (
-    <div className='group relative w-screen h-screen overflow-hidden bg-black'>
-      {imageSource ? (
-        <img
-          src={imageSource.url}
-          alt={imageSource.title}
-          className='w-full h-full object-contain'
-        />
-      ) : !centeredMode ? (
-        <BeholderScreen
-          message={dmStatus === 'waiting' ? 'Waiting for DM…' : undefined}
-          pulse={dmStatus === 'waiting'}
-          className='w-full h-full select-none'
-        />
-      ) : null}
+    <div className='group relative w-screen h-screen overflow-hidden bg-black flex'>
+      {/* Main stage area */}
+      <div className='relative flex-1 min-w-0 h-full'>
+        {showImages ? (
+          <StageLayout images={stage} />
+        ) : !centeredMode ? (
+          <BeholderScreen
+            message={dmStatus === 'waiting' ? 'Waiting for DM…' : undefined}
+            pulse={dmStatus === 'waiting'}
+            className='w-full h-full select-none'
+          />
+        ) : null}
 
-      {/* Initiative overlay — corner when image is showing, centered+large when not */}
-      {imageSource ? (
-        <div
-          className={`absolute top-4 right-4 transition-all duration-300 ${
-            showInit ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
-          }`}>
-          <div
-            ref={cornerContentRef}
-            style={{ transform: `scale(${cornerScale})`, transformOrigin: 'top right' }}
-            className='bg-black/60 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 min-w-32'>
-            <p className='text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5'>
-              Initiative
-            </p>
-            <InitiativePlayerView actors={actors} turnNumber={index} round={round} />
-          </div>
-        </div>
-      ) : (
+        {/* Centered initiative when nothing is on the stage */}
         <div
           className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
             centeredMode ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -210,6 +200,21 @@ export default function PlayerView() {
             <InitiativePlayerView actors={actors} turnNumber={index} round={round} large />
           </div>
         </div>
+      </div>
+
+      {/* Initiative rail — dedicated column whenever images share the screen */}
+      {showRail && (
+        <aside className='shrink-0 w-[22vw] max-w-sm min-w-48 h-full bg-black/80 border-l border-white/10 flex items-start justify-center p-4 overflow-hidden'>
+          <div
+            ref={railContentRef}
+            style={{ transform: `scale(${railScale})`, transformOrigin: 'top center' }}
+            className='w-full'>
+            <p className='text-xs font-semibold text-white/50 uppercase tracking-wider mb-2'>
+              Initiative
+            </p>
+            <InitiativePlayerView actors={actors} turnNumber={index} round={round} />
+          </div>
+        </aside>
       )}
 
       {/* DM offline overlay */}

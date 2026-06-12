@@ -2,7 +2,7 @@
 //   combatStore     — active combat resets naturally between sessions
 //   dmSessionStore  — wantLive flag is ephemeral connection intent
 //   playerStore     — player name is per-browser, not per-campaign
-//   uiStore         — lastSentImage is ephemeral display state
+//   uiStore         — stage (player display state) is ephemeral
 import { STORE_KEY as CAMPAIGNS_KEY } from '../store/campaignStore';
 import { STORE_KEY as CHARACTERS_KEY } from '../store/characterStore';
 import { STORE_KEY as IMAGES_KEY } from '../store/imageStore';

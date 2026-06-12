@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -182,10 +188,8 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
+    // Stale results stay in state but are gated out of render by `showResults`.
+    if (query.trim().length < 2) return;
     const controller = new AbortController();
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
@@ -226,6 +230,9 @@ export default function Open5eSearchDialog({ isOpen, onClose, onSelect }: Props)
       <DialogContent className='max-w-3xl sm:max-w-3xl'>
         <DialogHeader>
           <DialogTitle>Search Open5e</DialogTitle>
+          <DialogDescription>
+            Search the Open5e database and import a monster as a stat block.
+          </DialogDescription>
         </DialogHeader>
         <div className='space-y-3'>
           <Input

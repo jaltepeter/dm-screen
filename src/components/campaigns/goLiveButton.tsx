@@ -31,15 +31,15 @@ export default function GoLiveButton() {
   const actors = useCombatStore((s) => s.actors);
   const selectedIndex = useCombatStore((s) => s.selectedIndex);
   const round = useCombatStore((s) => s.round);
-  const lastSentImage = useUiStore((s) => s.lastSentImage);
+  const stage = useUiStore((s) => s.stage);
   const wantLive = useDmSessionStore((s) => s.wantLive);
   const setWantLive = useDmSessionStore((s) => s.setWantLive);
   const [isLive, setIsLive] = useState(false);
   const [players, setPlayers] = useState<{ name: string; connectedAt: number }[]>([]);
 
-  const stateRef = useRef({ actors, selectedIndex, round, lastSentImage });
+  const stateRef = useRef({ actors, selectedIndex, round, stage });
   useEffect(() => {
-    stateRef.current = { actors, selectedIndex, round, lastSentImage };
+    stateRef.current = { actors, selectedIndex, round, stage };
   });
 
   const activeCampaign = campaigns.find((c) => c.id === activeCampaignId);
@@ -48,13 +48,9 @@ export default function GoLiveButton() {
     return onConnectionChange((connected) => {
       setIsLive(connected);
       if (connected) {
-        const { actors, selectedIndex, round, lastSentImage } = stateRef.current;
+        const { actors, selectedIndex, round, stage } = stateRef.current;
         sendMessage({ cmd: 'init_update', payload: { actors, index: selectedIndex, round } });
-        if (lastSentImage) {
-          sendMessage({ cmd: 'image', payload: lastSentImage });
-        } else {
-          sendMessage({ cmd: 'clear_image' });
-        }
+        sendMessage({ cmd: 'stage_update', payload: { images: stage } });
       } else {
         setPlayers([]);
       }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter
@@ -86,6 +87,9 @@ export default function AddCombatantDialog({ isOpen, onClose, onAdd }: Props) {
       <DialogContent className='max-w-xs'>
         <DialogHeader>
           <DialogTitle>Add Combatant</DialogTitle>
+          <DialogDescription>
+            Add a combatant to the current initiative order with an auto-rolled initiative.
+          </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-3'>
