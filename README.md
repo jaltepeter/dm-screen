@@ -88,10 +88,10 @@ Two GitHub Actions secrets are required for the deploy workflow:
 ## Backlog
 
 - ~~**Import confirmation** — Before `importData()` runs, warn the user that all current data will be overwritten.~~ ✅
-- **Clear stage from the navbar** — add a clear-stage control to the top DM navbar (not just the Images tab).
-- **More prominent combat indicator** — make the active-combat indicator in the DM header more noticeable.
-- **Show hidden-name status on DM tiles** — surface a "name hidden from players" marker on image thumbnails in the manage/grid views.
-- **Reveal/hide names mid-session** — toggle an image's name visibility live from the stage without editing the image (if low effort).
+- ~~**Clear stage from the navbar** — add a clear-stage control to the top DM navbar (not just the Images tab).~~ ✅
+- ~~**More prominent combat indicator** — make the active-combat indicator in the DM header more noticeable.~~ ✅
+- ~~**Show hidden-name status on DM tiles** — surface a "name hidden from players" marker on image thumbnails in the manage/grid views.~~
+- ~~**Reveal/hide names mid-session** — toggle an image's name visibility live from the stage without editing the image (if low effort).~~
 - ~~**Player stage: reduce NPC/location obstruction** — tune portrait scale/layout so staged NPC portraits don't cover the location backdrop.~~
 
 ## Known Limitations
